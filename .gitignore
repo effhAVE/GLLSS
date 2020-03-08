@@ -1,0 +1,4 @@
+/node_modules
+logfile.log
+uncaughtExceptions.log
+/roles

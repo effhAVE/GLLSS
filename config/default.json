@@ -1,0 +1,4 @@
+{
+  "jwtPrivateKey": "gll_development",
+  "db": "mongodb://admin:glladmin1@ds040637.mlab.com:40637/gll_dev"
+}
