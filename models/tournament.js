@@ -1,6 +1,6 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
-const Series = require("./series");
+const { Round } = require("./round");
 
 const tournamentSchema = new mongoose.Schema({
   name: {
@@ -14,7 +14,7 @@ const tournamentSchema = new mongoose.Schema({
   endDate: {
     type: Date
   },
-  rounds: Array,
+  rounds: [Round.schema],
   series: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Series",

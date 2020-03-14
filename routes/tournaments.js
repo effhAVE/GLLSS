@@ -9,10 +9,16 @@ const {
 const {
     Series
 } = require("../models/series");
+const { User } = require("../models/user");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
 
+
+router.get("/hosted", auth, async (req, res) => {
+    const user = await User.findById(req.user._id).populate({ path: "tournamentsHosted", select: "rounds name" }).select("tournamentsHosted -_id"); 
+    res.send(user.tournamentsHosted);
+});
 
 router.get("/:id", auth, validateObjectId, async (req, res) => {
     const tournament = await Tournament.findById(req.params.id).populate("series", "game");
