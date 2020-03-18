@@ -9,10 +9,12 @@ const tournamentSchema = new mongoose.Schema({
     maxlength: 120
   },
   startDate: {
-    type: Date
+    type: Date,
+    required: true
   },
   endDate: {
-    type: Date
+    type: Date,
+    required: true
   },
   rounds: [Round.schema],
   series: {

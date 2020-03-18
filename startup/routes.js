@@ -4,9 +4,11 @@ const tournaments = require("../routes/tournaments");
 const rounds = require("../routes/rounds");
 const auth = require("../routes/auth");
 const error = require("../middleware/error");
+const cors = require("cors");
 
 module.exports = function(app) {
   app.use(express.json());
+  app.use(cors());
   app.use("/api/users", users);
   app.use("/api/tournaments", tournaments);
   app.use("/api/tournaments/:id/rounds", rounds);

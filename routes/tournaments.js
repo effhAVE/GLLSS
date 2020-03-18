@@ -13,6 +13,7 @@ const { User } = require("../models/user");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
+const moment = require("moment");
 
 
 router.get("/hosted", auth, async (req, res) => {
@@ -32,21 +33,23 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
     } = validateTournament(req.body);
     if (error) return res.status(400).send(error.details[0].message); */
 
-    let tournament = new Tournament(_.pick(req.body, ["name", "series", "game"]));
+    let tournament = new Tournament(_.pick(req.body, ["name", "series", "game", "startDate", "endDate"]));
     let series;
     if (tournament.series) {
         series = await Series.findById(tournament.series);
         if (!series) return res.status(400).send("No series with the given ID.");
-        // tournament.name generated
+        tournament.name = `#${moment(tournament.startDate).week()} ${moment(tournament.startDate).format("ddd")} ${tournament.name}`;
     }
 
     try {
         await tournament.save(async (err, tournament) => {
-            series.tournaments.push(tournament._id);
-            await series.save();
+            if (tournament.series) {
+                series.tournaments.push(tournament._id);
+                await series.save();
+            }
         });
     } catch (err) {
-        res.status(500).send("Something failed.");
+        res.status(500).send("Error while saving.");
     }
     
     res.send(tournament);

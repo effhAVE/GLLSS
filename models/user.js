@@ -41,6 +41,12 @@ userSchema.methods.generateAuthToken = function() {
   return token;
 }
 
+userSchema.methods.toJSON = function() {
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
+}
+
 const User = mongoose.model("User", userSchema);
 
 function validateUser(user) {

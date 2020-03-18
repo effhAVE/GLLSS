@@ -10,7 +10,8 @@ const seriesSchema = new mongoose.Schema({
   },
   startDate: {
     type: Date,
-    required: true
+    required: true,
+    default: new Date()
   },
   endDate: {
     type: Date,
