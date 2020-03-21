@@ -10,7 +10,7 @@ export default new Vuex.Store({
   state: {
     status: "",
     token: localStorage.getItem("token"),
-    user: JSON.parse(localStorage.getItem("user"))
+    user: null
   },
   mutations: {
     AUTH_REQUEST(state) {
@@ -19,7 +19,6 @@ export default new Vuex.Store({
     AUTH_SUCCESS(state, { token, user }) {
       state.status = "success";
       state.token = token;
-      state.user = user;
     },
     AUTH_ERROR(state) {
       state.status = "error";
@@ -39,10 +38,46 @@ export default new Vuex.Store({
           const token = response.data.token;
           const user = response.data.user;
           localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(user));
           axios.defaults.headers.common["x-auth-token"] = token;
           commit("AUTH_SUCCESS", { token, user });
-          console.log(greeting(user.name));
+          console.log(greeting(user.nickname));
+          resolve(response);
+        }).catch(error => {
+          commit("AUTH_ERROR");
+          localStorage.removeItem("token");
+          reject(error);
+        });
+      });
+    },
+
+    register({ commit }, user) {
+      return new Promise((resolve, reject) => {
+        commit("AUTH_REQUEST");
+        axios.post(`${APIURL}/users/`, user)
+        .then(response => {
+          const token = response.headers["x-auth-token"];
+          const user = response.data;
+          localStorage.setItem("token", token);
+          axios.defaults.headers.common["x-auth-token"] = token;
+          commit("AUTH_SUCCESS", { token, user });
+          console.log(greeting(user.nickname));
+          resolve(response);
+        }).catch(error => {
+          commit("AUTH_ERROR");
+          localStorage.removeItem("token");
+          reject(error);
+        });
+      });
+    },
+
+    getUserData({ commit }) {
+      return new Promise((resolve, reject) => {
+        commit("AUTH_REQUEST");
+        const token = axios.defaults.headers.common["x-auth-token"];
+        axios.get(`${APIURL}/users/me`)
+        .then(response => {
+          const user = response.data.user;
+          commit("AUTH_SUCCESS", { token, user });
           resolve(response);
         }).catch(error => {
           commit("AUTH_ERROR");
@@ -59,19 +94,6 @@ export default new Vuex.Store({
         localStorage.removeItem("user");
         delete axios.defaults.headers.common["x-auth-token"];
         resolve();
-      })
-    },
-    getUserData({ commit }) {
-      return new Promise((resolve, reject) => {
-        axios.get(`${APIURL}/users/me`)
-        .then(response => {
-          const user = response.data;
-          localStorage.setItem("user", user);
-          resolve(response);
-        }).catch(error => {
-          localStorage.removeItem("user");
-          reject(error);
-        })
       })
     }
   },

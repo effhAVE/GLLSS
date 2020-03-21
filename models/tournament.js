@@ -1,6 +1,8 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
 const { Round } = require("./round");
+const tournamentRegions = require("../data/regions");
+const games = require("../data/games");
 
 const tournamentSchema = new mongoose.Schema({
   name: {
@@ -24,9 +26,15 @@ const tournamentSchema = new mongoose.Schema({
   },
   game: {
     type: String,
-    required() {
-      return !this.series
-    }
+    enum: games
+  },
+  region: {
+    type: String,
+    enum: tournamentRegions
+  },
+  countedByRounds: {
+    type: Boolean,
+    default: true
   }
 });
 

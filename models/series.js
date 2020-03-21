@@ -1,5 +1,7 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
+const tournamentRegions = require("../data/regions");
+const games = require("../data/games");
 
 const seriesSchema = new mongoose.Schema({
   name: {
@@ -24,7 +26,12 @@ const seriesSchema = new mongoose.Schema({
   },
   game: {
     type: String,
-    enum: ["PUBG", "Autochess", "Apex", "PUBG Mobile"],
+    enum: games,
+    required: true
+  },
+  regions: {
+    type: String,
+    enum: tournamentRegions,
     required: true
   },
   tournaments: [

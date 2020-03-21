@@ -51,10 +51,13 @@
       <v-toolbar-title>GLL Staff Scheduler</v-toolbar-title>
       <v-spacer />
       <span v-if="user" class="accent--text font-weight-bold mr-4">{{
-        user.name
+        user.nickname
       }}</span>
       <v-btn text v-if="isLoggedIn" @click="logout">
         Logout
+      </v-btn>
+      <v-btn text v-else @click="$router.push('/login')">
+        Log in
       </v-btn>
     </v-app-bar>
 
@@ -78,9 +81,10 @@ export default {
     drawer: null
   }),
   created: function() {
-    if (!this.user && this.isLoggedIn) {
+    /* if (!this.user && this.isLoggedIn) {
       this.$store.dispatch("getUserData");
-    }
+      console.log(this.$jwt.decode());
+    } */
 
     this.$http.interceptors.response.use(
       response => response,
@@ -100,8 +104,11 @@ export default {
     isLoggedIn: function() {
       return this.$store.getters.isLoggedIn;
     },
+    token() {
+      return this.$store.state.token;
+    },
     user() {
-      return this.$store.getters.user;
+      return this.$jwt.decode(this.token);
     }
   },
   methods: {

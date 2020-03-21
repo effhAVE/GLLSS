@@ -8,7 +8,9 @@ const cors = require("cors");
 
 module.exports = function(app) {
   app.use(express.json());
-  app.use(cors());
+  app.use(cors({
+    exposedHeaders: ["x-auth-token"],
+  }));
   app.use("/api/users", users);
   app.use("/api/tournaments", tournaments);
   app.use("/api/tournaments/:id/rounds", rounds);

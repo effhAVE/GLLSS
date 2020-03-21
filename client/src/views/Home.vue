@@ -11,7 +11,7 @@ export default {
   name: "Home",
   computed: {
     user() {
-      return this.$store.getters.user;
+      return this.$jwt.decode(this.$store.state.token);
     }
   }
 };

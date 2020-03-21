@@ -26,10 +26,44 @@ const roundSchema = new mongoose.Schema({
     max: 15
   },
   hosts: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
+    host: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    ready: {
+      type: Boolean,
+      default: false
+    },
+    hostedRounds: {
+      type: Number,
+      default: this.bestOf
+    },
+    lostHosting: {
+      type: Boolean,
+      default: false
+    },
+    _id: false
   }],
   teamLeads: [{
+    host: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    ready: {
+      type: Boolean,
+      default: false
+    },
+    leadingHours: {
+      type: Number,
+      default: this.TLValue
+    },
+    lostLeading: {
+      type: Boolean,
+      default: false
+    },
+    _id: false
+  }],
+  available: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
   }]
@@ -45,3 +79,17 @@ function validateRound(round) {
 }
 
 exports.Round = Round;
+
+/*
+
+available: Array
+
+"hosts": [
+  "5e65395c19109d215056c310",
+  "5e6535498be7ac2160321aca"
+]
+
+"hosts" : [
+  { id: "5e65395c19109d215056c310", ready: false, }
+]
+*/
