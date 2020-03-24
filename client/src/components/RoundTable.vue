@@ -20,25 +20,38 @@
         hide-default-footer
       >
         <template v-slot:item.host="{ item }">
-          <div class="px-4">
-            {{ item.host.nickname }}
-            <div class="ml-auto">
-              <v-btn
-                v-if="!item.ready && item.host._id === user._id"
-                icon
-                class="ml-auto"
-                @click="onReady(item)"
+          <v-menu bottom left offset-y>
+            <template v-slot:activator="{ on }">
+              <div class="px-4" v-on="on">
+                {{ item.host.nickname }}
+                <div class="ml-auto">
+                  <v-btn
+                    v-if="!item.ready && item.host._id === user._id"
+                    icon
+                    class="ml-auto"
+                    @click.stop="onReady(item)"
+                  >
+                    <v-icon color="success">mdi-check</v-icon>
+                  </v-btn>
+                  <v-icon class="ml-auto" v-if="item.ready" color="success">
+                    mdi-account-check
+                  </v-icon>
+                  <v-icon class="ml-auto" v-else color="error">
+                    mdi-account-remove
+                  </v-icon>
+                </div>
+              </div>
+            </template>
+            <v-list>
+              <v-list-item
+                v-for="(host, i) in [...noneSelect, ...round.available]"
+                :key="i"
+                @click="changeRoundHost(round, item.host, host)"
               >
-                <v-icon color="success">mdi-check</v-icon>
-              </v-btn>
-              <v-icon class="ml-auto" v-if="item.ready" color="success">
-                mdi-account-check
-              </v-icon>
-              <v-icon class="ml-auto" v-else color="error">
-                mdi-account-remove
-              </v-icon>
-            </div>
-          </div>
+                <v-list-item-title>{{ host.nickname }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </template>
         <template v-slot:body.append v-if="user.roles.includes('teamleader')">
           <v-menu bottom left>
@@ -123,6 +136,7 @@ export default {
   },
   data() {
     return {
+      noneSelect: ["-"],
       headerHosts: [
         {
           text: "Hosts",
@@ -148,6 +162,22 @@ export default {
       // push to database instead
       round.hosts.push({ host: host, ready: false, lostHosting: false });
       round.available = round.available.filter(user => user !== host);
+    },
+    changeRoundHost(round, oldHost, newHost) {
+      // db call instead
+      const arrayIndex = round.hosts.findIndex(
+        el => el.host._id === oldHost._id
+      );
+
+      if (newHost === this.noneSelect[0]) {
+        return round.hosts.splice(arrayIndex, 1);
+      }
+
+      round.hosts.splice(arrayIndex, 1, {
+        host: newHost,
+        lostHosting: false,
+        ready: false
+      });
     }
   }
 };
@@ -157,7 +187,7 @@ export default {
 .table-shrinked {
   td {
     padding: 0;
-    div {
+    div:not(.v-menu) {
       height: inherit;
       display: flex;
       justify-content: center;

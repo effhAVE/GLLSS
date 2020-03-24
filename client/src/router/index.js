@@ -10,6 +10,7 @@ import Page403 from '../views/generic/Page403.vue'
 import ConfirmUsers from '../views/admin/ConfirmUsers.vue'
 import Users from '../views/admin/Users.vue'
 import Admin from '../views/admin/Admin.vue'
+import TournamentCreate from '../views/admin/TournamentCreate.vue'
 import store from "../store"
 
 Vue.use(VueRouter)
@@ -67,6 +68,11 @@ const routes = [
         path: "users",
         name: "Users",
         component: Users
+      },
+      {
+        path: "tournaments/create",
+        name: "Create tournament",
+        component: TournamentCreate
       }
     ]
   },

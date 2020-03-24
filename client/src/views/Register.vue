@@ -1,14 +1,5 @@
 <template>
   <v-container fluid fill-height>
-    <v-snackbar
-      v-model="showError"
-      top
-      right
-      absolute
-      :color="'secondary'"
-      :timeout="5000"
-      >{{ error }}</v-snackbar
-    >
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="4">
         <v-card class="elevation-12" color="primary">
@@ -81,11 +72,10 @@ export default {
         .dispatch("register", { email, password, nickname })
         .then(() => this.$router.push("/"))
         .catch(error => {
-          console.log(error);
-          this.showError = true;
-          if (error.response) {
-            this.error = error.response.data;
-          }
+          this.$emit("snackbarMessage", {
+            message: error.response.data || error,
+            type: "error"
+          });
         });
     }
   }

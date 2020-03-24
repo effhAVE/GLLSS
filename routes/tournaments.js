@@ -16,19 +16,26 @@ const router = express.Router();
 const moment = require("moment");
 
 
-router.get("/", auth, async (req, res) => {
+router.get("/", auth, validateAccess("host"), async (req, res) => {
     const tournaments = await Tournament.find().populate("series", "game");
     res.send(tournaments);
 });
 
-router.get("/hosted", auth, async (req, res) => {
+router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
     const user = await User.findById(req.user._id).populate({ path: "tournamentsHosted", select: "rounds name" }).select("tournamentsHosted -_id"); 
     res.send(user.tournamentsHosted);
 });
 
-router.get("/:id", auth, validateObjectId, async (req, res) => {
+router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, res) => {
     const tournament = await Tournament.findById(req.params.id).populate("rounds.hosts.host rounds.available rounds.teamLeads", "nickname");
     if (!tournament) return res.status(400).send("No tournament found."); 
+    res.send(tournament);
+});
+
+router.delete("/:id", auth, validateObjectId, validateAccess("admin"), async (req, res) => {
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament) return res.status(400).send("No tournament found.");
+    await tournament.remove();
     res.send(tournament);
 });
 
@@ -38,7 +45,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
     } = validateTournament(req.body);
     if (error) return res.status(400).send(error.details[0].message); */
 
-    let tournament = new Tournament(_.pick(req.body, ["name", "series", "game", "startDate", "endDate"]));
+    let tournament = new Tournament(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region"]));
     let series;
     if (tournament.series) {
         series = await Series.findById(tournament.series);
@@ -53,9 +60,10 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
             series.tournaments.push(savedTournament._id);
             await series.save();
         }
-
+        
         res.send(tournament);
-    } catch (err) {
+    } catch (error) {
+        console.log(error);
         res.status(500).send("Error while saving.");
     }
 });

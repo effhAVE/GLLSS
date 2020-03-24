@@ -38,6 +38,7 @@ export default new Vuex.Store({
           localStorage.setItem("token", token);
           axios.defaults.headers.common["x-auth-token"] = token;
           commit("AUTH_SUCCESS", token);
+          // eslint-disable-next-line no-console
           console.log(greeting(user.nickname));
           resolve(response);
         }).catch(error => {
@@ -58,6 +59,7 @@ export default new Vuex.Store({
           localStorage.setItem("token", token);
           axios.defaults.headers.common["x-auth-token"] = token;
           commit("AUTH_SUCCESS", token);
+          // eslint-disable-next-line no-console
           console.log(greeting(user.nickname));
           resolve(response);
         }).catch(error => {

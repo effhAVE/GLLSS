@@ -72,8 +72,18 @@ export default {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
         .put(`${APIURL}/users/${userID}/roles`, { role: value })
-        .then(response => console.log(response.data))
-        .catch(error => console.log(error));
+        .then(response => {
+          this.$emit("snackbarMessage", {
+            message: "Role saved!",
+            type: "success"
+          });
+        })
+        .catch(error =>
+          this.$emit("snackbarMessage", {
+            message: "Error while saving role.",
+            type: "error"
+          })
+        );
     }
   },
   mounted() {

@@ -1,5 +1,6 @@
 const express = require("express");
 const users = require("../routes/users");
+const series = require("../routes/series");
 const tournaments = require("../routes/tournaments");
 const rounds = require("../routes/rounds");
 const auth = require("../routes/auth");
@@ -13,6 +14,7 @@ module.exports = function(app) {
     exposedHeaders: ["x-auth-token"],
   }));
   app.use("/api/users", users);
+  app.use("/api/series", series);
   app.use("/api/tournaments", tournaments);
   app.use("/api/tournaments/:id/rounds", rounds);
   app.use("/api/auth", auth);

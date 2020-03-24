@@ -3,6 +3,9 @@
     <v-card-title>
       {{ tournament.name }}
       <v-spacer></v-spacer>
+      <v-btn class="success mr-4" v-if="user.roles.includes('admin')">
+        Add round
+      </v-btn>
       <v-dialog v-model="deleteModal" max-width="500px" overlay-color="primary">
         <template v-slot:activator="{ on }">
           <v-btn class="error" v-if="user.roles.includes('admin')" v-on="on">
@@ -40,10 +43,6 @@
         class="mt-12 mr-12"
       />
     </div>
-    <pre class="tournament">
-    {{ JSON.stringify(tournament, null, 2) }}
-  </pre
-    >
   </v-card>
 </template>
 
@@ -88,10 +87,17 @@ export default {
       this.$http
         .delete(`${APIURL}/tournaments/${id}`)
         .then(response => {
+          this.$emit("snackbarMessage", {
+            message: "Tournament successfully deleted!",
+            type: "success"
+          });
           this.$router.push("/tournaments");
         })
         .catch(error => {
-          console.log(error);
+          this.$emit("snackbarMessage", {
+            message: "Error while deleting the tournament.",
+            type: "error"
+          });
         });
     }
   },

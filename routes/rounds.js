@@ -38,7 +38,7 @@ router.get("/", auth, validateAccess("host") ,validateObjectId, async (req, res)
     res.send(tournament.rounds);
 });
 
-router.get("/:rid", auth, validateAccess("host") ,validateObjectId, async (req, res) => {
+router.get("/:rid", auth, validateAccess("host"), validateObjectId, async (req, res) => {
     const tournament = await Tournament.findById(req.params.id).populate({ path: "rounds.hosts", select: "name" });
     if (!tournament) return res.status(400).send("No tournament found.");
 

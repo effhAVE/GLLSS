@@ -1,5 +1,17 @@
 <template>
   <v-app>
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.type"
+      bottom
+      right
+      multi-line
+    >
+      {{ snackbar.message }}
+      <v-btn text @click="snackbar.show = false">
+        Close
+      </v-btn>
+    </v-snackbar>
     <v-navigation-drawer
       v-model="drawer"
       app
@@ -68,7 +80,11 @@
     </v-app-bar>
 
     <v-content class="primary">
-      <router-view class="pa-8" :user="user"></router-view>
+      <router-view
+        class="pa-8"
+        :user="user"
+        @snackbarMessage="onSnackbar($event)"
+      ></router-view>
     </v-content>
 
     <v-footer app color="primary darken-1">
@@ -82,7 +98,12 @@
 <script>
 export default {
   data: () => ({
-    drawer: null
+    drawer: null,
+    snackbar: {
+      show: false,
+      type: "",
+      message: ""
+    }
   }),
   created: function() {
     /* if (!this.user && this.isLoggedIn) {
@@ -119,6 +140,11 @@ export default {
       this.$store.dispatch("logout").then(() => {
         this.$router.push("/login");
       });
+    },
+    onSnackbar({ message, type }) {
+      this.snackbar.show = true;
+      this.snackbar.message = message;
+      this.snackbar.type = type;
     }
   }
 };

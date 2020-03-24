@@ -1,5 +1,21 @@
 <template>
   <v-card height="100%" color="transparent">
+    <v-snackbar
+      v-model="availableQueue.length"
+      color="secondary border--accent"
+      bottom
+      absolute
+      right
+      multi-line
+      :timeout="0"
+    >
+      You have {{ availableQueue.length }} availability change
+      <span v-if="availableQueue.length !== 1"> s </span>. Do you want to save
+      them?
+      <v-btn text color="accent" @click="onAvailabilitySubmit">
+        Save
+      </v-btn>
+    </v-snackbar>
     <v-card-title>
       Tournaments
       <v-spacer></v-spacer>
@@ -81,6 +97,7 @@ export default {
       search: "",
       tournamentsList: [],
       expanded: [],
+      availableQueue: [],
       headers: [
         {
           text: "Available",
@@ -120,13 +137,44 @@ export default {
       return round.available.includes(this.user._id);
     },
     onAvailabilityChange(value, tournament, round) {
+      const isAdded = this.availableQueue.find(el => el.roundID === round._id);
+      if (isAdded) {
+        this.availableQueue = this.availableQueue.filter(el => el !== isAdded);
+        return;
+      }
+
+      this.availableQueue.push({
+        tournamentID: tournament._id,
+        roundID: round._id,
+        value: value
+      });
+    },
+    onAvailabilitySubmit() {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http
-        .put(
-          `${APIURL}/tournaments/${tournament._id}/rounds/${round._id}/availability`,
-          { value: value, id: this.user._id }
-        )
-        .catch(error => console.log(error));
+      const promises = [];
+      this.availableQueue.forEach(el => {
+        promises.push(
+          this.$http.put(
+            `${APIURL}/tournaments/${el.tournamentID}/rounds/${el.roundID}/availability`,
+            { value: el.value, id: this.user._id }
+          )
+        );
+      });
+
+      this.availableQueue.splice(0);
+      Promise.all(promises)
+        .then(() => {
+          this.$emit("snackbarMessage", {
+            message: "Availability saved!",
+            type: "success"
+          });
+        })
+        .catch(error =>
+          this.$emit("snackbarMessage", {
+            message: "Error while saving availability.",
+            type: "error"
+          })
+        );
     },
     setIcon(tournament) {
       if (tournament.rounds.every(round => round.myAvailability === false))
@@ -154,6 +202,10 @@ export default {
 <style lang="scss">
 td {
   cursor: pointer;
+}
+
+.v-application .primary.border--accent {
+  border: solid 1px var(--v-accent-base) !important;
 }
 
 .theme--dark.v-data-table.table-background {

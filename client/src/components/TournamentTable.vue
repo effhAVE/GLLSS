@@ -19,6 +19,10 @@
           <td>{{ tournament.game }}</td>
         </tr>
         <tr>
+          <th>Region</th>
+          <td>{{ tournament.region }}</td>
+        </tr>
+        <tr>
           <th>Start date</th>
           <td>{{ new Date(tournament.startDate).toLocaleString() }}</td>
         </tr>
