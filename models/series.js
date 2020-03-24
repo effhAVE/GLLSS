@@ -1,7 +1,7 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
-const tournamentRegions = require("../data/regions");
-const games = require("../data/games");
+const tournamentRegions = require("../collections/regions");
+const games = require("../collections/games");
 
 const seriesSchema = new mongoose.Schema({
   name: {

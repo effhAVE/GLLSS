@@ -7,6 +7,9 @@ import Tournaments from '../views/Tournaments.vue'
 import TournamentPage from '../views/generic/TournamentPage.vue'
 import Page404 from '../views/generic/Page404.vue'
 import Page403 from '../views/generic/Page403.vue'
+import ConfirmUsers from '../views/admin/ConfirmUsers.vue'
+import Users from '../views/admin/Users.vue'
+import Admin from '../views/admin/Admin.vue'
 import store from "../store"
 
 Vue.use(VueRouter)
@@ -48,16 +51,24 @@ const routes = [
     component: Register
   },
   {
-    path: "/admin*",
+    path: "/admin",
     meta: {
       requiresAuth: true,
       requiredRole: "admin"
-    }
-  },
-  {
-    path: '/admin/users/unconfirmed',
-    name: 'Admin',
-    component: () => import(/* webpackChunkName: "about" */ '../views/generic/Page404.vue')
+    },
+    component: Admin,
+    children: [
+      {
+        path: "unconfirmed",
+        name: "Confirm",
+        component: ConfirmUsers
+      },
+      {
+        path: "users",
+        name: "Users",
+        component: Users
+      }
+    ]
   },
   {
     path: "*",
@@ -93,7 +104,8 @@ router.beforeEach((to, from, next) => {
 router.beforeEach((to, from, next) => {
   const user = Vue.$jwt.decode();
   if (to.matched.some(record => record.meta.requiredRole)) {
-    if (user.roles.includes(to.meta.requiredRole)) {
+    const { meta: { requiredRole } } = to.matched.find(m => m.meta.requiredRole);
+    if (user.roles.includes(requiredRole)) {
       return next();
     }
 

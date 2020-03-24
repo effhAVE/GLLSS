@@ -28,18 +28,24 @@
           prepend-icon="mdi-shield-account"
           color="accent"
           v-if="user.roles.includes(`admin`)"
+          :value="$route.path.includes('admin')"
         >
           <template v-slot:activator>
             <v-list-item-title>Admin</v-list-item-title>
           </template>
-          <v-list-item link to="/admin/users/unconfirmed">
+          <v-list-item link to="/admin/users">
+            <v-list-item-content>
+              <v-list-item-title>Users</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item link to="/admin/unconfirmed">
             <v-list-item-content>
               <v-list-item-title>Confirm users</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item link to="/admin2">
+          <v-list-item link to="/admin/tournaments/create">
             <v-list-item-content>
-              <v-list-item-title>Tournaments setup</v-list-item-title>
+              <v-list-item-title>Create a tournament</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list-group>
@@ -62,9 +68,7 @@
     </v-app-bar>
 
     <v-content class="primary">
-      <keep-alive>
-        <router-view></router-view>
-      </keep-alive>
+      <router-view class="pa-8" :user="user"></router-view>
     </v-content>
 
     <v-footer app color="primary darken-1">
@@ -85,7 +89,6 @@ export default {
       this.$store.dispatch("getUserData");
       console.log(this.$jwt.decode());
     } */
-
     this.$http.interceptors.response.use(
       response => response,
       function(error) {

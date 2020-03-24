@@ -27,7 +27,7 @@ router.get("/hosted", auth, async (req, res) => {
 });
 
 router.get("/:id", auth, validateObjectId, async (req, res) => {
-    const tournament = await Tournament.findById(req.params.id).populate("series", "game").populate("rounds.hosts.host", "nicknamename");
+    const tournament = await Tournament.findById(req.params.id).populate("rounds.hosts.host rounds.available rounds.teamLeads", "nickname");
     if (!tournament) return res.status(400).send("No tournament found."); 
     res.send(tournament);
 });
@@ -44,6 +44,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
         series = await Series.findById(tournament.series);
         if (!series) return res.status(400).send("No series with the given ID.");
         tournament.name = `#${moment(tournament.startDate).week()} ${moment(tournament.startDate).format("ddd")} ${series.name}`;
+        tournament.game = series.game;
     }
 
     try {

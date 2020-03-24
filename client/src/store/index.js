@@ -9,14 +9,13 @@ const APIURL = process.env.VUE_APP_APIURL;
 export default new Vuex.Store({
   state: {
     status: "",
-    token: localStorage.getItem("token"),
-    user: null
+    token: localStorage.getItem("token")
   },
   mutations: {
     AUTH_REQUEST(state) {
       state.status = "pending";
     },
-    AUTH_SUCCESS(state, { token, user }) {
+    AUTH_SUCCESS(state, token) {
       state.status = "success";
       state.token = token;
     },
@@ -26,7 +25,6 @@ export default new Vuex.Store({
     logout(state) {
       state.status = "";
       state.token = "";
-      state.user = "";
     },
   },
   actions: {
@@ -39,7 +37,7 @@ export default new Vuex.Store({
           const user = response.data.user;
           localStorage.setItem("token", token);
           axios.defaults.headers.common["x-auth-token"] = token;
-          commit("AUTH_SUCCESS", { token, user });
+          commit("AUTH_SUCCESS", token);
           console.log(greeting(user.nickname));
           resolve(response);
         }).catch(error => {
@@ -59,7 +57,7 @@ export default new Vuex.Store({
           const user = response.data;
           localStorage.setItem("token", token);
           axios.defaults.headers.common["x-auth-token"] = token;
-          commit("AUTH_SUCCESS", { token, user });
+          commit("AUTH_SUCCESS", token);
           console.log(greeting(user.nickname));
           resolve(response);
         }).catch(error => {
@@ -77,7 +75,7 @@ export default new Vuex.Store({
         axios.get(`${APIURL}/users/me`)
         .then(response => {
           const user = response.data.user;
-          commit("AUTH_SUCCESS", { token, user });
+          commit("AUTH_SUCCESS", token);
           resolve(response);
         }).catch(error => {
           commit("AUTH_ERROR");
@@ -91,7 +89,6 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         commit("logout");
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
         delete axios.defaults.headers.common["x-auth-token"];
         resolve();
       })

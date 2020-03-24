@@ -16,8 +16,51 @@
       :items="tournamentsList"
       :search="search"
       :headers="headers"
+      :expanded.sync="expanded"
       @click:row="redirect"
+      :loading="!tournamentsList.length"
+      show-expand
+      item-key="_id"
     >
+      <template v-slot:item.rounds="{ item }">
+        <v-simple-checkbox
+          color="accent"
+          :on-icon="setIcon(item)"
+          :value="checkTournamentAvailability(item)"
+          :ripple="false"
+        ></v-simple-checkbox>
+      </template>
+      <template v-slot:expanded-item="{ headers, item }" tag="div">
+        <td :colspan="headers.length">
+          <v-simple-table class="table-background-inner">
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th>Available</th>
+                  <th>Round name</th>
+                  <th>Start date</th>
+                  <th>End date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr :key="round._id" v-for="round in item.rounds">
+                  <td>
+                    <v-simple-checkbox
+                      v-model="round.myAvailability"
+                      color="accent"
+                      :ripple="false"
+                      @input="onAvailabilityChange($event, item, round)"
+                    ></v-simple-checkbox>
+                  </td>
+                  <td>{{ round.name }}</td>
+                  <td>{{ new Date(round.startDate).toLocaleString() }}</td>
+                  <td>{{ new Date(round.endDate).toLocaleString() }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </td>
+      </template>
       <template v-slot:item.startDate="{ item }">
         <span>{{ new Date(item.startDate).toLocaleString() }}</span>
       </template>
@@ -30,20 +73,32 @@
 
 <script>
 export default {
+  props: {
+    user: Object
+  },
   data() {
     return {
       search: "",
       tournamentsList: [],
+      expanded: [],
       headers: [
+        {
+          text: "Available",
+          value: "rounds",
+          width: 50,
+          sortable: false
+        },
         {
           text: "Tournament name",
           align: "start",
           sortable: false,
           value: "name"
         },
-        { text: "Game", value: "game" },
+        { text: "Game", value: "game", align: "center", width: 200 },
+        { text: "Rounds", value: "rounds.length", align: "center", width: 100 },
         { text: "Start date", value: "startDate" },
-        { text: "End date", value: "endDate" }
+        { text: "End date", value: "endDate" },
+        { text: "", value: "data-table-expand" }
       ]
     };
   },
@@ -52,40 +107,75 @@ export default {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http.get(`${APIURL}/tournaments/`).then(response => {
         let tournaments = response.data;
-        if (Array.isArray(tournaments)) {
-          tournaments = tournaments.map(tournament => {
-            if (tournament.series) {
-              tournament.game = tournament.series.game;
-            }
-
-            return tournament;
+        tournaments.forEach(tournament => {
+          tournament.rounds.forEach(round => {
+            round.myAvailability = this.checkAvailability(round);
           });
-        }
+        });
 
         this.tournamentsList = tournaments;
       });
     },
-    editItem(item) {},
+    checkAvailability(round) {
+      return round.available.includes(this.user._id);
+    },
+    onAvailabilityChange(value, tournament, round) {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.$http
+        .put(
+          `${APIURL}/tournaments/${tournament._id}/rounds/${round._id}/availability`,
+          { value: value, id: this.user._id }
+        )
+        .catch(error => console.log(error));
+    },
+    setIcon(tournament) {
+      if (tournament.rounds.every(round => round.myAvailability === false))
+        return "";
+      else if (tournament.rounds.every(round => round.myAvailability === true))
+        return "mdi-checkbox-marked";
+      else return "mdi-minus-box";
+    },
+    checkTournamentAvailability(tournament) {
+      return !!this.setIcon(tournament);
+    },
     redirect(tournament) {
       return this.$router.push(`/tournaments/${tournament._id}`);
     }
   },
   mounted() {
     this.getTournaments();
+  },
+  watch: {
+    $route: "getTournaments"
   }
 };
 </script>
 
 <style lang="scss">
-tr {
+td {
   cursor: pointer;
 }
 
 .theme--dark.v-data-table.table-background {
   background: transparent;
+  border: thin solid rgba(255, 255, 255, 0.12);
+}
+
+.theme--dark.v-data-table.table-background-inner {
+  background: var(--v-primary-lighten1);
 }
 
 .v-list-item.primary--text.v-list-item--active.v-list-item--link {
   color: var(--v-accent-base) !important;
+}
+
+.v-data-table__expanded.v-data-table__expanded__row {
+  background-color: var(--v-secondary-base);
+}
+
+.theme--dark.v-data-table
+  tbody
+  .v-data-table__expanded__row:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
+  background-color: var(--v-secondary-lighten1);
 }
 </style>

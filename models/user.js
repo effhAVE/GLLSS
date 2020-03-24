@@ -2,6 +2,7 @@ const config = require("config");
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const mongoose = require("mongoose");
+const roles = require("../collections/roles");
 
 const userSchema = new mongoose.Schema({
   nickname: {
@@ -27,7 +28,7 @@ const userSchema = new mongoose.Schema({
   roles: {
     type: [String],
     default: ["guest"],
-    enum: ["guest", "host", "teamlead", "admin", "masteradmin"]
+    enum: roles
   },
   tournamentsHosted: [
     {
@@ -44,8 +45,8 @@ userSchema.methods.generateAuthToken = function() {
 
 userSchema.methods.toJSON = function() {
   const obj = this.toObject();
-  const { _id, nickname, email } = obj;
-  return { _id, nickname, email };
+  delete obj.password;
+  return obj;
 }
 
 const User = mongoose.model("User", userSchema);

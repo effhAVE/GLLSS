@@ -16,8 +16,8 @@
             <v-toolbar-title>Sign in to continue</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
-          <v-card-text>
-            <v-form>
+          <v-form>
+            <v-card-text>
               <v-text-field
                 name="email"
                 color="accent"
@@ -26,7 +26,6 @@
                 prepend-icon="mdi-email"
                 type="text"
                 required
-                @keydown.enter="login"
               ></v-text-field>
 
               <v-text-field
@@ -38,19 +37,23 @@
                 prepend-icon="mdi-lock"
                 type="password"
                 required
-                @keydown.enter="login"
               ></v-text-field>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <p class="mb-0">
-              No account? <a href="/register"> Register now!</a>
-            </p>
-            <v-spacer></v-spacer>
-            <v-btn color="accent" class="black--text" large @click="login"
-              >Sign in</v-btn
-            >
-          </v-card-actions>
+            </v-card-text>
+            <v-card-actions>
+              <p class="mb-0">
+                No account? <a href="/register"> Register now!</a>
+              </p>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="accent"
+                class="black--text"
+                large
+                type="submit"
+                @click.prevent="login"
+                >Sign in</v-btn
+              >
+            </v-card-actions>
+          </v-form>
         </v-card>
       </v-col>
     </v-row>

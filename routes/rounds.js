@@ -42,8 +42,27 @@ router.get("/:rid", auth, validateAccess("host") ,validateObjectId, async (req, 
     const tournament = await Tournament.findById(req.params.id).populate({ path: "rounds.hosts", select: "name" });
     if (!tournament) return res.status(400).send("No tournament found.");
 
-    const round = tournament.rounds.find(el => el._id.equals(req.params.rid));
+    const round = tournament.rounds.id(req.params.rid);
     if (!round) return res.status(400).send("No round found.");
+    res.send(round);
+});
+
+
+router.put("/:rid/availability", auth, validateAccess("host") ,validateObjectId, async (req, res) => {
+    const tournament = await Tournament.findById(req.params.id).select("rounds");
+    if (!tournament) return res.status(400).send("No tournament found.");
+
+    const round = tournament.rounds.id(req.params.rid);
+    if (!round) return res.status(400).send("No round found.");
+    if (req.body.value === true) {
+        round.available.push(req.body.id)
+    } else {
+        round.available = round.available.filter(id => {
+            return !id.equals(req.body.id);
+        });
+    }
+
+    await tournament.save();
     res.send(round);
 });
 
