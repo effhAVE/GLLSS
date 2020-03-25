@@ -2,6 +2,9 @@
   "name": "gllstaffwebtool",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "8.x"
+  },
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll --verbose"
