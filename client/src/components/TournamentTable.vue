@@ -1,5 +1,5 @@
 <template>
-  <v-simple-table class="table-background table-simple">
+  <v-simple-table class="table-background table-simple not-editable">
     <template v-slot:default>
       <tbody>
         <tr>

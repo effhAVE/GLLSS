@@ -59,8 +59,7 @@ export default {
       email: "",
       nickname: "",
       password: "",
-      error: "",
-      showError: false
+      error: ""
     };
   },
   methods: {
@@ -70,10 +69,16 @@ export default {
       let nickname = this.nickname;
       this.$store
         .dispatch("register", { email, password, nickname })
-        .then(() => this.$router.push("/"))
+        .then(() => {
+          this.$router.push("/");
+          this.$store.commit("snackbarMessage", {
+            message: "Successfully registed!",
+            type: "success"
+          });
+        })
         .catch(error => {
-          this.$emit("snackbarMessage", {
-            message: error.response.data || error,
+          this.$store.commit("snackbarMessage", {
+            message: error.response.data,
             type: "error"
           });
         });

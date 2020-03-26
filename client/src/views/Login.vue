@@ -1,14 +1,5 @@
 <template>
   <v-container fluid fill-height>
-    <v-snackbar
-      v-model="showError"
-      top
-      right
-      absolute
-      :color="'secondary'"
-      :timeout="5000"
-      >{{ error }}</v-snackbar
-    >
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="4">
         <v-card class="elevation-12" color="primary">
@@ -66,8 +57,7 @@ export default {
     return {
       email: "",
       password: "",
-      error: "",
-      showError: false
+      error: ""
     };
   },
   methods: {
@@ -76,10 +66,18 @@ export default {
       let password = this.password;
       this.$store
         .dispatch("login", { email, password })
-        .then(() => this.$router.push("/"))
+        .then(() => {
+          this.$router.push("/");
+          this.$store.commit("snackbarMessage", {
+            message: "Successfully logged in.",
+            type: "success"
+          });
+        })
         .catch(error => {
-          this.showError = true;
-          this.error = error.response.data;
+          this.$store.commit("snackbarMessage", {
+            message: error.response.data,
+            type: "error"
+          });
         });
     }
   }

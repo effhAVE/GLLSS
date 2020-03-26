@@ -3,9 +3,9 @@ const express = require("express");
 const app = express();
 const history = require("connect-history-api-fallback");
 
-app.use(history());
 require("./startup/logging")();
 require("./startup/routes")(app);
+app.use(history());
 require("./startup/db")();
 require("./startup/config")();
 require("./startup/validation")();

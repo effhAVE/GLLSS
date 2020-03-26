@@ -11,24 +11,30 @@ const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router({ mergeParams: true });
 
-router.post("/", auth, validateAccess("admin") ,validateObjectId, async (req, res) => {
-    const tournament = await Tournament.findById(req.params.id);
-    const rounds = req.body;
-
-    if (!tournament) return res.status(400).send("No tournament found."); 
-    if (!Array.isArray(rounds)) {
-        return res.status(400).send("Bad request.");
-    }
-
-    rounds.forEach(el => {
-        const round = new Round(el);
-        tournament.rounds.push(round);
+router.post("/", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
+    if (!req.body.name) return res.status(400).send("Bad request.");
+    
+    Tournament.findByIdAndUpdate(req.params.id,
+    { 
+        "$push": { 
+            "rounds": {
+                "$each": [new Round(_.pick(req.body, ["name", "startDate", "endDate", "bestOf", "TLValue"]))],
+                "$sort": { "startDate": 1 }
+            }
+        }
+    }, { new: true })
+    .exec(async (error, data) => {
+        console.log(req.body);
+        if (error) {
+            console.log(error);
+            return res.status(500).send("Something failed.");
+        } else {
+            data.startDate = data.rounds[0].startDate;
+            data.endDate = data.rounds[data.rounds.length - 1].endDate;
+            await data.save();
+            return res.send(data);
+        }
     });
-
-    tournament.startDate = rounds[0].startDate;
-    tournament.endDate = rounds[rounds.length - 1].endDate;
-    await tournament.save();
-    res.send(tournament);
 });
 
 router.get("/", auth, validateAccess("host") ,validateObjectId, async (req, res) => {
@@ -125,5 +131,24 @@ router.put("/:rid", auth, validateAccess("admin") ,validateObjectId, async (req,
         res.status(500).send("Something failed.");
       }
 });
+
+router.post("/:rid/hosts", auth, validateAccess("teamleader") ,validateObjectId, async (req, res) => {
+    const tournament = await Tournament.findById(req.params.id);
+    if (!tournament) return res.status(400).send("No tournament found.");
+
+    const round = tournament.rounds.id(req.params.rid);
+    if (!round) return res.status(400).send("No round found.");
+
+    const { hosts, available } = req.body;
+    if (Array.isArray(hosts) && Array.isArray(available)) {
+        if (hosts.some(hostObject => typeof hostObject.host === "undefined")) return res.status(400).send("Bad request.");
+
+        round.hosts = hosts;
+        round.available = available;
+        await tournament.save();
+        res.send(round);
+    }
+});
+
 
 module.exports = router;

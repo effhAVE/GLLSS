@@ -80,11 +80,7 @@
     </v-app-bar>
 
     <v-content class="primary">
-      <router-view
-        class="pa-8"
-        :user="user"
-        @snackbarMessage="onSnackbar($event)"
-      ></router-view>
+      <router-view class="pa-8" :user="user"></router-view>
     </v-content>
 
     <v-footer app color="primary darken-1">
@@ -106,13 +102,9 @@ export default {
     }
   }),
   created: function() {
-    /* if (!this.user && this.isLoggedIn) {
-      this.$store.dispatch("getUserData");
-      console.log(this.$jwt.decode());
-    } */
     this.$http.interceptors.response.use(
       response => response,
-      function(error) {
+      error => {
         const status = error.response ? error.response.status : null;
         return new Promise(function(resolve, reject) {
           if (status === 401) {
@@ -123,6 +115,14 @@ export default {
         });
       }
     );
+
+    this.$store.subscribe((mutation, state) => {
+      if (mutation.type === "snackbarMessage") {
+        this.snackbar.show = true;
+        this.snackbar.message = mutation.payload.message;
+        this.snackbar.type = mutation.payload.type;
+      }
+    });
   },
   computed: {
     isLoggedIn: function() {
@@ -137,14 +137,7 @@ export default {
   },
   methods: {
     logout: function() {
-      this.$store.dispatch("logout").then(() => {
-        this.$router.push("/login");
-      });
-    },
-    onSnackbar({ message, type }) {
-      this.snackbar.show = true;
-      this.snackbar.message = message;
-      this.snackbar.type = type;
+      this.$store.dispatch("logout");
     }
   }
 };

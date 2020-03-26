@@ -73,13 +73,13 @@ export default {
       this.$http
         .put(`${APIURL}/users/${userID}/roles`, { role: value })
         .then(response => {
-          this.$emit("snackbarMessage", {
+          this.$store.commit("snackbarMessage", {
             message: "Role saved!",
             type: "success"
           });
         })
         .catch(error =>
-          this.$emit("snackbarMessage", {
+          this.$store.commit("snackbarMessage", {
             message: "Error while saving role.",
             type: "error"
           })

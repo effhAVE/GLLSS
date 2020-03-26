@@ -39,12 +39,19 @@
       item-key="_id"
     >
       <template v-slot:item.rounds="{ item }">
-        <v-simple-checkbox
-          color="accent"
-          :on-icon="setIcon(item)"
-          :value="checkTournamentAvailability(item)"
-          :ripple="false"
-        ></v-simple-checkbox>
+        <div class="d-flex justify-space-between">
+          <v-simple-checkbox
+            color="accent"
+            :on-icon="setIcon(item)"
+            :value="checkTournamentAvailability(item)"
+            :ripple="false"
+          ></v-simple-checkbox>
+          <v-simple-checkbox
+            color="accent"
+            :value="isHostingTournament(item.rounds)"
+            :ripple="false"
+          ></v-simple-checkbox>
+        </div>
       </template>
       <template v-slot:expanded-item="{ headers, item }" tag="div">
         <td :colspan="headers.length">
@@ -63,6 +70,7 @@
                   <td>
                     <v-simple-checkbox
                       v-model="round.myAvailability"
+                      :disabled="round.isHosting"
                       color="accent"
                       :ripple="false"
                       @input="onAvailabilityChange($event, item, round)"
@@ -100,9 +108,9 @@ export default {
       availableQueue: [],
       headers: [
         {
-          text: "Available",
+          text: "Available / Selected",
           value: "rounds",
-          width: 50,
+          width: 150,
           sortable: false
         },
         {
@@ -112,7 +120,13 @@ export default {
           value: "name"
         },
         { text: "Game", value: "game", align: "center", width: 200 },
-        { text: "Rounds", value: "rounds.length", align: "center", width: 100 },
+        {
+          text: "Rounds",
+          value: "rounds.length",
+          align: "center",
+          width: 100,
+          sortable: false
+        },
         { text: "Start date", value: "startDate" },
         { text: "End date", value: "endDate" },
         { text: "", value: "data-table-expand" }
@@ -126,6 +140,7 @@ export default {
         let tournaments = response.data;
         tournaments.forEach(tournament => {
           tournament.rounds.forEach(round => {
+            round.isHosting = this.isHosting(round);
             round.myAvailability = this.checkAvailability(round);
           });
         });
@@ -135,6 +150,12 @@ export default {
     },
     checkAvailability(round) {
       return round.available.includes(this.user._id);
+    },
+    isHosting(round) {
+      return round.hosts.some(hostObj => hostObj.host === this.user._id);
+    },
+    isHostingTournament(rounds) {
+      return rounds.some(round => round.isHosting);
     },
     onAvailabilityChange(value, tournament, round) {
       const isAdded = this.availableQueue.find(el => el.roundID === round._id);
@@ -164,13 +185,13 @@ export default {
       this.availableQueue.splice(0);
       Promise.all(promises)
         .then(() => {
-          this.$emit("snackbarMessage", {
+          this.$store.commit("snackbarMessage", {
             message: "Availability saved!",
             type: "success"
           });
         })
         .catch(error =>
-          this.$emit("snackbarMessage", {
+          this.$store.commit("snackbarMessage", {
             message: "Error while saving availability.",
             type: "error"
           })
@@ -229,5 +250,11 @@ td {
   tbody
   .v-data-table__expanded__row:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
   background-color: var(--v-secondary-lighten1);
+}
+
+.not-editable {
+  td {
+    cursor: default;
+  }
 }
 </style>

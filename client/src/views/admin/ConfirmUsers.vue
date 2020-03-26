@@ -69,9 +69,18 @@ export default {
 
       Promise.all(promises)
         .then(() => {
+          this.$store.commit("snackbarMessage", {
+            type: "success",
+            message: "Users confirmed."
+          });
           this.$router.go();
         })
-        .catch(error => error);
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            type: "error",
+            message: "Error while confirming users."
+          });
+        });
     }
   },
   mounted() {

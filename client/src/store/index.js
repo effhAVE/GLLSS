@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from "axios";
 import greeting from "../helpers/greeting";
+import router from "../router"
 
 Vue.use(Vuex);
 const APIURL = process.env.VUE_APP_APIURL;
@@ -9,7 +10,11 @@ const APIURL = process.env.VUE_APP_APIURL;
 export default new Vuex.Store({
   state: {
     status: "",
-    token: localStorage.getItem("token")
+    token: localStorage.getItem("token"),
+    snackbar: {
+      type: "",
+      message: ""
+    }
   },
   mutations: {
     AUTH_REQUEST(state) {
@@ -26,6 +31,10 @@ export default new Vuex.Store({
       state.status = "";
       state.token = "";
     },
+    snackbarMessage(state, { type, message }) {
+      state.snackbar.type = type;
+      state.snackbar.message = message;
+    }
   },
   actions: {
     login({ commit }, user) {
@@ -92,15 +101,13 @@ export default new Vuex.Store({
         commit("logout");
         localStorage.removeItem("token");
         delete axios.defaults.headers.common["x-auth-token"];
+        router.push("/login");
         resolve();
       })
     }
   },
-  modules: {
-  },
   getters: {
     isLoggedIn: state => !!state.token,
-    authStatus: state => state.status,
-    user: state => state.user
+    authStatus: state => state.status
   }
 })

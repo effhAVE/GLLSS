@@ -19,6 +19,11 @@ router.get("/", auth, validateAccess("admin"), async (req, res) => {
   res.send(users);
 });
 
+router.get("/admins", auth, async (req, res) => {
+  const admins = await User.find({ roles:  "admin" });
+  res.send(admins);
+});
+
 router.get("/me", auth, async (req, res) => {
   const user = await User.findById(req.user._id);
   res.send(user.toJSON());
@@ -47,7 +52,11 @@ router.put("/:id/roles", auth, validateAccess("admin"), validateObjectId, async 
   const newRole = req.body.role;
   if (!newRole || !roles.includes(newRole)) return res.status(400).send("Bad request.");
   const rolesIndex = roles.indexOf(newRole);
-  user.roles = roles.filter(role => role !== "guest").slice(rolesIndex);
+  if (newRole === "guest") {
+    user.roles = ["guest"];
+  } else {
+    user.roles = roles.filter(role => role !== "guest").slice(rolesIndex);
+  }
   await user.save();
 
   res.send(user);

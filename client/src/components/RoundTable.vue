@@ -1,5 +1,18 @@
 <template>
   <v-card color="transparent" width="25%" raised>
+    <v-snackbar
+      v-model="changesMade"
+      color="secondary border--accent"
+      bottom
+      right
+      multi-line
+      :timeout="0"
+    >
+      Do you want to save the changes?
+      <v-btn text color="accent" @click="save">
+        Save
+      </v-btn>
+    </v-snackbar>
     <div class="secondary">
       <v-card-title>
         {{ round.name }}
@@ -16,6 +29,7 @@
         :items="round.hosts"
         disable-sort
         class="table-background table-shrinked overflow-hidden"
+        :class="{ 'not-editable': !user.roles.includes('teamleader') }"
         no-data-text="No hosts set."
         hide-default-footer
       >
@@ -42,7 +56,7 @@
                 </div>
               </div>
             </template>
-            <v-list>
+            <v-list v-if="user.roles.includes('teamleader')">
               <v-list-item
                 v-for="(host, i) in [...noneSelect, ...round.available]"
                 :key="i"
@@ -61,13 +75,18 @@
               </v-btn>
             </template>
 
-            <v-list>
+            <v-list v-if="round.available.length">
               <v-list-item
                 v-for="(host, i) in round.available"
                 :key="i"
                 @click="addHostToRound(round, host)"
               >
                 <v-list-item-title>{{ host.nickname }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+            <v-list v-else>
+              <v-list-item>
+                <v-list-item-title>No available hosts.</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -80,6 +99,7 @@
         :items="round.teamLeads"
         disable-sort
         class="table-background table-shrinked overflow-hidden mt-8"
+        :class="{ 'not-editable': !user.roles.includes('teamleader') }"
         no-data-text="No team leads set."
         hide-default-footer
       >
@@ -114,7 +134,7 @@
       <v-simple-table class="table-background mt-8 text-center table-simple">
         <template v-slot:default>
           <tbody>
-            <tr>
+            <tr :class="{ 'not-editable': !user.roles.includes('teamleader') }">
               <th>Best of</th>
               <td>{{ round.bestOf }}</td>
             </tr>
@@ -132,11 +152,17 @@ export default {
       type: Object,
       required: true
     },
+    tournamentID: {
+      type: String,
+      required: true
+    },
     user: Object
   },
   data() {
     return {
       noneSelect: ["-"],
+      changesMade: false,
+      roundCopy: Object.assign({}, this.round),
       headerHosts: [
         {
           text: "Hosts",
@@ -158,13 +184,15 @@ export default {
       // upload the round on backend
       host.ready = true;
     },
-    addHostToRound(round, host) {
+    addHostToRound(round, hostAdded) {
       // push to database instead
-      round.hosts.push({ host: host, ready: false, lostHosting: false });
-      round.available = round.available.filter(user => user !== host);
+      this.changesMade = true;
+      round.hosts.push({ host: hostAdded, ready: false, lostHosting: false });
+      round.available = round.available.filter(host => host !== hostAdded);
     },
     changeRoundHost(round, oldHost, newHost) {
       // db call instead
+      this.changesMade = true;
       const arrayIndex = round.hosts.findIndex(
         el => el.host._id === oldHost._id
       );
@@ -178,6 +206,28 @@ export default {
         lostHosting: false,
         ready: false
       });
+    },
+    save() {
+      this.changesMade = false;
+      const APIURL = process.env.VUE_APP_APIURL;
+
+      this.$http
+        .post(
+          `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}/hosts`,
+          { hosts: this.round.hosts, available: this.round.available }
+        )
+        .then(response => {
+          this.$store.commit("snackbarMessage", {
+            type: "success",
+            message: "Round updated."
+          });
+        })
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            type: "error",
+            message: "Error while updating."
+          });
+        });
     }
   }
 };
