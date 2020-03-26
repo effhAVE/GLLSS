@@ -108,7 +108,7 @@ export default {
       availableQueue: [],
       headers: [
         {
-          text: "Available / Selected",
+          text: "Available / Hosting",
           value: "rounds",
           width: 150,
           sortable: false

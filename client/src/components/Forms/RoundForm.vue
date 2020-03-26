@@ -7,54 +7,16 @@
       prepend-icon="mdi-pencil"
       required
     ></v-text-field>
-    <v-menu
-      v-model="datepickerStart"
-      :close-on-content-click="true"
-      :nudge-right="40"
-      transition="scale-transition"
-      offset-y
-      min-width="290px"
-    >
-      <template v-slot:activator="{ on }">
-        <v-text-field
-          v-model="draft.startDate"
-          label="Start date"
-          color="accent"
-          prepend-icon="mdi-calendar"
-          readonly
-          v-on="on"
-        ></v-text-field>
-      </template>
-      <v-date-picker
-        v-model="draft.startDate"
-        color="secondary"
-        @input="datepickerStart = false"
-      ></v-date-picker>
-    </v-menu>
-    <v-menu
-      v-model="datepickerEnd"
-      :close-on-content-click="true"
-      :nudge-right="40"
-      transition="scale-transition"
-      offset-y
-      min-width="290px"
-    >
-      <template v-slot:activator="{ on }">
-        <v-text-field
-          v-model="draft.endDate"
-          label="End date"
-          color="accent"
-          prepend-icon="mdi-calendar-check"
-          readonly
-          v-on="on"
-        ></v-text-field>
-      </template>
-      <v-date-picker
-        v-model="draft.endDate"
-        color="secondary"
-        @input="datepickerStart = false"
-      ></v-date-picker>
-    </v-menu>
+    <DatetimePicker
+      :date="draft.startDate"
+      label="Start date"
+      @input="draft.startDate = $event"
+    />
+    <DatetimePicker
+      :date="draft.endDate"
+      label="End date"
+      @input="draft.endDate = $event"
+    />
     <v-text-field
       v-model="draft.bestOf"
       type="number"
@@ -95,7 +57,11 @@
 </template>
 
 <script>
+import DatetimePicker from "./CustomDatetimePicker";
 export default {
+  components: {
+    DatetimePicker
+  },
   props: {
     tournamentDates: {
       type: Object,
@@ -104,8 +70,6 @@ export default {
   },
   data() {
     return {
-      datepickerStart: false,
-      datepickerEnd: false,
       draft: {
         name: "New round",
         startDate: new Date().toISOString().substr(0, 10),
@@ -116,8 +80,16 @@ export default {
     };
   },
   created() {
-    this.draft.startDate = this.tournamentDates.start.substr(0, 10);
-    this.draft.endDate = this.tournamentDates.end.substr(0, 10);
+    this.draft.startDate = `${new Date(this.tournamentDates.start)
+      .toISOString()
+      .substr(0, 10)} ${new Date(this.tournamentDates.start)
+      .toISOString()
+      .substr(11, 5)}`;
+    this.draft.endDate = `${new Date(this.tournamentDates.end)
+      .toISOString()
+      .substr(0, 10)} ${new Date(this.tournamentDates.end)
+      .toISOString()
+      .substr(11, 5)}`;
   }
 };
 </script>
