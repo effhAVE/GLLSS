@@ -30,6 +30,7 @@
       :date="draft.endDate"
       label="End date"
       @input="draft.endDate = $event"
+      icon="mdi-calendar-check"
     />
     <v-select
       :items="gamesList"
@@ -75,12 +76,8 @@ export default {
     return {
       draft: {
         name: "Unnamed tournament",
-        startDate: `${new Date()
-          .toISOString()
-          .substr(0, 10)} ${new Date().toISOString().substr(11, 5)}`,
-        endDate: `${new Date()
-          .toISOString()
-          .substr(0, 10)} ${new Date().toISOString().substr(11, 5)}`,
+        startDate: new Date(),
+        endDate: new Date(),
         series: null,
         game: "",
         region: "",

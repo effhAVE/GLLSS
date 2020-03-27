@@ -24,11 +24,13 @@
         </tr>
         <tr>
           <th>Start date</th>
-          <td>{{ new Date(tournament.startDate).toLocaleString() }}</td>
+          <td>
+            {{ tournament.startDate | moment("LLL") }}
+          </td>
         </tr>
         <tr>
           <th>End date</th>
-          <td>{{ new Date(tournament.endDate).toLocaleString() }}</td>
+          <td>{{ tournament.endDate | moment("LLL") }}</td>
         </tr>
       </tbody>
     </template>

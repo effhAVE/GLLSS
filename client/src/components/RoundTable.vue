@@ -9,17 +9,39 @@
       :timeout="0"
     >
       Do you want to save the changes?
-      <v-btn text color="accent" @click="save">
+      <v-btn text color="accent" @click="saveRound">
         Save
       </v-btn>
     </v-snackbar>
     <div class="secondary">
       <v-card-title>
         {{ round.name }}
+        <v-spacer></v-spacer>
+        <v-dialog v-model="editRoundModal" persistent max-width="600px">
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-if="user.roles.includes('admin')" v-on="on">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+          </template>
+          <v-card class="primary">
+            <v-card-text>
+              <v-container>
+                <RoundForm
+                  :round="round"
+                  @cancel="editRoundModal = false"
+                  @submit="saveRound"
+                />
+              </v-container>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+        <v-btn icon>
+          <v-icon>mdi-delete</v-icon>
+        </v-btn>
       </v-card-title>
       <v-card-subtitle>
-        {{ new Date(round.startDate).toLocaleString() }} -
-        {{ new Date(round.endDate).toLocaleString() }}
+        start: {{ round.startDate | moment("LLL") }} <br />
+        end: {{ round.endDate | moment("LLL") }}
       </v-card-subtitle>
     </div>
     <v-card-text>
@@ -146,7 +168,12 @@
 </template>
 
 <script>
+import RoundForm from "./Forms/RoundForm";
+
 export default {
+  components: {
+    RoundForm
+  },
   props: {
     round: {
       type: Object,
@@ -162,7 +189,7 @@ export default {
     return {
       noneSelect: ["-"],
       changesMade: false,
-      roundCopy: Object.assign({}, this.round),
+      editRoundModal: false,
       headerHosts: [
         {
           text: "Hosts",
@@ -207,14 +234,15 @@ export default {
         ready: false
       });
     },
-    save() {
+    saveRound() {
       this.changesMade = false;
+      this.editRoundModal = false;
       const APIURL = process.env.VUE_APP_APIURL;
 
       this.$http
-        .post(
-          `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}/hosts`,
-          { hosts: this.round.hosts, available: this.round.available }
+        .put(
+          `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`,
+          this.round
         )
         .then(response => {
           this.$store.commit("snackbarMessage", {

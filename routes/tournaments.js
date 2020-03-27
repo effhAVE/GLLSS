@@ -3,11 +3,11 @@ const validateAccess = require("../middleware/validateAccess");
 const validateObjectId = require("../middleware/validateObjectId");
 const _ = require("lodash");
 const {
-    Tournament,
-    validateTournament
+  Tournament,
+  validateTournament
 } = require("../models/tournament");
 const {
-    Series
+  Series
 } = require("../models/series");
 const { User } = require("../models/user");
 const mongoose = require("mongoose");
@@ -17,55 +17,55 @@ const moment = require("moment");
 
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
-    const tournaments = await Tournament.find().populate("series", "game");
-    res.send(tournaments);
+  const tournaments = await Tournament.find().populate("series", "game");
+  res.send(tournaments);
 });
 
 router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
-    const user = await User.findById(req.user._id).populate({ path: "tournamentsHosted", select: "rounds name" }).select("tournamentsHosted -_id"); 
-    res.send(user.tournamentsHosted);
+  const user = await User.findById(req.user._id).select("tournamentsHosted -_id");
+  res.send(user.tournamentsHosted);
 });
 
 router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, res) => {
-    const tournament = await Tournament.findById(req.params.id).populate("rounds.hosts.host rounds.available rounds.teamLeads", "nickname");
-    if (!tournament) return res.status(400).send("No tournament found."); 
-    res.send(tournament);
+  const tournament = await Tournament.findById(req.params.id).populate("rounds.hosts.host rounds.available rounds.teamLeads", "nickname");
+  if (!tournament) return res.status(400).send("No tournament found.");
+  res.send(tournament);
 });
 
 router.delete("/:id", auth, validateObjectId, validateAccess("admin"), async (req, res) => {
-    const tournament = await Tournament.findById(req.params.id);
-    if (!tournament) return res.status(400).send("No tournament found.");
-    await tournament.remove();
-    res.send(tournament);
+  const tournament = await Tournament.findById(req.params.id);
+  if (!tournament) return res.status(400).send("No tournament found.");
+  await tournament.remove();
+  res.send(tournament);
 });
 
 router.post("/", auth, validateAccess("admin"), async (req, res) => {
-    /* const {
-        error
-    } = validateTournament(req.body);
-    if (error) return res.status(400).send(error.details[0].message); */
+  /* const {
+      error
+  } = validateTournament(req.body);
+  if (error) return res.status(400).send(error.details[0].message); */
 
-    let tournament = new Tournament(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region"]));
-    let series;
-    if (tournament.series) {
-        series = await Series.findById(tournament.series);
-        if (!series) return res.status(400).send("No series with the given ID.");
-        tournament.name = `#${moment(tournament.startDate).week()} ${moment(tournament.startDate).format("ddd")} ${series.name}`;
-        tournament.game = series.game;
+  let tournament = new Tournament(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region"]));
+  let series;
+  if (tournament.series) {
+    series = await Series.findById(tournament.series);
+    if (!series) return res.status(400).send("No series with the given ID.");
+    tournament.name = `#${moment(tournament.startDate).week()} ${moment(tournament.startDate).format("ddd")} ${series.name}`;
+    tournament.game = series.game;
+  }
+
+  try {
+    const savedTournament = await tournament.save();
+    if (savedTournament.series !== null) {
+      series.tournaments.push(savedTournament._id);
+      await series.save();
     }
 
-    try {
-        const savedTournament = await tournament.save();
-        if (savedTournament.series !== null) {
-            series.tournaments.push(savedTournament._id);
-            await series.save();
-        }
-        
-        res.send(tournament);
-    } catch (error) {
-        console.log(error);
-        res.status(500).send("Error while saving.");
-    }
+    res.send(tournament);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Error while saving.");
+  }
 });
 
 module.exports = router;

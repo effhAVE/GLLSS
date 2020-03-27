@@ -16,6 +16,7 @@
       :date="draft.endDate"
       label="End date"
       @input="draft.endDate = $event"
+      icon="mdi-calendar-check"
     />
     <v-text-field
       v-model="draft.bestOf"
@@ -42,7 +43,7 @@
         text
         @click="$emit('submit', draft)"
       >
-        Create!
+        Save
       </v-btn>
       <v-btn
         color="accent black--text"
@@ -64,32 +65,32 @@ export default {
   },
   props: {
     tournamentDates: {
-      type: Object,
-      required: true
+      type: Object
+    },
+    round: {
+      type: Object
     }
   },
   data() {
     return {
       draft: {
         name: "New round",
-        startDate: new Date().toISOString().substr(0, 10),
-        endDate: new Date().toISOString().substr(0, 10),
+        startDate: new Date(),
+        endDate: new Date(),
         bestOf: 3,
         TLValue: 3
       }
     };
   },
   created() {
-    this.draft.startDate = `${new Date(this.tournamentDates.start)
-      .toISOString()
-      .substr(0, 10)} ${new Date(this.tournamentDates.start)
-      .toISOString()
-      .substr(11, 5)}`;
-    this.draft.endDate = `${new Date(this.tournamentDates.end)
-      .toISOString()
-      .substr(0, 10)} ${new Date(this.tournamentDates.end)
-      .toISOString()
-      .substr(11, 5)}`;
+    if (this.round) {
+      this.draft = this.round;
+      this.draft.startDate = new Date(this.round.startDate);
+      this.draft.endDate = new Date(this.round.endDate);
+    } else {
+      this.draft.startDate = new Date(this.tournamentDates.start);
+      this.draft.endDate = new Date(this.tournamentDates.end);
+    }
   }
 };
 </script>

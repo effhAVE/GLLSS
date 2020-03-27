@@ -39,7 +39,7 @@ export default {
       type: String
     },
     date: {
-      type: String
+      type: [String, Date]
     }
   },
   data() {
@@ -49,12 +49,7 @@ export default {
   },
   methods: {
     onInput(value) {
-      this.$emit(
-        "input",
-        `${new Date(value).toISOString().substr(0, 10)} ${new Date(value)
-          .toISOString()
-          .substr(11, 5)}`
-      );
+      this.$emit("input", value);
     }
   }
 };

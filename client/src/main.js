@@ -9,6 +9,7 @@ import DatetimePicker from 'vuetify-datetime-picker'
  
 Vue.use(DatetimePicker);
 Vue.use(VueJWT, { keyName: "token" });
+Vue.use(require('vue-moment'));
 Vue.config.productionTip = false
 Vue.prototype.$http = axios;
 
