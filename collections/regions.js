@@ -1,6 +1,7 @@
 module.exports = [
     "Asia", 
-    "APAC", 
+    "APAC",
+    "South Asia", 
     "NEA", 
     "GSEA", 
     "OCE",
