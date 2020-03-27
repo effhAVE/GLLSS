@@ -23,7 +23,7 @@ router.post("/", auth, validateAccess("admin"), validateObjectId, async (req, re
   Tournament.findByIdAndUpdate(req.params.id, {
       "$push": {
         "rounds": {
-          "$each": [new Round(_.pick(req.body, ["name", "startDate", "endDate", "bestOf", "TLValue"]))],
+          "$each": [new Round(_.pick(req.body, ["name", "startDate", "endDate", "bestOf", "prepTime"]))],
           "$sort": {
             "startDate": 1
           }
@@ -139,7 +139,7 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
     teamLeads: req.body.teamLeads,
     available: req.body.available,
     bestOf: req.body.bestOf,
-    TLValue: req.body.TLValue
+    prepTime: req.body.prepTime
   });
 
   try {

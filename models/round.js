@@ -20,7 +20,7 @@ const roundSchema = new mongoose.Schema({
     required: true,
     min: 1
   },
-  TLValue: {
+  prepTime: {
     type: Number,
     min: 1,
     max: 15
@@ -34,9 +34,9 @@ const roundSchema = new mongoose.Schema({
       type: Boolean,
       default: false
     },
-    hostedRounds: {
+    timeBalance: {
       type: Number,
-      default: this.bestOf
+      default: 0
     },
     lostHosting: {
       type: Boolean,
@@ -53,9 +53,9 @@ const roundSchema = new mongoose.Schema({
       type: Boolean,
       default: false
     },
-    leadingHours: {
+    timeBalance: {
       type: Number,
-      default: this.TLValue
+      default: 0
     },
     lostLeading: {
       type: Boolean,
@@ -72,8 +72,7 @@ const roundSchema = new mongoose.Schema({
 const Round = mongoose.model("Round", roundSchema);
 
 function validateRound(round) {
-  const schema = {
-  };
+  const schema = {};
 
   return Joi.validate(round, schema);
 }

@@ -28,10 +28,10 @@
     >
     </v-text-field>
     <v-text-field
-      v-model="draft.TLValue"
+      v-model="draft.prepTime"
       type="number"
       color="accent"
-      label="TL Value"
+      label="Preparation time"
       prepend-icon="mdi-pencil"
       required
     ></v-text-field>
@@ -78,7 +78,7 @@ export default {
         startDate: new Date(),
         endDate: new Date(),
         bestOf: 3,
-        TLValue: 3
+        prepTime: 3
       }
     };
   },
