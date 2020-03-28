@@ -29,7 +29,7 @@ router.get("/", auth, validateAccess("admin"), async (req, res) => {
 router.get("/admins", auth, async (req, res) => {
   const admins = await User.find({
     roles: "admin"
-  });
+  }).select("nickname");
   res.send(admins);
 });
 

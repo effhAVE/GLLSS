@@ -33,7 +33,6 @@ router.post("/", auth, validateAccess("admin"), validateObjectId, async (req, re
       new: true
     })
     .exec(async (error, data) => {
-      console.log(req.body);
       if (error) {
         console.log(error);
         return res.status(500).send("Something failed.");
@@ -68,60 +67,17 @@ router.get("/:rid", auth, validateAccess("host"), validateObjectId, async (req, 
   res.send(round);
 });
 
-
-router.put("/:rid/availability", auth, validateAccess("host"), validateObjectId, async (req, res) => {
-  const tournament = await Tournament.findById(req.params.id).select("rounds");
+router.delete("/:rid", auth, validateAccess("teamleader"), validateObjectId, async (req, res) => {
+  const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return res.status(400).send("No tournament found.");
 
   const round = tournament.rounds.id(req.params.rid);
   if (!round) return res.status(400).send("No round found.");
-  if (req.body.value === true) {
-    round.available.push(req.body.id)
-  } else {
-    round.available = round.available.filter(id => {
-      return !id.equals(req.body.id);
-    });
-  }
 
+  await round.remove();
   await tournament.save();
+
   res.send(round);
-});
-
-router.put("/", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
-  const tournament = await Tournament.findById(req.params.id);
-  if (!tournament) return res.status(400).send("No tournament found.");
-
-  if (!Array.isArray(req.body)) {
-    return res.status(400).send("Bad request.");
-  }
-
-  tournament.rounds = req.body;
-  let tournamentHosts = [];
-  tournament.rounds.forEach(round => {
-    round.hosts.forEach(host => {
-      if (!tournamentHosts.includes(host)) tournamentHosts.push(host);
-    });
-  });
-
-  try {
-    tournamentHosts.forEach(async hostID => {
-      await User.findByIdAndUpdate(hostID, {
-        "$addToSet": {
-          "tournamentsHosted": tournament._id
-        }
-      }, {
-        new: true
-      });
-    });
-
-    tournament.startDate = tournament.rounds[0].startDate;
-    tournament.endDate = tournament.rounds[rounds.length - 1].endDate;
-
-    await tournament.save();
-    res.send(tournament);
-  } catch (ex) {
-    res.status(500).send("Something failed.");
-  }
 });
 
 router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async (req, res) => {
@@ -152,10 +108,6 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
       [hosts, teamLeads].forEach(array => {
         if (array.some(hostObject => typeof hostObject.host === "undefined")) return res.status(400).send("Bad request.");
       })
-
-      round.hosts = hosts;
-      round.available = available;
-      round.teamLeads = teamLeads;
     } else {
       return res.status(400).send("Bad request.");
     }
@@ -178,6 +130,24 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
   } catch (ex) {
     res.status(500).send("Something failed.");
   }
+});
+
+router.put("/:rid/availability", auth, validateAccess("host"), validateObjectId, async (req, res) => {
+  const tournament = await Tournament.findById(req.params.id).select("rounds");
+  if (!tournament) return res.status(400).send("No tournament found.");
+
+  const round = tournament.rounds.id(req.params.rid);
+  if (!round) return res.status(400).send("No round found.");
+  if (req.body.value === true) {
+    round.available.push(req.body.id)
+  } else {
+    round.available = round.available.filter(id => {
+      return !id.equals(req.body.id);
+    });
+  }
+
+  await tournament.save();
+  res.send(round);
 });
 
 module.exports = router;

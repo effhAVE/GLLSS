@@ -54,14 +54,26 @@
       prepend-icon="mdi-currency-usd"
       color="accent"
     ></v-checkbox>
-    <v-btn
-      color="accent black--text"
-      class="mt-8"
-      large
-      @click="$emit('submit', draft)"
-    >
-      Create!
-    </v-btn>
+    <v-row>
+      <v-spacer></v-spacer>
+      <v-btn
+        color="accent black--text"
+        class="mt-8"
+        text
+        @click="$emit('submit', draft)"
+      >
+        Save
+      </v-btn>
+      <v-btn
+        color="accent black--text"
+        class="mt-8"
+        text
+        @click="$emit('cancel')"
+        v-if="tournament"
+      >
+        Cancel
+      </v-btn>
+    </v-row>
   </v-form>
 </template>
 
@@ -71,6 +83,9 @@ import DatetimePicker from "./CustomDatetimePicker";
 export default {
   components: {
     DatetimePicker
+  },
+  props: {
+    tournament: Object
   },
   data() {
     return {
@@ -89,6 +104,12 @@ export default {
     };
   },
   created() {
+    if (this.tournament) {
+      this.draft = this.tournament;
+      this.draft.startDate = new Date(this.tournament.startDate);
+      this.draft.endDate = new Date(this.tournament.endDate);
+    }
+
     const APIURL = process.env.VUE_APP_APIURL;
     this.$http.get(`${APIURL}/collections/games`).then(response => {
       this.gamesList = response.data;

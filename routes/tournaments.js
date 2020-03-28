@@ -9,7 +9,9 @@ const {
 const {
   Series
 } = require("../models/series");
-const { User } = require("../models/user");
+const {
+  User
+} = require("../models/user");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
@@ -17,7 +19,27 @@ const moment = require("moment");
 
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
-  const tournaments = await Tournament.find().populate("series", "game");
+  const tournaments = await Tournament.find({
+    "startDate": {
+      $gt: new Date()
+    }
+  }).populate("series", "game").sort("startDate");
+  res.send(tournaments);
+});
+
+router.get("/past", auth, validateAccess("host"), async (req, res) => {
+  const limitSize = req.query.limit || 10;
+  const page = req.query.page || 0;
+  const tournaments = await Tournament.find({
+      "endDate": {
+        $lt: new Date()
+      }
+    })
+    .sort("-startDate")
+    .limit(limitSize)
+    .skip(limitSize * page)
+    .populate("series", "game");
+
   res.send(tournaments);
 });
 
@@ -27,8 +49,17 @@ router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
 });
 
 router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, res) => {
-  const tournament = await Tournament.findById(req.params.id).populate("rounds.hosts.host rounds.available rounds.teamLeads", "nickname");
+  const tournament = await Tournament.findById(req.params.id).populate("rounds.hosts.host rounds.teamLeads.host", "nickname").populate("rounds.available", "nickname roles");
   if (!tournament) return res.status(400).send("No tournament found.");
+  res.send(tournament);
+});
+
+router.put("/:id", auth, validateObjectId, validateAccess("admin"), async (req, res) => {
+  const tournament = await Tournament.findById(req.params.id);
+  if (!tournament) return res.status(400).send("No tournament found.");
+
+  Object.assign(tournament, _.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region"]));
+  await tournament.save();
   res.send(tournament);
 });
 

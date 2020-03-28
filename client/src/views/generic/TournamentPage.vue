@@ -28,6 +28,28 @@
           </v-card-text>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="editModal" persistent max-width="600px">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            class="success mr-4"
+            v-if="user.roles.includes('admin')"
+            v-on="on"
+          >
+            Edit tournament
+          </v-btn>
+        </template>
+        <v-card class="primary">
+          <v-card-text>
+            <v-container>
+              <TournamentForm
+                :tournament="tournament"
+                @cancel="editModal = false"
+                @submit="editTournament"
+              />
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
       <v-dialog v-model="deleteModal" max-width="500px" overlay-color="primary">
         <template v-slot:activator="{ on }">
           <v-btn class="error" v-if="user.roles.includes('admin')" v-on="on">
@@ -57,7 +79,7 @@
     </v-card-title>
     <TournamentTable :tournament="tournament" />
     <div class="rounds d-flex align-start flex-wrap">
-      <RoundTable
+      <Round
         v-for="round in tournament.rounds"
         :round="round"
         :tournamentID="tournament._id"
@@ -71,15 +93,17 @@
 
 <script>
 import TournamentTable from "../../components/TournamentTable";
-import RoundTable from "../../components/RoundTable";
+import Round from "../../components/Rounds/Round";
 import RoundForm from "../../components/Forms/RoundForm";
+import TournamentForm from "../../components/Forms/TournamentForm";
 
 export default {
   name: "Tournament",
   components: {
     TournamentTable,
-    RoundTable,
-    RoundForm
+    Round,
+    RoundForm,
+    TournamentForm
   },
   props: {
     user: Object
@@ -90,7 +114,8 @@ export default {
       tournament: null,
       loading: true,
       deleteModal: false,
-      addRoundModal: false
+      addRoundModal: false,
+      editModal: false
     };
   },
   methods: {
@@ -145,6 +170,25 @@ export default {
         .catch(error => {
           this.$store.commit("snackbarMessage", {
             message: "Error while deleting the tournament.",
+            type: "error"
+          });
+        });
+    },
+    editTournament(tournament) {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.editModal = false;
+      this.$http
+        .put(`${APIURL}/tournaments/${tournament._id}`, tournament)
+        .then(response => {
+          this.$store.commit("snackbarMessage", {
+            message: "Tournament successfully edited!",
+            type: "success"
+          });
+          this.$router.go();
+        })
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            message: "Error while editing the tournament.",
             type: "error"
           });
         });
