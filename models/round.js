@@ -5,7 +5,8 @@ const roundSchema = new mongoose.Schema({
   name: {
     type: String,
     minlength: 2,
-    maxlength: 40
+    maxlength: 40,
+    required: true
   },
   startDate: {
     type: Date,
@@ -22,8 +23,8 @@ const roundSchema = new mongoose.Schema({
   },
   prepTime: {
     type: Number,
-    min: 1,
-    max: 15
+    min: 0,
+    max: 180
   },
   hosts: [{
     host: {
@@ -36,7 +37,9 @@ const roundSchema = new mongoose.Schema({
     },
     timeBalance: {
       type: Number,
-      default: 0
+      default: 0,
+      min: -480,
+      max: 180
     },
     lostHosting: {
       type: Boolean,
@@ -55,7 +58,9 @@ const roundSchema = new mongoose.Schema({
     },
     timeBalance: {
       type: Number,
-      default: 0
+      default: 0,
+      min: -480,
+      max: 480
     },
     lostLeading: {
       type: Boolean,
@@ -72,23 +77,20 @@ const roundSchema = new mongoose.Schema({
 const Round = mongoose.model("Round", roundSchema);
 
 function validateRound(round) {
-  const schema = {};
+  const schema = {
+    name: Joi.string().min(2).max(40).required(),
+    startDate: Joi.date().required(),
+    endDate: Joi.date().min(Joi.ref("startDate")).required(),
+    bestOf: Joi.number().required().min(1),
+    prepTime: Joi.number().min(0).max(180),
+    hosts: Joi.array(),
+    teamLeads: Joi.array(),
+    available: Joi.array()
+
+  };
 
   return Joi.validate(round, schema);
 }
 
 exports.Round = Round;
-
-/*
-
-available: Array
-
-"hosts": [
-  "5e65395c19109d215056c310",
-  "5e6535498be7ac2160321aca"
-]
-
-"hosts" : [
-  { id: "5e65395c19109d215056c310", ready: false, }
-]
-*/
+exports.validate = validateRound;

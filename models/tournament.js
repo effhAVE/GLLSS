@@ -1,6 +1,8 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
-const { Round } = require("./round");
+const {
+  Round
+} = require("./round");
 const tournamentRegions = require("../collections/regions");
 const games = require("../collections/games");
 
@@ -42,6 +44,22 @@ const Tournament = mongoose.model("Tournament", tournamentSchema);
 
 function validateTournament(tournament) {
   const schema = {
+    name: Joi.string().min(5).max(120).required(),
+    startDate: Joi.date().required(),
+    endDate: Joi.date().min(Joi.ref("startDate")).required(),
+    rounds: Joi.array(),
+    series: Joi.objectId().allow(null),
+    game: Joi.when("series", {
+      is: Joi.objectId(),
+      then: Joi.forbidden(),
+      otherwise: Joi.string().required()
+    }),
+    region: Joi.when("series", {
+      is: Joi.objectId(),
+      then: Joi.forbidden(),
+      otherwise: Joi.string().required()
+    }),
+    countedByRounds: Joi.boolean()
   };
 
   return Joi.validate(tournament, schema);

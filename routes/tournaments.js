@@ -4,7 +4,7 @@ const validateObjectId = require("../middleware/validateObjectId");
 const _ = require("lodash");
 const {
   Tournament,
-  validateTournament
+  validate
 } = require("../models/tournament");
 const {
   Series
@@ -20,10 +20,13 @@ const moment = require("moment");
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
   const tournaments = await Tournament.find({
-    "startDate": {
-      $gt: new Date()
-    }
-  }).populate("series", "game").sort("startDate");
+      "startDate": {
+        $gt: new Date()
+      }
+    })
+    .populate("series", "game")
+    .sort("startDate");
+
   res.send(tournaments);
 });
 
@@ -35,7 +38,7 @@ router.get("/past", auth, validateAccess("host"), async (req, res) => {
         $lt: new Date()
       }
     })
-    .sort("-startDate")
+    .sort("-endDate")
     .limit(limitSize)
     .skip(limitSize * page)
     .populate("series", "game");
@@ -55,6 +58,10 @@ router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, r
 });
 
 router.put("/:id", auth, validateObjectId, validateAccess("admin"), async (req, res) => {
+  const {
+    error
+  } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return res.status(400).send("No tournament found.");
 
@@ -71,10 +78,10 @@ router.delete("/:id", auth, validateObjectId, validateAccess("admin"), async (re
 });
 
 router.post("/", auth, validateAccess("admin"), async (req, res) => {
-  /* const {
-      error
-  } = validateTournament(req.body);
-  if (error) return res.status(400).send(error.details[0].message); */
+  const {
+    error
+  } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
   let tournament = new Tournament(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region"]));
   let series;

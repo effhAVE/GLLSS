@@ -3,7 +3,8 @@ const validateAccess = require("../middleware/validateAccess");
 const validateObjectId = require("../middleware/validateObjectId");
 const _ = require("lodash");
 const {
-  Round
+  Round,
+  validate
 } = require("../models/round");
 const {
   Tournament
@@ -18,7 +19,10 @@ const router = express.Router({
 });
 
 router.post("/", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
-  if (!req.body.name) return res.status(400).send("Bad request.");
+  const {
+    error
+  } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
   Tournament.findByIdAndUpdate(req.params.id, {
       "$push": {
@@ -86,6 +90,11 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
 
   const round = tournament.rounds.id(req.params.rid);
   if (!round) return res.status(400).send("No round found.");
+
+  const {
+    error
+  } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
 
   round.set({
     name: req.body.name,

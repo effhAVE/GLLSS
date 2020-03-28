@@ -27,6 +27,54 @@
               <v-icon class="ml-auto" v-else color="error">
                 mdi-account-remove
               </v-icon>
+              <v-menu bottom right offset-x :close-on-content-click="false">
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on">
+                    <v-icon>mdi-pencil</v-icon>
+                  </v-btn>
+                </template>
+                <v-list>
+                  <div class="text-center">{{ item.host.nickname }}</div>
+                  <v-form>
+                    <v-list-item>
+                      <v-checkbox
+                        v-model="item.ready"
+                        label="Ready"
+                        color="accent"
+                      ></v-checkbox>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-checkbox
+                        v-model="item.lostHosting"
+                        label="Lost hosting"
+                        color="accent"
+                      ></v-checkbox>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-text-field
+                        label="Time balance"
+                        v-model="item.timeBalance"
+                        type="number"
+                        color="accent"
+                      ></v-text-field>
+                    </v-list-item>
+                    <v-container>
+                      <v-row>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text
+                          class="mr-4"
+                          color="accent"
+                          type="submit"
+                          @click="$emit('userUpdate', item)"
+                        >
+                          Save
+                        </v-btn>
+                      </v-row>
+                    </v-container>
+                  </v-form>
+                </v-list>
+              </v-menu>
             </div>
           </div>
         </template>

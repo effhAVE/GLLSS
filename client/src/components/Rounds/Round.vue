@@ -146,7 +146,7 @@ export default {
         .catch(error => {
           this.$store.commit("snackbarMessage", {
             type: "error",
-            message: "Error while updating."
+            message: error.response.data || "Error while updating."
           });
         });
     },
@@ -187,7 +187,7 @@ export default {
         .catch(error => {
           this.$store.commit("snackbarMessage", {
             type: "error",
-            message: "Error while updating."
+            message: error.response.data || "Error while updating."
           });
         });
     }

@@ -32,7 +32,7 @@ export default {
         })
         .catch(error =>
           this.$store.commit("snackbarMessage", {
-            message: "Error while saving.",
+            message: error.response.data || "Error while saving",
             type: "error"
           })
         );
