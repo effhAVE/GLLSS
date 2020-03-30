@@ -19,58 +19,16 @@
       color="primary lighten-1"
       v-if="user"
     >
-      <v-list dense>
-        <v-list-item link to="/">
-          <v-list-item-action>
-            <v-icon>mdi-view-dashboard</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Overview</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item link to="/tournaments">
-          <v-list-item-action>
-            <v-icon>mdi-format-list-bulleted</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Tournaments</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-group
-          prepend-icon="mdi-shield-account"
-          color="accent"
-          v-if="user.roles.includes(`admin`)"
-          :value="$route.path.includes('admin')"
-        >
-          <template v-slot:activator>
-            <v-list-item-title>Admin</v-list-item-title>
-          </template>
-          <v-list-item link to="/admin/users">
-            <v-list-item-content>
-              <v-list-item-title>Users</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item link to="/admin/unconfirmed">
-            <v-list-item-content>
-              <v-list-item-title>Confirm users</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item link to="/admin/tournaments/create">
-            <v-list-item-content>
-              <v-list-item-title>Create a tournament</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-group>
-      </v-list>
+      <Navigation :user="user" />
     </v-navigation-drawer>
 
     <v-app-bar app clipped-left flat color="secondary">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>GLL Staff Scheduler</v-toolbar-title>
       <v-spacer />
-      <span v-if="user" class="accent--text font-weight-bold mr-4">{{
-        user.nickname
-      }}</span>
+      <span v-if="user" class="accent--text font-weight-bold mr-4">
+        {{ user.nickname }}
+      </span>
       <v-btn text v-if="isLoggedIn" @click="logout">
         Logout
       </v-btn>
@@ -92,7 +50,11 @@
 </template>
 
 <script>
+import Navigation from "./components/Navigation";
 export default {
+  components: {
+    Navigation
+  },
   data: () => ({
     drawer: null,
     snackbar: {
@@ -109,6 +71,8 @@ export default {
         return new Promise(function(resolve, reject) {
           if (status === 401) {
             this.$store.dispatch("logout");
+          } else if (status === 404) {
+            this.$router.push("/notfound");
           }
 
           throw error;
@@ -145,6 +109,6 @@ export default {
 
 <style lang="scss">
 html {
-  overflow-y: auto;
+  overflow-y: auto !important;
 }
 </style>

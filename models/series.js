@@ -2,12 +2,13 @@ const Joi = require("joi");
 const mongoose = require("mongoose");
 const tournamentRegions = require("../collections/regions");
 const games = require("../collections/games");
+const recurrences = require("../collections/recurrences");
 
 const seriesSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    minlength: 5,
+    minlength: 2,
     maxlength: 120
   },
   startDate: {
@@ -22,30 +23,35 @@ const seriesSchema = new mongoose.Schema({
   recurrence: {
     type: String,
     required: true,
-    enum: ["daily", "weekly"]
+    enum: recurrences
   },
   game: {
     type: String,
     enum: games,
     required: true
   },
-  regions: {
+  region: {
     type: String,
     enum: tournamentRegions,
     required: true
   },
-  tournaments: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Tournament"
-    }
-  ]
+  tournaments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tournament"
+  }]
 });
 
 const Series = mongoose.model("Series", seriesSchema);
 
 function validateSeries(series) {
   const schema = {
+    name: Joi.string().min(2).max(120).required(),
+    startDate: Joi.date().required(),
+    endDate: Joi.date().min(Joi.ref("startDate")).required(),
+    recurrence: Joi.string().valid(...recurrences).required(),
+    game: Joi.string().valid(...games).required(),
+    region: Joi.string().valid(...tournamentRegions).required(),
+    tournaments: Joi.array()
   };
 
   return Joi.validate(series, schema);

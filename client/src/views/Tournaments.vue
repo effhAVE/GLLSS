@@ -4,7 +4,6 @@
       v-model="availableQueue.length"
       color="secondary border--accent"
       bottom
-      absolute
       right
       multi-line
       :timeout="0"

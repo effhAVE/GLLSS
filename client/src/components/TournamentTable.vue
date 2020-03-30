@@ -12,7 +12,14 @@
         </tr>
         <tr>
           <th>Series ID</th>
-          <td>{{ tournament.series || "null" }}</td>
+          <td>
+            <router-link
+              v-if="tournament.series"
+              :to="`/series/${tournament.series}`"
+              >{{ tournament.series }}</router-link
+            >
+            <span v-else>null</span>
+          </td>
         </tr>
         <tr>
           <th>Game</th>

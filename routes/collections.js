@@ -1,18 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
-const { roles, games, regions } = require("../collections");
+const {
+  roles,
+  games,
+  regions,
+  recurrences
+} = require("../collections");
 
 router.get("/roles", auth, async (req, res) => {
-    res.send(roles);
+  res.send(roles);
 });
 
 router.get("/games", auth, async (req, res) => {
-    res.send(games);
+  res.send(games);
 });
 
 router.get("/regions", auth, async (req, res) => {
-    res.send(regions);
+  res.send(regions);
 });
 
-module.exports = router; 
+router.get("/recurrences", auth, async (req, res) => {
+  res.send(recurrences);
+});
+
+module.exports = router;

@@ -26,6 +26,16 @@ router.get("/", auth, validateAccess("admin"), async (req, res) => {
   res.send(users);
 });
 
+router.get("/list", auth, validateAccess("teamleader"), async (req, res) => {
+  const users = await User.find({
+    roles: {
+      $ne: "guest"
+    }
+  }).select("nickname");
+
+  res.send(users);
+})
+
 router.get("/admins", auth, async (req, res) => {
   const admins = await User.find({
     roles: "admin"

@@ -13,6 +13,14 @@
   </div>
   <div v-else>
     <p>Welcome {{ user.nickname }}!</p>
+    <p>You're hosting:</p>
+    <ul v-for="tournament in tournamentsHosted" :key="tournament._id">
+      <li>
+        <router-link :to="`/tournaments/${tournament}`">{{
+          tournament
+        }}</router-link>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -23,7 +31,8 @@ export default {
   name: "Home",
   data() {
     return {
-      admins: []
+      admins: [],
+      tournamentsHosted: []
     };
   },
   computed: {
@@ -33,9 +42,15 @@ export default {
   },
   created() {
     const APIURL = process.env.VUE_APP_APIURL;
-    this.$http.get(`${APIURL}/users/admins`).then(response => {
-      this.admins = response.data;
-    });
+    if (this.user.roles.includes("guest")) {
+      this.$http.get(`${APIURL}/users/admins`).then(response => {
+        this.admins = response.data;
+      });
+    } else {
+      this.$http.get(`${APIURL}/tournaments/hosted`).then(response => {
+        this.tournamentsHosted = response.data;
+      });
+    }
   }
 };
 </script>

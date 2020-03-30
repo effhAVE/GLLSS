@@ -85,6 +85,7 @@
         :tournamentID="tournament._id"
         :key="round._id"
         :user="user"
+        :usersAvailable="usersAvailable"
         class="mt-12 mr-12"
       />
     </div>
@@ -115,7 +116,8 @@ export default {
       loading: true,
       deleteModal: false,
       addRoundModal: false,
-      editModal: false
+      editModal: false,
+      usersAvailable: []
     };
   },
   methods: {
@@ -124,10 +126,17 @@ export default {
       this.$http
         .get(`${APIURL}/tournaments/${id}`)
         .then(response => {
-          this.tournament = response.data;
+          this.tournament = response.data.tournament;
+          const isPast = response.data.isPast;
+          console.log(isPast);
+          if (isPast) {
+            this.$http.get(`${APIURL}/users/list`).then(response => {
+              this.usersAvailable = response.data;
+            });
+          }
         })
         .catch(error => {
-          if (error.response.status === 404) {
+          if (error.response.status === 400) {
             this.$router.push("/notfound");
           }
         });

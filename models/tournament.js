@@ -48,15 +48,15 @@ function validateTournament(tournament) {
     startDate: Joi.date().required(),
     endDate: Joi.date().min(Joi.ref("startDate")).required(),
     rounds: Joi.array(),
-    series: Joi.objectId().allow(null),
+    series: Joi.alternatives().try(Joi.string(), Joi.object()).allow(null),
     game: Joi.when("series", {
-      is: Joi.objectId(),
-      then: Joi.forbidden(),
+      is: Joi.object(),
+      then: Joi.allow(""),
       otherwise: Joi.string().required()
     }),
     region: Joi.when("series", {
-      is: Joi.objectId(),
-      then: Joi.forbidden(),
+      is: Joi.object(),
+      then: Joi.allow(""),
       otherwise: Joi.string().required()
     }),
     countedByRounds: Joi.boolean()

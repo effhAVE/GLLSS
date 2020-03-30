@@ -86,7 +86,6 @@ function validateRound(round) {
     hosts: Joi.array(),
     teamLeads: Joi.array(),
     available: Joi.array()
-
   };
 
   return Joi.validate(round, schema);

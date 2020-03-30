@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
+import Series from '../views/Series.vue'
+import SeriesPage from '../views/generic/SeriesPage.vue'
 import Tournaments from '../views/Tournaments.vue'
 import TournamentPage from '../views/generic/TournamentPage.vue'
 import Page404 from '../views/generic/Page404.vue'
@@ -11,16 +13,31 @@ import ConfirmUsers from '../views/admin/ConfirmUsers.vue'
 import Users from '../views/admin/Users.vue'
 import Admin from '../views/admin/Admin.vue'
 import TournamentCreate from '../views/admin/TournamentCreate.vue'
+import SeriesCreate from '../views/admin/SeriesCreate.vue'
 import store from "../store"
 
 Vue.use(VueRouter)
 
-const routes = [
-  {
+const routes = [{
     path: "/",
     name: "Home",
     component: Home,
-    meta: { 
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/series",
+    name: "Series",
+    component: Series,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/series/:seriesID",
+    component: SeriesPage,
+    meta: {
       requiresAuth: true
     }
   },
@@ -28,7 +45,7 @@ const routes = [
     path: "/tournaments",
     name: "Tournaments",
     component: Tournaments,
-    meta: { 
+    meta: {
       requiresAuth: true
     }
   },
@@ -58,8 +75,7 @@ const routes = [
       requiredRole: "admin"
     },
     component: Admin,
-    children: [
-      {
+    children: [{
         path: "unconfirmed",
         name: "Confirm",
         component: ConfirmUsers
@@ -71,8 +87,11 @@ const routes = [
       },
       {
         path: "tournaments/create",
-        name: "Create tournament",
         component: TournamentCreate
+      },
+      {
+        path: "series/create",
+        component: SeriesCreate
       }
     ]
   },
@@ -110,7 +129,11 @@ router.beforeEach((to, from, next) => {
 router.beforeEach((to, from, next) => {
   const user = Vue.$jwt.decode();
   if (to.matched.some(record => record.meta.requiredRole)) {
-    const { meta: { requiredRole } } = to.matched.find(m => m.meta.requiredRole);
+    const {
+      meta: {
+        requiredRole
+      }
+    } = to.matched.find(m => m.meta.requiredRole);
     if (user.roles.includes(requiredRole)) {
       return next();
     }

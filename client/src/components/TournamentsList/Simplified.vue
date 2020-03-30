@@ -1,0 +1,55 @@
+<template>
+  <div>
+    <v-row class="mt-4">
+      <v-card-subtitle>Tournaments</v-card-subtitle>
+    </v-row>
+    <v-data-table
+      class="table-background"
+      :items="tournaments"
+      :headers="headers"
+      @click:row="redirect"
+      no-data-text="No tournaments"
+      item-key="_id"
+      hide-default-footer
+    >
+      <template v-slot:item.startDate="{ item }">
+        <span>{{ item.startDate | moment("lll") }}</span>
+      </template>
+      <template v-slot:item.endDate="{ item }">
+        <span>{{ item.endDate | moment("lll") }}</span>
+      </template>
+    </v-data-table>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    user: Object,
+    tournaments: {
+      type: Array,
+      default: () => []
+    }
+  },
+  data() {
+    return {
+      search: "",
+      headers: [
+        {
+          text: "Tournament name",
+          align: "start",
+          sortable: false,
+          value: "name"
+        },
+        { text: "Start date", value: "startDate" },
+        { text: "End date", value: "endDate" }
+      ]
+    };
+  },
+  methods: {
+    redirect(tournament) {
+      return this.$router.push(`/tournaments/${tournament._id}`);
+    }
+  }
+};
+</script>

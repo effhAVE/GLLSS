@@ -11,6 +11,8 @@
       @click:row="redirect"
       no-data-text="No tournaments"
       show-expand
+      hide-default-footer
+      disable-pagination
       item-key="_id"
     >
       <template v-slot:item.rounds="{ item }">
@@ -50,6 +52,20 @@
       <template v-slot:item.endDate="{ item }">
         <span>{{ item.endDate | moment("lll") }}</span>
       </template>
+      <template v-slot:footer>
+        <div class="v-data-footer">
+          <v-spacer></v-spacer>
+          <v-btn
+            class="accent--text"
+            text
+            tile
+            @click="getNextTournamentPage"
+            :disabled="allLoaded"
+          >
+            Load more
+          </v-btn>
+        </div>
+      </template>
     </v-data-table>
   </div>
 </template>
@@ -63,7 +79,10 @@ export default {
     return {
       search: "",
       tournamentsList: [],
+      page: 0,
+      limit: 10,
       expanded: [],
+      allLoaded: false,
       headers: [
         {
           text: "Hosting",
@@ -94,17 +113,23 @@ export default {
   methods: {
     getTournaments() {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/tournaments/past`).then(response => {
-        let tournaments = response.data;
-        tournaments.forEach(tournament => {
-          tournament.rounds.forEach(round => {
-            round.isHosting = this.isHosting(round);
-            round.myAvailability = this.checkAvailability(round);
+      this.$http
+        .get(`${APIURL}/tournaments/past?limit=${this.limit}&page=${this.page}`)
+        .then(response => {
+          let tournaments = response.data;
+          if (tournaments.length < this.limit) this.allLoaded = true;
+          tournaments.forEach(tournament => {
+            tournament.rounds.forEach(round => {
+              round.isHosting = this.isHosting(round);
+            });
           });
-        });
 
-        this.tournamentsList = tournaments;
-      });
+          this.tournamentsList.push(...tournaments);
+        });
+    },
+    getNextTournamentPage() {
+      this.page++;
+      this.getTournaments();
     },
     checkAvailability(round) {
       return round.available.includes(this.user._id);

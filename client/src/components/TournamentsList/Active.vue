@@ -23,6 +23,8 @@
       no-data-text="No tournaments"
       show-expand
       item-key="_id"
+      hide-default-footer
+      disable-pagination
     >
       <template v-slot:item.rounds="{ item }">
         <div class="d-flex justify-space-between">
@@ -77,6 +79,20 @@
       <template v-slot:item.endDate="{ item }">
         <span>{{ item.endDate | moment("lll") }}</span>
       </template>
+      <template v-slot:footer>
+        <div class="v-data-footer">
+          <v-spacer></v-spacer>
+          <v-btn
+            class="accent--text"
+            text
+            tile
+            @click="getNextTournamentPage"
+            :disabled="allLoaded"
+          >
+            Load more
+          </v-btn>
+        </div>
+      </template>
     </v-data-table>
   </div>
 </template>
@@ -90,6 +106,9 @@ export default {
     return {
       search: "",
       tournamentsList: [],
+      page: 0,
+      limit: 10,
+      allLoaded: false,
       expanded: [],
       headers: [
         {
@@ -121,17 +140,24 @@ export default {
   methods: {
     getTournaments() {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/tournaments/`).then(response => {
-        let tournaments = response.data;
-        tournaments.forEach(tournament => {
-          tournament.rounds.forEach(round => {
-            round.isHosting = this.isHosting(round);
-            round.myAvailability = this.checkAvailability(round);
+      this.$http
+        .get(`${APIURL}/tournaments/?limit=${this.limit}&page=${this.page}`)
+        .then(response => {
+          let tournaments = response.data;
+          if (tournaments.length < this.limit) this.allLoaded = true;
+          tournaments.forEach(tournament => {
+            tournament.rounds.forEach(round => {
+              round.isHosting = this.isHosting(round);
+              round.myAvailability = this.checkAvailability(round);
+            });
           });
-        });
 
-        this.tournamentsList = tournaments;
-      });
+          this.tournamentsList.push(...tournaments);
+        });
+    },
+    getNextTournamentPage() {
+      this.page++;
+      this.getTournaments();
     },
     checkAvailability(round) {
       return round.available.includes(this.user._id);

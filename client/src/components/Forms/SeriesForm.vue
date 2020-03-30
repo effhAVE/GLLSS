@@ -7,21 +7,6 @@
       prepend-icon="mdi-pencil"
       required
     ></v-text-field>
-    <v-select
-      :items="seriesList"
-      :disabled="belongsToSeries"
-      v-model="draft.series"
-      label="Series"
-      prepend-icon="mdi-view-list"
-      color="accent"
-    >
-      <template v-slot:item="{ item }">
-        {{ item.name }}
-      </template>
-      <template v-slot:selection="{ item }">
-        {{ item.name }}
-      </template>
-    </v-select>
     <DatetimePicker
       :date="draft.startDate"
       label="Start date"
@@ -38,7 +23,6 @@
       label="Game"
       prepend-icon="mdi-gamepad"
       color="accent"
-      :disabled="!!draft.series"
       v-model="draft.game"
     ></v-select>
     <v-select
@@ -46,15 +30,15 @@
       label="Region"
       prepend-icon="mdi-earth"
       color="accent"
-      :disabled="!!draft.series"
       v-model="draft.region"
     ></v-select>
-    <v-checkbox
-      v-model="draft.countedByRounds"
-      label="Counted by rounds"
-      prepend-icon="mdi-currency-usd"
+    <v-select
+      :items="recurrencesList"
+      label="Recurrence"
+      prepend-icon="mdi-calendar-sync"
       color="accent"
-    ></v-checkbox>
+      v-model="draft.recurrence"
+    ></v-select>
     <v-row>
       <v-spacer></v-spacer>
       <v-btn
@@ -70,7 +54,7 @@
         class="mt-8"
         text
         @click="$emit('cancel')"
-        v-if="tournament"
+        v-if="series"
       >
         Cancel
       </v-btn>
@@ -86,34 +70,28 @@ export default {
     DatetimePicker
   },
   props: {
-    tournament: Object
+    series: Object
   },
   data() {
     return {
       draft: {
-        name: "Unnamed tournament",
+        name: "Unnamed series",
         startDate: new Date(),
         endDate: new Date(),
-        series: null,
         game: "",
         region: "",
-        countedByRounds: true
+        recurrence: ""
       },
-      belongsToSeries: false,
       regionsList: [],
       gamesList: [],
-      seriesList: []
+      recurrencesList: []
     };
   },
   created() {
-    if (this.tournament) {
-      this.draft = this.tournament;
-      if (this.tournament.series) {
-        this.belongsToSeries = true;
-      }
-
-      this.draft.startDate = new Date(this.tournament.startDate);
-      this.draft.endDate = new Date(this.tournament.endDate);
+    if (this.series) {
+      this.draft = this.series;
+      this.draft.startDate = new Date(this.series.startDate);
+      this.draft.endDate = new Date(this.series.endDate);
     }
 
     const APIURL = process.env.VUE_APP_APIURL;
@@ -125,8 +103,8 @@ export default {
       this.regionsList = response.data;
     });
 
-    this.$http.get(`${APIURL}/series/list`).then(response => {
-      this.seriesList = response.data;
+    this.$http.get(`${APIURL}/collections/recurrences`).then(response => {
+      this.recurrencesList = response.data;
     });
   }
 };

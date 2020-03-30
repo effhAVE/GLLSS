@@ -91,20 +91,22 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
   const round = tournament.rounds.id(req.params.rid);
   if (!round) return res.status(400).send("No round found.");
 
+  const excluded = req.body.excluded;
+  if (!excluded) return res.status(400).send("Missing 'excluded' field!");
   const {
     error
-  } = validate(req.body);
+  } = validate(_.pick(req.body.round, ["name", "startDate", "endDate", "bestOf", "prepTime", "hosts", "teamLeads", "available"]));
   if (error) return res.status(400).send(error.details[0].message);
 
   round.set({
-    name: req.body.name,
-    startDate: req.body.startDate,
-    endDate: req.body.endDate,
-    hosts: req.body.hosts,
-    teamLeads: req.body.teamLeads,
-    available: req.body.available,
-    bestOf: req.body.bestOf,
-    prepTime: req.body.prepTime
+    name: req.body.round.name,
+    startDate: req.body.round.startDate,
+    endDate: req.body.round.endDate,
+    hosts: req.body.round.hosts,
+    teamLeads: req.body.round.teamLeads,
+    available: req.body.round.available,
+    bestOf: req.body.round.bestOf,
+    prepTime: req.body.round.prepTime
   });
 
   try {
@@ -112,8 +114,8 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
       hosts,
       available,
       teamLeads
-    } = req.body;
-    if (Array.isArray(hosts) && Array.isArray(available) && Array.isArray(teamLeads)) {
+    } = req.body.round;
+    if (Array.isArray(hosts) && Array.isArray(available) && Array.isArray(teamLeads) && Array.isArray(excluded)) {
       [hosts, teamLeads].forEach(array => {
         if (array.some(hostObject => typeof hostObject.host === "undefined")) return res.status(400).send("Bad request.");
       })
@@ -132,6 +134,20 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
           })
           .exec((error, data) => data);
       });
+    });
+
+    excluded.forEach(async hostObject => {
+      for (const round of tournament.rounds) {
+        if (round.hosts.some(hostObj => hostObj.host.equals(req.user._id))) return;
+      }
+      await User.findByIdAndUpdate(hostObject, {
+          "$pull": {
+            "tournamentsHosted": tournament._id
+          }
+        }, {
+          new: true
+        })
+        .exec((error, data) => data);
     });
 
     await tournament.save();
@@ -157,6 +173,29 @@ router.put("/:rid/availability", auth, validateAccess("host"), validateObjectId,
 
   await tournament.save();
   res.send(round);
+});
+
+router.post("/:rid/ready", auth, validateAccess("host"), validateObjectId, async (req, res) => {
+  const tournament = await Tournament.findById(req.params.id).select("rounds");
+  if (!tournament) return res.status(400).send("No tournament found.");
+
+  const round = tournament.rounds.id(req.params.rid);
+  if (!round) return res.status(400).send("No round found.");
+
+  let host;
+  if (req.body.source === "host") {
+    host = round.hosts.find(hostObj => hostObj.host.equals(req.user._id));
+  } else {
+    host = round.teamLeads.find(hostObj => hostObj.host.equals(req.user._id));
+  }
+
+  if (host) {
+    host.ready = true;
+    await tournament.save();
+    return res.send(true);
+  }
+
+  return res.status(400).send("No host found.")
 });
 
 module.exports = router;

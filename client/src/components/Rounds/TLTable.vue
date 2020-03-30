@@ -96,8 +96,16 @@
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </template>
-
-        <v-list v-if="availableTLs.length">
+        <v-list v-if="usersAvailable.length">
+          <v-list-item
+            v-for="(host, i) in usersAvailable"
+            :key="i"
+            @click="addTLToRound(round, host)"
+          >
+            <v-list-item-title>{{ host.nickname }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+        <v-list v-else-if="availableTLs.length && !usersAvailable.length">
           <v-list-item
             v-for="(host, i) in availableTLs"
             :key="i"
@@ -121,7 +129,8 @@ export default {
   props: {
     round: Object,
     tableSettings: Object,
-    user: Object
+    user: Object,
+    usersAvailable: Array
   },
   data() {
     return {
@@ -131,7 +140,8 @@ export default {
           value: "teamLeads",
           align: "center"
         }
-      ]
+      ],
+      excludedHosts: []
     };
   },
   computed: {
@@ -150,6 +160,8 @@ export default {
 
       round.available.push(oldHost);
       if (newHost === "") {
+        if (!this.excludedHosts.some(hostObj => hostObj === oldHost))
+          this.$emit("excludedAdd", oldHost);
         return round.teamLeads.splice(arrayIndex, 1);
       }
 
@@ -167,6 +179,7 @@ export default {
         lostHosting: false
       });
       round.available = round.available.filter(host => host !== hostAdded);
+      this.$emit("excludedRemove", hostAdded);
     }
   }
 };

@@ -71,16 +71,23 @@
         :round="round"
         :user="user"
         :tableSettings="tableSettings"
+        :usersAvailable="usersAvailable"
         @changesMade="changesMade = true"
-        @ready="onReady"
+        @ready="onReady($event, 'host')"
         @userUpdate="onUserUpdate"
+        @excludedAdd="onExcludedAdd"
+        @excludedRemove="onExcludedRemove"
       />
       <TLTable
         :round="round"
         :user="user"
         :tableSettings="tableSettings"
+        :usersAvailable="usersAvailable"
         @changesMade="changesMade = true"
-        @ready="onReady"
+        @ready="onReady($event, 'TL')"
+        @userUpdate="onUserUpdate"
+        @excludedAdd="onExcludedAdd"
+        @excludedRemove="onExcludedRemove"
       />
       <Details :round="round" />
     </v-card-text>
@@ -108,6 +115,10 @@ export default {
       type: String,
       required: true
     },
+    usersAvailable: {
+      type: Array,
+      default: () => []
+    },
     user: Object
   },
   data() {
@@ -117,15 +128,29 @@ export default {
         "disable-sort": true,
         "hide-default-footer": true
       },
+      excluded: [],
       changesMade: false,
       editRoundModal: false,
       deleteRoundModal: false
     };
   },
   methods: {
-    onReady(host) {
-      // upload the round on backend
-      host.ready = true;
+    onReady(host, source) {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.$http
+        .post(
+          `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}/ready`,
+          { source }
+        )
+        .then(response => {
+          host.ready = true;
+        })
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            type: "error",
+            message: error.response.data || "Error while updating."
+          });
+        });
     },
     saveRound() {
       this.changesMade = false;
@@ -135,7 +160,7 @@ export default {
       this.$http
         .put(
           `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`,
-          this.round
+          { round: this.round, excluded: this.excluded }
         )
         .then(response => {
           this.$store.commit("snackbarMessage", {
@@ -171,12 +196,18 @@ export default {
           });
         });
     },
+    onExcludedAdd(host) {
+      this.excluded.push(host);
+    },
+    onExcludedRemove(host) {
+      this.excluded = this.excluded.filter(hostObj => hostObj !== host);
+    },
     onUserUpdate(user) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
         .put(
           `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`,
-          this.round
+          { round: this.round, excluded: this.excluded }
         )
         .then(response => {
           this.$store.commit("snackbarMessage", {
