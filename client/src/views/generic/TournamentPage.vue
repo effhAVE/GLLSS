@@ -128,7 +128,6 @@ export default {
         .then(response => {
           this.tournament = response.data.tournament;
           const isPast = response.data.isPast;
-          console.log(isPast);
           if (isPast) {
             this.$http.get(`${APIURL}/users/list`).then(response => {
               this.usersAvailable = response.data;
