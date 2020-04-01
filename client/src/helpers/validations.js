@@ -1,4 +1,8 @@
 function required(value) {
+  if (typeof value === "number") {
+    value += "";
+  }
+
   return !!value || "This field is required";
 }
 
