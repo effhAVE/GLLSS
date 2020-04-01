@@ -3,7 +3,7 @@
     :label="label"
     v-model="model"
     color="secondary"
-    :textFieldProps="{ color: 'accent', 'prepend-icon': icon }"
+    :textFieldProps="{ color: 'accent', 'prepend-icon': icon, rules: rules }"
     :datePickerProps="{
       color: 'accent',
       'header-color': 'secondary',
@@ -40,7 +40,8 @@ export default {
     },
     date: {
       type: [String, Date]
-    }
+    },
+    rules: Array
   },
   data() {
     return {

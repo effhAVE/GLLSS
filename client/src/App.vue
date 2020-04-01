@@ -68,13 +68,12 @@ export default {
       response => response,
       error => {
         const status = error.response ? error.response.status : null;
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
           if (status === 401) {
             this.$store.dispatch("logout");
           } else if (status === 404) {
             this.$router.push("/notfound");
           }
-
           throw error;
         });
       }

@@ -8,7 +8,7 @@
         <v-list-item-title>Overview</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item link to="/tournaments">
+    <v-list-item link to="/tournaments" v-if="user.roles.includes(`host`)">
       <v-list-item-action>
         <v-icon>mdi-format-list-bulleted</v-icon>
       </v-list-item-action>
@@ -16,7 +16,7 @@
         <v-list-item-title>Tournaments</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item link to="/series">
+    <v-list-item link to="/series" v-if="user.roles.includes(`host`)">
       <v-list-item-action>
         <v-icon>mdi-view-list</v-icon>
       </v-list-item-action>

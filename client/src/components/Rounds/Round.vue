@@ -152,15 +152,16 @@ export default {
           });
         });
     },
-    saveRound() {
+    saveRound({ round }) {
       this.changesMade = false;
       this.editRoundModal = false;
       const APIURL = process.env.VUE_APP_APIURL;
+      round = round || this.round;
 
       this.$http
         .put(
           `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`,
-          { round: this.round, excluded: this.excluded }
+          { round: round, excluded: this.excluded }
         )
         .then(response => {
           this.$store.commit("snackbarMessage", {

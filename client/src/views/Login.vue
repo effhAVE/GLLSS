@@ -7,44 +7,7 @@
             <v-toolbar-title>Sign in to continue</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
-          <v-form>
-            <v-card-text>
-              <v-text-field
-                name="email"
-                color="accent"
-                placeholder="Email"
-                v-model="email"
-                prepend-icon="mdi-email"
-                type="text"
-                required
-              ></v-text-field>
-
-              <v-text-field
-                id="password"
-                color="accent"
-                placeholder="Password"
-                v-model="password"
-                name="password"
-                prepend-icon="mdi-lock"
-                type="password"
-                required
-              ></v-text-field>
-            </v-card-text>
-            <v-card-actions>
-              <p class="mb-0">
-                No account? <a href="/register"> Register now!</a>
-              </p>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="accent"
-                class="black--text"
-                large
-                type="submit"
-                @click.prevent="login"
-                >Sign in</v-btn
-              >
-            </v-card-actions>
-          </v-form>
+          <LoginForm @submit="login" />
         </v-card>
       </v-col>
     </v-row>
@@ -52,18 +15,13 @@
 </template>
 
 <script>
+import LoginForm from "../components/Forms/LoginForm";
 export default {
-  data() {
-    return {
-      email: "",
-      password: "",
-      error: ""
-    };
+  components: {
+    LoginForm
   },
   methods: {
-    login: function() {
-      let email = this.email;
-      let password = this.password;
+    login({ email, password }) {
       this.$store
         .dispatch("login", { email, password })
         .then(() => {

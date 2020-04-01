@@ -1,11 +1,12 @@
 <template>
-  <v-form ref="form" style="min-width: 500px">
+  <v-form ref="form" style="min-width: 500px" v-model="valid">
     <v-text-field
       v-model="draft.name"
       color="accent"
       label="Name"
       prepend-icon="mdi-pencil"
       required
+      :rules="validations.name"
     ></v-text-field>
     <v-select
       :items="seriesList"
@@ -14,6 +15,7 @@
       label="Series"
       prepend-icon="mdi-view-list"
       color="accent"
+      @input="validate"
     >
       <template v-slot:item="{ item }">
         {{ item.name }}
@@ -26,12 +28,14 @@
       :date="draft.startDate"
       label="Start date"
       @input="draft.startDate = $event"
+      :rules="validations.startDate"
     />
     <DatetimePicker
       :date="draft.endDate"
       label="End date"
       @input="draft.endDate = $event"
       icon="mdi-calendar-check"
+      :rules="validations.endDate"
     />
     <v-select
       :items="gamesList"
@@ -40,6 +44,7 @@
       color="accent"
       :disabled="!!draft.series"
       v-model="draft.game"
+      :rules="validations.seriesInherited"
     ></v-select>
     <v-select
       :items="regionsList"
@@ -48,6 +53,7 @@
       color="accent"
       :disabled="!!draft.series"
       v-model="draft.region"
+      :rules="validations.seriesInherited"
     ></v-select>
     <v-checkbox
       v-model="draft.countedByRounds"
@@ -62,6 +68,7 @@
         class="mt-8"
         text
         @click="$emit('submit', draft)"
+        :disabled="!valid"
       >
         Save
       </v-btn>
@@ -80,7 +87,7 @@
 
 <script>
 import DatetimePicker from "./CustomDatetimePicker";
-
+import validations from "../../helpers/validations";
 export default {
   components: {
     DatetimePicker
@@ -92,28 +99,53 @@ export default {
     return {
       draft: {
         name: "Unnamed tournament",
-        startDate: new Date(),
         endDate: new Date(),
+        startDate: new Date(),
         series: null,
         game: "",
         region: "",
         countedByRounds: true
       },
+      validations: {
+        name: validations.tournamentName,
+        startDate: validations.startDate,
+        endDate: [
+          ...validations.endDate,
+          v =>
+            this.$moment(this.draft.startDate).isSameOrBefore(v, "minute") ||
+            "End date cannot be before start date"
+        ],
+        seriesInherited: [
+          v => {
+            const inherits = !!this.draft.series || !!v;
+            return (
+              inherits ||
+              "This field cannot be empty when not a part of a series"
+            );
+          }
+        ]
+      },
+      valid: true,
       belongsToSeries: false,
       regionsList: [],
       gamesList: [],
       seriesList: []
     };
   },
+  methods: {
+    validate() {
+      this.$refs.form.validate();
+    }
+  },
   created() {
     if (this.tournament) {
-      this.draft = this.tournament;
+      this.draft = Object.assign({}, this.tournament);
       if (this.tournament.series) {
         this.belongsToSeries = true;
       }
 
-      this.draft.startDate = new Date(this.tournament.startDate);
       this.draft.endDate = new Date(this.tournament.endDate);
+      this.draft.startDate = new Date(this.tournament.startDate);
     }
 
     const APIURL = process.env.VUE_APP_APIURL;

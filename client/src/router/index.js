@@ -15,6 +15,9 @@ import Admin from '../views/admin/Admin.vue'
 import TournamentCreate from '../views/admin/TournamentCreate.vue'
 import SeriesCreate from '../views/admin/SeriesCreate.vue'
 import store from "../store"
+import {
+  required
+} from 'joi'
 
 Vue.use(VueRouter)
 
@@ -31,14 +34,16 @@ const routes = [{
     name: "Series",
     component: Series,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      requiredRole: "host"
     }
   },
   {
     path: "/series/:seriesID",
     component: SeriesPage,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      requiredRole: "host"
     }
   },
   {
@@ -46,7 +51,8 @@ const routes = [{
     name: "Tournaments",
     component: Tournaments,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      requiredRole: "host"
     }
   },
   {

@@ -16,9 +16,10 @@
     <p>You're hosting:</p>
     <ul v-for="tournament in tournamentsHosted" :key="tournament._id">
       <li>
-        <router-link :to="`/tournaments/${tournament}`">{{
-          tournament
-        }}</router-link>
+        <router-link :to="`/tournaments/${tournament}`"
+          >{{ tournament.name }}
+        </router-link>
+        - {{ tournament.startDate | moment("LLL") }}
       </li>
     </ul>
   </div>

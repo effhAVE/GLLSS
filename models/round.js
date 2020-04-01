@@ -24,7 +24,8 @@ const roundSchema = new mongoose.Schema({
   prepTime: {
     type: Number,
     min: 0,
-    max: 180
+    max: 180,
+    default: 0
   },
   hosts: [{
     host: {

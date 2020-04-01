@@ -20,11 +20,10 @@ const moment = require("moment");
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
   const tournaments = await Tournament.find({
-      "startDate": {
-        $gt: new Date()
+      "endDate": {
+        $gte: new Date()
       }
     })
-    .populate("series", "game")
     .sort("startDate");
 
   res.send(tournaments);
@@ -40,14 +39,21 @@ router.get("/past", auth, validateAccess("host"), async (req, res) => {
     })
     .sort("-endDate")
     .limit(limitSize)
-    .skip(limitSize * page)
-    .populate("series", "game");
+    .skip(limitSize * page);
 
   res.send(tournaments);
 });
 
 router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
-  const user = await User.findById(req.user._id).select("tournamentsHosted -_id");
+  const user = await User.findById(req.user._id).select("tournamentsHosted -_id").populate({
+    path: "tournamentsHosted",
+    select: "name startDate endDate",
+    match: {
+      "endDate": {
+        $gte: new Date()
+      }
+    }
+  }).sort("tournamentsHosted.startDate");
   res.send(user.tournamentsHosted);
 });
 
