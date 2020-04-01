@@ -27,7 +27,13 @@
               <v-icon v-else color="error">
                 mdi-account-remove
               </v-icon>
-              <v-menu bottom right offset-x :close-on-content-click="false">
+              <v-menu
+                bottom
+                right
+                offset-x
+                :close-on-content-click="false"
+                v-if="user.roles.includes('teamleader')"
+              >
                 <template v-slot:activator="{ on }">
                   <v-btn icon v-on="on">
                     <v-icon>mdi-pencil</v-icon>

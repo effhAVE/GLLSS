@@ -13,10 +13,10 @@
   </div>
   <div v-else>
     <p>Welcome {{ user.nickname }}!</p>
-    <p>You're hosting:</p>
+    <p v-if="tournamentsHosted.length">You're hosting:</p>
     <ul v-for="tournament in tournamentsHosted" :key="tournament._id">
       <li>
-        <router-link :to="`/tournaments/${tournament}`"
+        <router-link :to="`/tournaments/${tournament._id}`"
           >{{ tournament.name }}
         </router-link>
         - {{ tournament.startDate | moment("LLL") }}
