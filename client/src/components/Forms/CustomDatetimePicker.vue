@@ -13,6 +13,7 @@
     :tabsProps="{ 'active-class': 'accent--text', 'slider-color': 'accent' }"
     class="accent--text"
     @input="onInput"
+    ref="picker"
   >
     <template v-slot:dateIcon>
       <v-icon>mdi-calendar</v-icon>
@@ -20,12 +21,15 @@
     <template v-slot:timeIcon>
       <v-icon>mdi-clock</v-icon>
     </template>
-    <!-- <template v-slot:actions>
-      <v-btn color="grey lighten-1" text @click.native="clearHandler"
+    <template v-slot:actions>
+      <v-btn
+        color="grey lighten-1"
+        text
+        @click.native="$refs.picker.clearHandler"
         >Clear</v-btn
       >
-      <v-btn color="accent" text @click="okHandler">Save</v-btn>
-    </template> -->
+      <v-btn color="accent" text @click="$refs.picker.okHandler">Save</v-btn>
+    </template>
   </v-datetime-picker>
 </template>
 <script>

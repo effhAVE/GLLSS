@@ -23,19 +23,21 @@
       hide-default-footer
     >
       <template v-slot:item.createdAt="{ item }">
-        <span>{{ new Date(item.createdAt).toLocaleString() }}</span>
+        <span>{{ item.createdAt | moment("lll") }}</span>
       </template>
       <template v-slot:item.roles="{ item }">
         <v-select
-          :items="roles"
-          :value="getHighestRole(item.roles)"
+          :items="selectableRoles"
+          :disabled="isDisabled(item) || user._id === item._id"
+          :value="item.roles[0]"
           @input="saveRole(item._id, $event)"
           background-color="transparent"
           color="accent"
           solo
           flat
           hide-details
-        ></v-select>
+        >
+        </v-select>
       </template>
     </v-data-table>
   </v-card>
@@ -43,12 +45,16 @@
 
 <script>
 export default {
+  props: {
+    user: Object
+  },
   data() {
     return {
       search: "",
       selected: [],
       users: [],
       roles: [],
+      disabledRoles: [],
       headers: [
         {
           text: "Nickname",
@@ -60,13 +66,23 @@ export default {
       ]
     };
   },
+  computed: {
+    selectableRoles() {
+      return this.roles.map(role => {
+        return {
+          text: role,
+          disabled: this.disabledRoles.includes(role)
+        };
+      });
+    }
+  },
   methods: {
-    getHighestRole(roles) {
-      for (const role of this.roles) {
-        if (roles.includes(role)) {
-          return role;
-        }
-      }
+    isSelectable(role) {
+      if (this.user.roles.includes("masteradmin")) return false;
+      return !this.user.roles.includes(role) || this.user.roles[0] === role;
+    },
+    isDisabled(item) {
+      return this.isSelectable(item.roles[0]);
     },
     saveRole(userID, value) {
       const APIURL = process.env.VUE_APP_APIURL;
@@ -90,6 +106,9 @@ export default {
     const APIURL = process.env.VUE_APP_APIURL;
     this.$http.get(`${APIURL}/collections/roles`).then(response => {
       this.roles = response.data;
+      this.disabledRoles = this.roles
+        .filter(role => this.isSelectable(role))
+        .filter(role => role !== "guest");
     });
     this.$http
       .get(`${APIURL}/users/`)

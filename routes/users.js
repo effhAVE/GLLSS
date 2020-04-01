@@ -18,7 +18,7 @@ router.get("/", auth, validateAccess("admin"), async (req, res) => {
     roles: {
       $ne: "guest"
     }
-  }).select("-tournamentsHosted -password").lean();
+  }).select("-tournamentsHosted -password").sort("_id").lean();
   users.forEach(user => {
     user.createdAt = user._id.getTimestamp();
   });
@@ -75,17 +75,21 @@ router.post("/", async (req, res) => {
 router.put("/:id/roles", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).send("No user found.");
+  if (user._id.equals(req.user._id)) return res.status(400).send("Cannot change own role!");
 
   const newRole = req.body.role;
   if (!newRole || !roles.includes(newRole)) return res.status(400).send("Bad request.");
   const rolesIndex = roles.indexOf(newRole);
+  const currentRoleIndex = req.user.roles.indexOf(newRole);
+  if (!req.user.roles.includes("masteradmin") && (currentRoleIndex === -1 || currentRoleIndex === 0)) return res.status(400).send("Cannot set a role to the same or higher value than yours.");
+
   if (newRole === "guest") {
     user.roles = ["guest"];
   } else {
     user.roles = roles.filter(role => role !== "guest").slice(rolesIndex);
   }
-  await user.save();
 
+  await user.save();
   res.send(user);
 });
 
