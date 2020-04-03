@@ -83,8 +83,12 @@ export default {
     return {
       draft: {
         name: "New round",
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: this.$moment()
+          .utc()
+          .format("YYYY-MM-DD HH:mm"),
+        endDate: this.$moment()
+          .utc()
+          .format("YYYY-MM-DD HH:mm"),
         bestOf: 3,
         prepTime: 0
       },
@@ -106,11 +110,19 @@ export default {
   created() {
     if (this.round) {
       this.draft = Object.assign({}, this.round);
-      this.draft.startDate = new Date(this.round.startDate);
-      this.draft.endDate = new Date(this.round.endDate);
+      this.draft.startDate = this.$moment
+        .utc(this.round.startDate)
+        .format("YYYY-MM-DD HH:mm");
+      this.draft.endDate = this.$moment
+        .utc(this.round.endDate)
+        .format("YYYY-MM-DD HH:mm");
     } else {
-      this.draft.startDate = new Date(this.tournamentDates.start);
-      this.draft.endDate = new Date(this.tournamentDates.end);
+      this.draft.startDate = this.$moment
+        .utc(this.tournamentDates.start)
+        .format("YYYY-MM-DD HH:mm");
+      this.draft.endDate = this.$moment
+        .utc(this.tournamentDates.end)
+        .format("YYYY-MM-DD HH:mm");
     }
   }
 };

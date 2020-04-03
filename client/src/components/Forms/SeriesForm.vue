@@ -84,8 +84,12 @@ export default {
     return {
       draft: {
         name: "Unnamed series",
-        endDate: new Date(),
-        startDate: new Date(),
+        endDate: this.$moment()
+          .utc()
+          .format("YYYY-MM-DD HH:mm"),
+        startDate: this.$moment()
+          .utc()
+          .format("YYYY-MM-DD HH:mm"),
         game: "",
         region: "",
         recurrence: ""
@@ -110,8 +114,12 @@ export default {
   created() {
     if (this.series) {
       this.draft = Object.assign({}, this.series);
-      this.draft.endDate = new Date(this.series.endDate);
-      this.draft.startDate = new Date(this.series.startDate);
+      this.draft.endDate = this.$moment
+        .utc(this.series.endDate)
+        .format("YYYY-MM-DD HH:mm");
+      this.draft.startDate = this.$moment
+        .utc(this.series.startDate)
+        .format("YYYY-MM-DD HH:mm");
     }
 
     const APIURL = process.env.VUE_APP_APIURL;

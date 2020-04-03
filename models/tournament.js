@@ -16,11 +16,19 @@ const tournamentSchema = new mongoose.Schema({
   },
   startDate: {
     type: Date,
-    required: true
+    required: true,
+    set: function(date) {
+      date = moment.utc(date).format();
+      return date;
+    }
   },
   endDate: {
     type: Date,
-    required: true
+    required: true,
+    set: function(date) {
+      date = moment.utc(date).format();
+      return date;
+    }
   },
   localStartDate: Date,
   rounds: [Round.schema],
@@ -44,6 +52,7 @@ const tournamentSchema = new mongoose.Schema({
 });
 
 tournamentSchema.pre("save", function(next) {
+  console.log(this.startDate, this.endDate);
   const regionObject = tournamentRegions.find(region => region.name === this.region);
   this.localStartDate = moment(this.startDate).add(regionObject.offset, "hours").format();
   next();

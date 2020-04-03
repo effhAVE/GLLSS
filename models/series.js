@@ -16,11 +16,18 @@ const seriesSchema = new mongoose.Schema({
   startDate: {
     type: Date,
     required: true,
-    default: new Date()
+    set: function(date) {
+      date = moment.utc(date).format();
+      return date;
+    }
   },
   endDate: {
     type: Date,
-    required: true
+    required: true,
+    set: function(date) {
+      date = moment.utc(date).format();
+      return date;
+    }
   },
   recurrence: {
     type: String,

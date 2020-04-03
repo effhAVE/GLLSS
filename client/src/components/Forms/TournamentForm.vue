@@ -100,8 +100,12 @@ export default {
     return {
       draft: {
         name: "Unnamed tournament",
-        endDate: new Date(),
-        startDate: new Date(),
+        endDate: this.$moment()
+          .utc()
+          .format("YYYY-MM-DD HH:mm"),
+        startDate: this.$moment()
+          .utc()
+          .format("YYYY-MM-DD HH:mm"),
         series: null,
         game: "",
         region: "",
@@ -145,8 +149,12 @@ export default {
         this.belongsToSeries = true;
       }
 
-      this.draft.endDate = new Date(this.tournament.endDate);
-      this.draft.startDate = new Date(this.tournament.startDate);
+      this.draft.endDate = this.$moment
+        .utc(this.tournament.endDate)
+        .format("YYYY-MM-DD HH:mm");
+      this.draft.startDate = this.$moment
+        .utc(this.tournament.startDate)
+        .format("YYYY-MM-DD HH:mm");
     }
 
     const APIURL = process.env.VUE_APP_APIURL;

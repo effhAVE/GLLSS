@@ -56,6 +56,7 @@ export default {
   },
   methods: {
     onInput(value) {
+      value = this.$moment(value).format("YYYY-MM-DD HH:mm");
       this.$emit("input", value);
     },
     okHandler() {}

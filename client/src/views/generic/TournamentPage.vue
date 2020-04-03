@@ -144,8 +144,6 @@ export default {
     addNewRound(round) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.addRoundModal = false;
-      round.startDate = new Date(round.startDate);
-      round.endDate = new Date(round.endDate);
       this.$http
         .post(`${APIURL}/tournaments/${this.tournament._id}/rounds`, round)
         .then(response => {

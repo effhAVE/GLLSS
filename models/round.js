@@ -11,11 +11,19 @@ const roundSchema = new mongoose.Schema({
   },
   startDate: {
     type: Date,
-    required: true
+    required: true,
+    set: function(date) {
+      date = moment.utc(date).format();
+      return date;
+    }
   },
   endDate: {
     type: Date,
-    required: true
+    required: true,
+    set: function(date) {
+      date = moment.utc(date).format();
+      return date;
+    }
   },
   bestOf: {
     type: Number,
