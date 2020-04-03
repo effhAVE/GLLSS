@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const tournamentRegions = require("../collections/regions");
 const games = require("../collections/games");
 const recurrences = require("../collections/recurrences");
+const regionNames = tournamentRegions.map(region => region.name);
+const moment = require("moment");
 
 const seriesSchema = new mongoose.Schema({
   name: {
@@ -32,7 +34,7 @@ const seriesSchema = new mongoose.Schema({
   },
   region: {
     type: String,
-    enum: tournamentRegions,
+    enum: regionNames,
     required: true
   },
   tournaments: [{

@@ -49,6 +49,7 @@
     <v-select
       :items="regionsList"
       label="Region"
+      item-text="name"
       prepend-icon="mdi-earth"
       color="accent"
       :disabled="!!draft.series"

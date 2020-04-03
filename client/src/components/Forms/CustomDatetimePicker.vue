@@ -1,5 +1,6 @@
 <template>
   <v-datetime-picker
+    :loading="loading"
     :label="label"
     v-model="model"
     color="secondary"
@@ -28,7 +29,7 @@
         @click.native="$refs.picker.clearHandler"
         >Clear</v-btn
       >
-      <v-btn color="accent" text @click="$refs.picker.okHandler">Save</v-btn>
+      <v-btn color="accent" text @click="okHandler">Save</v-btn>
     </template>
   </v-datetime-picker>
 </template>
@@ -49,13 +50,19 @@ export default {
   },
   data() {
     return {
-      model: this.date
+      model: this.date,
+      loading: true
     };
   },
   methods: {
     onInput(value) {
       this.$emit("input", value);
-    }
+    },
+    okHandler() {}
+  },
+  mounted() {
+    this.okHandler = this.$refs.picker.okHandler;
+    this.loading = false;
   }
 };
 </script>

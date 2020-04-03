@@ -3,8 +3,10 @@ const mongoose = require("mongoose");
 const {
   Round
 } = require("./round");
+const moment = require("moment");
 const tournamentRegions = require("../collections/regions");
 const games = require("../collections/games");
+const regionNames = tournamentRegions.map(region => region.name);
 
 const tournamentSchema = new mongoose.Schema({
   name: {
@@ -20,6 +22,7 @@ const tournamentSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  localStartDate: Date,
   rounds: [Round.schema],
   series: {
     type: mongoose.Schema.Types.ObjectId,
@@ -32,12 +35,18 @@ const tournamentSchema = new mongoose.Schema({
   },
   region: {
     type: String,
-    enum: tournamentRegions
+    enum: regionNames
   },
   countedByRounds: {
     type: Boolean,
     default: true
   }
+});
+
+tournamentSchema.pre("save", function(next) {
+  const regionObject = tournamentRegions.find(region => region.name === this.region);
+  this.localStartDate = moment(this.startDate).add(regionObject.offset, "hours").format();
+  next();
 });
 
 const Tournament = mongoose.model("Tournament", tournamentSchema);

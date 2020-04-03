@@ -31,6 +31,7 @@
     ></v-select>
     <v-select
       :items="regionsList"
+      item-text="name"
       label="Region"
       prepend-icon="mdi-earth"
       color="accent"

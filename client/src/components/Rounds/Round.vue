@@ -9,7 +9,7 @@
       :timeout="0"
     >
       Do you want to save the changes?
-      <v-btn text color="accent" @click="saveRound">
+      <v-btn text color="accent" @click="saveRound(round)">
         Save
       </v-btn>
     </v-snackbar>
@@ -152,11 +152,10 @@ export default {
           });
         });
     },
-    saveRound({ round }) {
+    saveRound(round) {
       this.changesMade = false;
       this.editRoundModal = false;
       const APIURL = process.env.VUE_APP_APIURL;
-      round = round || this.round;
 
       this.$http
         .put(
@@ -164,6 +163,7 @@ export default {
           { round: round, excluded: this.excluded }
         )
         .then(response => {
+          this.$router.go();
           this.$store.commit("snackbarMessage", {
             type: "success",
             message: "Round updated."
