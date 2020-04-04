@@ -38,7 +38,7 @@ router.post("/", auth, validateAccess("admin"), validateObjectId, async (req, re
     })
     .exec(async (error, data) => {
       if (error) {
-        console.log(error);
+        console.error(error);
         return res.status(500).send("Something failed.");
       } else {
         data.startDate = data.rounds[0].startDate;
