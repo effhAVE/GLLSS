@@ -52,7 +52,6 @@ const tournamentSchema = new mongoose.Schema({
 });
 
 tournamentSchema.pre("save", function(next) {
-  console.log(this.startDate, this.endDate);
   const regionObject = tournamentRegions.find(region => region.name === this.region);
   this.localStartDate = moment(this.startDate).add(regionObject.offset, "hours").format();
   next();
@@ -75,7 +74,7 @@ function validateTournament(tournament) {
     region: Joi.when("series", {
       is: Joi.object(),
       then: Joi.allow(""),
-      otherwise: Joi.string().required()
+      otherwise: Joi.string().valid(...regionNames).required()
     }),
     countedByRounds: Joi.boolean()
   };

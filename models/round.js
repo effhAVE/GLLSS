@@ -1,6 +1,7 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
 const moment = require("moment");
+const tournamentRegions = require("../collections/regions");
 
 const roundSchema = new mongoose.Schema({
   name: {
@@ -9,6 +10,7 @@ const roundSchema = new mongoose.Schema({
     maxlength: 40,
     required: true
   },
+  localStartDate: Date,
   startDate: {
     type: Date,
     required: true,
@@ -84,6 +86,11 @@ const roundSchema = new mongoose.Schema({
   }]
 });
 
+roundSchema.pre("save", function(next) {
+  const regionObject = tournamentRegions.find(region => region.name === this.parent().region);
+  this.localStartDate = moment(this.startDate).add(regionObject.offset, "hours").format();
+  next();
+});
 const Round = mongoose.model("Round", roundSchema);
 
 function validateRound(round) {
