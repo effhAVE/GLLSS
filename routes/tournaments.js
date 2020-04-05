@@ -70,12 +70,12 @@ router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, r
 router.put("/:id", auth, validateObjectId, validateAccess("admin"), async (req, res) => {
   const {
     error
-  } = validate(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region"]));
+  } = validate(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region", "countedByRounds"]));
   if (error) return res.status(400).send(error.details[0].message);
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return res.status(400).send("No tournament found.");
 
-  Object.assign(tournament, _.pick(req.body, ["name", "game", "startDate", "endDate", "region"]));
+  Object.assign(tournament, _.pick(req.body, ["name", "game", "startDate", "endDate", "region", "countedByRounds"]));
   await tournament.save();
   res.send(tournament);
 });
@@ -110,7 +110,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
   } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  let tournament = new Tournament(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region"]));
+  let tournament = new Tournament(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region", "countedByRounds"]));
   let series;
   if (tournament.series) {
     series = await Series.findById(tournament.series);
