@@ -62,5 +62,11 @@ export default {
   th + td {
     border-left: thin solid rgba(255, 255, 255, 0.12);
   }
+  tfoot {
+    th,
+    td {
+      border-top: thin solid rgba(255, 255, 255, 0.12);
+    }
+  }
 }
 </style>
