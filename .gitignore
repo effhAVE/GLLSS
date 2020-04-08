@@ -2,3 +2,4 @@
 logfile.log
 uncaughtExceptions.log
 /out
+/dataLogs

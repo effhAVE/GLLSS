@@ -134,7 +134,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
 
     res.send(tournament);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).send("Error while saving.");
   }
 });

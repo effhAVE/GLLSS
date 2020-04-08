@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
+import Data from '../views/Data.vue'
+import DataMonthPage from '../views/generic/DataMonthPage.vue'
 import Series from '../views/Series.vue'
 import SeriesPage from '../views/generic/SeriesPage.vue'
 import Tournaments from '../views/Tournaments.vue'
@@ -15,9 +17,6 @@ import Admin from '../views/admin/Admin.vue'
 import TournamentCreate from '../views/admin/TournamentCreate.vue'
 import SeriesCreate from '../views/admin/SeriesCreate.vue'
 import store from "../store"
-import {
-  required
-} from 'joi'
 
 Vue.use(VueRouter)
 
@@ -27,6 +26,24 @@ const routes = [{
     component: Home,
     meta: {
       requiresAuth: true
+    }
+  },
+  {
+    path: "/data",
+    name: "Data",
+    component: Data,
+    meta: {
+      requiresAuth: true,
+      requiredRole: "host"
+    }
+  },
+  {
+    path: "/data/:date",
+    name: "Data month",
+    component: DataMonthPage,
+    meta: {
+      requiresAuth: true,
+      requiredRole: "host"
     }
   },
   {
