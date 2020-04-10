@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
+import Schedule from '../views/Schedule.vue'
 import Data from '../views/Data.vue'
 import DataMonthPage from '../views/generic/DataMonthPage.vue'
 import Series from '../views/Series.vue'
@@ -26,6 +27,15 @@ const routes = [{
     component: Home,
     meta: {
       requiresAuth: true
+    }
+  },
+  {
+    path: "/schedule",
+    name: "Schedule",
+    component: Schedule,
+    meta: {
+      requiresAuth: true,
+      requiredRole: "teamleader"
     }
   },
   {

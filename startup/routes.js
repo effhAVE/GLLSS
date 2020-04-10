@@ -6,6 +6,7 @@ const rounds = require("../routes/rounds");
 const auth = require("../routes/auth");
 const collections = require("../routes/collections");
 const data = require("../routes/data");
+const schedules = require("../routes/schedules");
 const error = require("../middleware/error");
 const cors = require("cors");
 
@@ -21,5 +22,6 @@ module.exports = function(app) {
   app.use("/api/auth", auth);
   app.use("/api/collections", collections);
   app.use("/api/data", data);
+  app.use("/api/schedules", schedules);
   app.use(error);
 }

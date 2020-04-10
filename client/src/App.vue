@@ -110,4 +110,8 @@ export default {
 html {
   overflow-y: auto !important;
 }
+
+.v-application .primary.has-border {
+  border: thin solid rgba(255, 255, 255, 0.12) !important;
+}
 </style>

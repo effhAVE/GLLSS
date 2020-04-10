@@ -52,8 +52,10 @@ const tournamentSchema = new mongoose.Schema({
 });
 
 tournamentSchema.pre("save", function(next) {
-  const regionObject = tournamentRegions.find(region => region.name === this.region);
-  this.localStartDate = moment(this.startDate).add(regionObject.offset, "hours").format();
+  if (this.region) {
+    const regionObject = tournamentRegions.find(region => region.name === this.region);
+    this.localStartDate = moment(this.startDate).add(regionObject.offset, "hours").format();
+  }
   next();
 });
 

@@ -88,7 +88,10 @@ const roundSchema = new mongoose.Schema({
 
 roundSchema.pre("save", function(next) {
   const regionObject = tournamentRegions.find(region => region.name === this.parent().region);
-  this.localStartDate = moment(this.startDate).add(regionObject.offset, "hours").format();
+  if (regionObject) {
+    this.localStartDate = moment(this.startDate).add(regionObject.offset, "hours").format();
+  }
+
   next();
 });
 const Round = mongoose.model("Round", roundSchema);

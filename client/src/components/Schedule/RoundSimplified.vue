@@ -1,0 +1,70 @@
+<template>
+  <v-card
+    color="primary"
+    width="250px"
+    class="flex-shrink-0 mr-4 mb-4 fill-height has-border"
+    outlined
+  >
+    <div class="primary darken-1" style="height: 125px">
+      <v-card-title>
+        {{ round.name }}
+        <v-spacer></v-spacer>
+      </v-card-title>
+      <v-card-subtitle>
+        Part of <span class="accent--text">{{ round.tournamentName }}</span>
+        <br />
+        {{ round.startDate | moment("MMM Do LT") }}
+      </v-card-subtitle>
+    </div>
+    <v-card-text class="pa-0">
+      <HostsTables
+        :round="round"
+        @changesMade="changesMade = true"
+        @excludedAdd="onExcludedAdd"
+        @excludedRemove="onExcludedRemove"
+      />
+    </v-card-text>
+  </v-card>
+</template>
+
+<script>
+import HostsTables from "./HostsTables";
+export default {
+  components: {
+    HostsTables
+  },
+  props: {
+    round: {
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    return {
+      changesMade: false,
+      excluded: []
+    };
+  },
+  methods: {
+    onChange() {
+      this.$emit("roundChanged", {
+        round: this.round,
+        excluded: this.excluded
+      });
+    },
+    onExcludedAdd(host) {
+      this.excluded.push(host);
+    },
+    onExcludedRemove(host) {
+      this.excluded = this.excluded.filter(hostObj => hostObj !== host);
+    }
+  },
+  watch: {
+    changesMade(newValue) {
+      if (newValue === true) {
+        this.onChange();
+      }
+    }
+  }
+};
+</script>

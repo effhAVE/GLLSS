@@ -24,6 +24,14 @@
         <v-list-item-title>Series</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
+    <v-list-item link to="/schedule" v-if="user.roles.includes(`teamleader`)">
+      <v-list-item-action>
+        <v-icon>mdi-clock-outline</v-icon>
+      </v-list-item-action>
+      <v-list-item-content>
+        <v-list-item-title>Schedule</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
     <v-list-item link to="/data" v-if="user.roles.includes(`host`)">
       <v-list-item-action>
         <v-icon>mdi-database</v-icon>
