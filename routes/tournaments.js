@@ -116,9 +116,9 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
     series = await Series.findById(tournament.series);
     if (!series) return res.status(400).send("No series with the given ID.");
     if (series.recurrence === "daily") {
-      tournament.name = `#${moment(tournament.startDate).week()} ${moment(tournament.startDate).format("ddd")} ${series.name}`;
+      tournament.name = `#${moment(tournament.startDate).isoWeek()} ${moment(tournament.startDate).format("ddd")} ${series.name}`;
     } else if (series.recurrence === "weekly") {
-      tournament.name = `#${moment(tournament.startDate).week()} ${series.name}`;
+      tournament.name = `#${moment(tournament.startDate).isoWeek()} ${series.name}`;
     }
 
     tournament.game = series.game;

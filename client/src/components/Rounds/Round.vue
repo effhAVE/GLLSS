@@ -116,8 +116,7 @@ export default {
       required: true
     },
     usersAvailable: {
-      type: Array,
-      default: () => []
+      type: Array
     },
     user: Object
   },

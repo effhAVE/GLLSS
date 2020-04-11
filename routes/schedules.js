@@ -93,7 +93,7 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
               }
             },
             {
-              startDate: {
+              localStartDate: {
                 $lte: rangeEnd
               }
             }
@@ -107,16 +107,10 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
       {
         $match: {
           $and: [{
-              "rounds.endDate": {
-                $gte: rangeStart
-              }
-            },
-            {
-              "rounds.localStartDate": {
-                $lte: rangeEnd
-              }
+            "rounds.localStartDate": {
+              $lte: rangeEnd
             }
-          ]
+          }]
 
         }
       },

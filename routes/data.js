@@ -25,6 +25,11 @@ if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
 }
 
+async function getRecentGameValues() {
+  const data = await Data.findOne().sort("-updatedAt").select("calculation.gameValues");
+  return data.calculation;
+}
+
 function createLogger(filenameError, filenameInfo) {
   return winston.createLogger({
     levels: winston.config.syslog.levels,
@@ -47,10 +52,104 @@ function createLogger(filenameError, filenameInfo) {
   });
 }
 
+router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => {
+  const weekNumber = req.query.week || 0;
+  /* const previousWeekStart = moment().startOf("isoWeek").isoWeek(forWeek - 1).format();
+  const previousWeekEnd = moment().endOf("isoWeek").isoWeek(forWeek - 1).format();
+  const currentWeekStart = moment().startOf("isoWeek").isoWeek(forWeek).format();
+  const currentWeekEnd = moment().endOf("isoWeek").isoWeek(forWeek).format(); */
+
+  const previousWeekStart = moment().add(weekNumber - 1, "weeks").startOf("isoWeek").toDate();
+  const previousWeekEnd = moment().add(weekNumber - 1, "weeks").endOf("isoWeek").toDate();
+  const currentWeekStart = moment().add(weekNumber, "weeks").startOf("isoWeek").toDate();
+  const currentWeekEnd = moment().add(weekNumber, "weeks").endOf("isoWeek").toDate();
+
+  const balanceCalculation = {};
+  const {
+    gameValues
+  } = await getRecentGameValues();
+
+  const previousWeekTournaments = await Tournament.find({
+    "endDate": {
+      $gte: previousWeekStart
+    },
+    "localStartDate": {
+      $lte: previousWeekEnd
+    },
+    "rounds.localStartDate": {
+      $gte: previousWeekStart
+    },
+    countedByRounds: true
+  }).select("-series").sort("localStartDate").populate("rounds.hosts.host rounds.teamLeads.host", "nickname");;
+
+  const currentWeekTournaments = await Tournament.find({
+    "endDate": {
+      $gte: currentWeekStart
+    },
+    "localStartDate": {
+      $lte: currentWeekEnd
+    },
+    "rounds.localStartDate": {
+      $gte: currentWeekStart
+    },
+    countedByRounds: true
+  }).select("-series").sort("localStartDate").populate("rounds.hosts.host rounds.teamLeads.host", "nickname");;
+
+  previousWeekTournaments.forEach(tournament => {
+    const game = tournament.game;
+    if (!balanceCalculation[game]) {
+      balanceCalculation[game] = {};
+    }
+
+    tournament.rounds.forEach(round => {
+      round.hosts.forEach(hostObject => {
+        if (hostObject.lostHosting) {
+          const nickname = hostObject.host.nickname;
+          if (!balanceCalculation[game][nickname]) {
+            balanceCalculation[game][nickname] = {
+              lost: gameValues[game] * round.bestOf
+            };
+          } else {
+            balanceCalculation[game][nickname].lost += gameValues[game] * round.bestOf;
+          }
+        }
+      })
+    });
+  });
+
+  currentWeekTournaments.forEach(tournament => {
+    const game = tournament.game;
+    if (!balanceCalculation[game]) {
+      balanceCalculation[game] = {};
+    }
+
+    tournament.rounds.forEach(round => {
+      round.hosts.forEach(hostObject => {
+        if (!hostObject.lostHosting) {
+          const nickname = hostObject.host.nickname;
+          if (!balanceCalculation[game][nickname]) {
+            balanceCalculation[game][nickname] = {
+              current: gameValues[game] * round.bestOf
+            };
+          } else {
+            balanceCalculation[game][nickname].current += gameValues[game] * round.bestOf;
+          }
+        }
+      })
+    });
+  });
+
+  return res.send(balanceCalculation);
+});
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
   const data = await Data.find({}).select("-calculation").sort("-date");
   res.send(data);
+});
+
+router.get("/gamevalues", auth, validateAccess("host"), async (req, res) => {
+  const values = await getRecentGameValues();
+  res.send(values);
 });
 
 router.post("/", auth, validateAccess("admin"), async (req, res) => {
@@ -73,7 +172,11 @@ router.get("/:date", auth, validateAccess("admin"), async (req, res) => {
 router.get("/:date/log", auth, validateAccess("admin"), async (req, res) => {
   const fileName = path.join(logDir, `${req.params.date}-log.log`);
   const file = path.resolve(fileName);
-  res.download(file);
+  if (fs.existsSync(file)) {
+    return res.download(file);
+  }
+
+  return res.status(404).send("No log file for date provided");
 });
 
 router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) => {
@@ -181,6 +284,7 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
     for (const round of tournament.rounds) {
 
       round.hosts.forEach(hostObject => {
+        if (!hostObject.host) return;
         const hostID = hostObject.host.nickname;
         if (!calcRegion[hostID]) {
           calcRegion[hostID] = 0;
@@ -231,6 +335,7 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
       });
 
       round.teamLeads.forEach(TLObject => {
+        if (!TLObject.host) return;
         const TLID = TLObject.host.nickname;
         if (!calculation.hosts.summary[TLID]) {
           calculation.hosts.summary[TLID] = {
@@ -260,6 +365,7 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
   tournaments.forEach(tournament => {
     tournament.rounds.forEach(round => {
       round.teamLeads.forEach(TLObject => {
+        if (!TLObject.host) return;
         if (!TLTimeSlots[TLObject.host.nickname]) {
           TLTimeSlots[TLObject.host.nickname] = {};
         }

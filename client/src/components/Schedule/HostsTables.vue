@@ -12,6 +12,38 @@
           <template v-slot:activator="{ on }">
             <div class="px-4" v-on="on">
               {{ item.host.nickname }}
+              <div class="ml-auto">
+                <v-tooltip bottom v-if="item.ready" color="success">
+                  <template v-slot:activator="{ on }">
+                    <span v-on="on">
+                      <v-icon color="success" small>
+                        mdi-account-check
+                      </v-icon>
+                    </span>
+                  </template>
+                  <span>Ready</span>
+                </v-tooltip>
+                <v-tooltip bottom v-else color="error">
+                  <template v-slot:activator="{ on }">
+                    <span v-on="on">
+                      <v-icon color="error" small>
+                        mdi-account-remove
+                      </v-icon>
+                    </span>
+                  </template>
+                  <span>Not ready</span>
+                </v-tooltip>
+                <v-tooltip bottom v-if="item.lostHosting" color="warning">
+                  <template v-slot:activator="{ on }">
+                    <span v-on="on">
+                      <v-icon color="warning" small>
+                        mdi-account-off
+                      </v-icon>
+                    </span>
+                  </template>
+                  <span>Lost hosting</span>
+                </v-tooltip>
+              </div>
             </div>
           </template>
           <v-list>
@@ -61,6 +93,38 @@
           <template v-slot:activator="{ on }">
             <div class="px-4" v-on="on">
               {{ item.host.nickname }}
+              <div class="ml-auto">
+                <v-tooltip bottom v-if="item.ready" color="success">
+                  <template v-slot:activator="{ on }">
+                    <span v-on="on">
+                      <v-icon color="success" small>
+                        mdi-account-check
+                      </v-icon>
+                    </span>
+                  </template>
+                  <span>Ready</span>
+                </v-tooltip>
+                <v-tooltip bottom v-else color="error">
+                  <template v-slot:activator="{ on }">
+                    <span v-on="on">
+                      <v-icon color="error" small>
+                        mdi-account-remove
+                      </v-icon>
+                    </span>
+                  </template>
+                  <span>Not ready</span>
+                </v-tooltip>
+                <v-tooltip bottom v-if="item.lostLeading" color="warning">
+                  <template v-slot:activator="{ on }">
+                    <span v-on="on">
+                      <v-icon color="warning" small>
+                        mdi-account-off
+                      </v-icon>
+                    </span>
+                  </template>
+                  <span>Lost leading</span>
+                </v-tooltip>
+              </div>
             </div>
           </template>
           <v-list>

@@ -26,6 +26,21 @@ router.get("/", auth, validateAccess("admin"), async (req, res) => {
   res.send(users);
 });
 
+router.delete("/", auth, validateAccess("masteradmin"), async (req, res) => {
+  const usersToDelete = req.body;
+  if (!Array.isArray(usersToDelete)) return res.status(400).send("Request must be an array of users.");
+  for (const user of usersToDelete) {
+    const foundUser = await User.findById(user._id);
+    if (foundUser) {
+      await foundUser.remove();
+    } else {
+      return res.status(400).send("One of the users was not found and cannot be deleted.");
+    }
+  }
+
+  res.send(usersToDelete);
+});
+
 router.get("/list", auth, validateAccess("teamleader"), async (req, res) => {
   const users = await User.find({
     roles: {

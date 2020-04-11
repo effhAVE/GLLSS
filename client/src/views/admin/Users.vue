@@ -22,6 +22,17 @@
       class="table-background"
       hide-default-footer
     >
+      <template v-slot:item.data-table-select="{ item, select, isSelected }">
+        <v-simple-checkbox
+          :ripple="false"
+          @input="select"
+          :value="isSelected"
+          :disabled="
+            item.nickname === user.nickname ||
+              item.roles.includes(`masteradmin`)
+          "
+        ></v-simple-checkbox>
+      </template>
       <template v-slot:item.createdAt="{ item }">
         <span>{{ item.createdAt | moment("lll") }}</span>
       </template>
@@ -40,6 +51,15 @@
         </v-select>
       </template>
     </v-data-table>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn
+        class="error"
+        @click="deleteUsers"
+        :disabled="!selected.length || !user.roles.includes('masteradmin')"
+        >Delete users</v-btn
+      >
+    </v-card-actions>
   </v-card>
 </template>
 
@@ -97,6 +117,23 @@ export default {
         .catch(error =>
           this.$store.commit("snackbarMessage", {
             message: "Error while saving role.",
+            type: "error"
+          })
+        );
+    },
+    deleteUsers() {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.$http
+        .delete(`${APIURL}/users/`, { data: this.selected })
+        .then(response => {
+          this.$store.commit("snackbarMessage", {
+            message: "Users successfully deleted.",
+            type: "success"
+          });
+        })
+        .catch(error =>
+          this.$store.commit("snackbarMessage", {
+            message: "Error while deleting users.",
             type: "error"
           })
         );

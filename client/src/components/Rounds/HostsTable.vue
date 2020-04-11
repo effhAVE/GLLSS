@@ -103,16 +103,16 @@
           </v-btn>
         </template>
 
-        <v-list v-if="usersAvailable.length">
+        <v-list v-if="availableEdited.length">
           <v-list-item
-            v-for="(host, i) in usersAvailable"
+            v-for="(host, i) in availableEdited"
             :key="i"
             @click="addHostToRound(round, host)"
           >
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
-        <v-list v-else-if="round.available.length && !usersAvailable.length">
+        <v-list v-else-if="round.available.length && !availableEdited.length">
           <v-list-item
             v-for="(host, i) in round.available"
             :key="i"
@@ -147,7 +147,8 @@ export default {
           align: "center"
         }
       ],
-      excludedHosts: []
+      excludedHosts: [],
+      availableEdited: [...this.usersAvailable]
     };
   },
   methods: {
@@ -174,7 +175,20 @@ export default {
       this.$emit("changesMade");
       round.hosts.push({ host: hostAdded, ready: false, lostHosting: false });
       round.available = round.available.filter(host => host !== hostAdded);
+      this.availableEdited = this.availableEdited.filter(
+        host => host !== hostAdded
+      );
       this.$emit("excludedRemove", hostAdded);
+    }
+  },
+  watch: {
+    usersAvailable(newValue) {
+      this.availableEdited = this.usersAvailable.filter(
+        user =>
+          !this.round.hosts.some(
+            hostObject => hostObject.host.nickname === user.nickname
+          )
+      );
     }
   }
 };

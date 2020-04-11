@@ -11,7 +11,12 @@
         <v-spacer></v-spacer>
       </v-card-title>
       <v-card-subtitle>
-        Part of <span class="accent--text">{{ round.tournamentName }}</span>
+        Part of
+        <span class="accent--text"
+          ><router-link :to="`/tournaments/${round.tournamentID}`">{{
+            round.tournamentName
+          }}</router-link></span
+        >
         <br />
         {{ round.startDate | moment("MMM Do LT") }}
       </v-card-subtitle>

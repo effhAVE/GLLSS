@@ -21,7 +21,22 @@
     >
       <v-icon>mdi-calculator</v-icon>
     </v-btn>
-    <ScheduleTable @scheduleList="onAvailableList" :week="selectedWeek" />
+    <v-tabs fixed-tabs v-model="tab" background-color="secondary">
+      <v-tab>
+        Scheduling
+      </v-tab>
+      <v-tab>
+        Balance
+      </v-tab>
+    </v-tabs>
+    <v-tabs-items v-model="tab" class="transparent">
+      <v-tab-item>
+        <ScheduleTable @scheduleList="onAvailableList" :week="selectedWeek" />
+      </v-tab-item>
+      <v-tab-item>
+        <BalanceTable :week="selectedWeek" />
+      </v-tab-item>
+    </v-tabs-items>
     <!-- <v-navigation-drawer
       v-model="modal"
       color="primary lighten-1"
@@ -36,10 +51,12 @@
   </v-card>
 </template>
 <script>
-import ScheduleTable from "../components/Schedule/Table";
+import ScheduleTable from "../components/Schedule/Overview";
+import BalanceTable from "../components/Schedule/Balance";
 export default {
   components: {
-    ScheduleTable
+    ScheduleTable,
+    BalanceTable
   },
   data() {
     return {
@@ -50,7 +67,8 @@ export default {
         { text: "Current", value: 0 },
         { text: "Previous", value: -1 },
         { text: "Next", value: 1 }
-      ]
+      ],
+      tab: null
     };
   },
   methods: {

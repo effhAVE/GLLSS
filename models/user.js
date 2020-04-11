@@ -30,16 +30,23 @@ const userSchema = new mongoose.Schema({
     default: ["guest"],
     enum: roles
   },
-  tournamentsHosted: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Tournament"
-    }
-  ]
+  tournamentsHosted: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tournament"
+  }]
+}, {
+  timestamps: {
+    createdAt: "createdAt",
+    updatedAt: "updatedAt"
+  }
 });
 
-userSchema.methods.generateAuthToken = function() { 
-  const token = jwt.sign({ _id: this._id, roles: this.roles, nickname: this.nickname }, config.get("jwtPrivateKey"));
+userSchema.methods.generateAuthToken = function() {
+  const token = jwt.sign({
+    _id: this._id,
+    roles: this.roles,
+    nickname: this.nickname
+  }, config.get("jwtPrivateKey"));
   return token;
 }
 
@@ -61,5 +68,5 @@ function validateUser(user) {
   return Joi.validate(user, schema);
 }
 
-exports.User = User; 
+exports.User = User;
 exports.validate = validateUser;
