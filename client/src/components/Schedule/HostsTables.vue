@@ -203,7 +203,12 @@ export default {
   },
   methods: {
     changeRoundHost(round, oldHost, newHost) {
-      this.$emit("changesMade");
+      this.$emit("changesMade", {
+        type: "hostChange",
+        oldHost: oldHost,
+        newHost: newHost,
+        bestOf: round.bestOf
+      });
       const arrayIndex = round.hosts.findIndex(
         el => el.host._id === oldHost._id
       );
@@ -222,7 +227,11 @@ export default {
       });
     },
     addHostToRound(round, hostAdded) {
-      this.$emit("changesMade");
+      this.$emit("changesMade", {
+        type: "hostAdd",
+        host: hostAdded,
+        bestOf: round.bestOf
+      });
       round.hosts.push({ host: hostAdded, ready: false, lostHosting: false });
       round.available = round.available.filter(host => host !== hostAdded);
       this.$emit("excludedRemove", hostAdded);

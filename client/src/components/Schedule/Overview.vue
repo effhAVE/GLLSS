@@ -23,6 +23,9 @@
             :key="round._id"
             :round="round"
             @roundChanged="changedRounds.push($event)"
+            @balanceChange="
+              $emit('balanceChange', { ...$event, game: gameObject.game })
+            "
           />
         </div>
       </div>

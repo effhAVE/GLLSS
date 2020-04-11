@@ -27,7 +27,7 @@ if (!fs.existsSync(logDir)) {
 
 async function getRecentGameValues() {
   const data = await Data.findOne().sort("-updatedAt").select("calculation.gameValues");
-  return data.calculation;
+  return data.calculation.gameValues;
 }
 
 function createLogger(filenameError, filenameInfo) {
@@ -65,9 +65,7 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
   const currentWeekEnd = moment().add(weekNumber, "weeks").endOf("isoWeek").toDate();
 
   const balanceCalculation = {};
-  const {
-    gameValues
-  } = await getRecentGameValues();
+  const gameValues = await getRecentGameValues();
 
   const previousWeekTournaments = await Tournament.find({
     "endDate": {
@@ -107,6 +105,7 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
           const nickname = hostObject.host.nickname;
           if (!balanceCalculation[game][nickname]) {
             balanceCalculation[game][nickname] = {
+              current: 0,
               lost: gameValues[game] * round.bestOf
             };
           } else {
@@ -129,6 +128,7 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
           const nickname = hostObject.host.nickname;
           if (!balanceCalculation[game][nickname]) {
             balanceCalculation[game][nickname] = {
+              lost: 0,
               current: gameValues[game] * round.bestOf
             };
           } else {

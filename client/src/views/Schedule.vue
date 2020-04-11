@@ -17,6 +17,7 @@
       bottom
       left
       fab
+      disabled
       @click="modal = !modal"
     >
       <v-icon>mdi-calculator</v-icon>
@@ -31,10 +32,14 @@
     </v-tabs>
     <v-tabs-items v-model="tab" class="transparent">
       <v-tab-item>
-        <ScheduleTable @scheduleList="onAvailableList" :week="selectedWeek" />
+        <ScheduleTable
+          @scheduleList="onAvailableList"
+          @balanceChange="calculateChange"
+          :week="selectedWeek"
+        />
       </v-tab-item>
       <v-tab-item>
-        <BalanceTable :week="selectedWeek" />
+        <BalanceTable :balance="balance[selectedWeek]" />
       </v-tab-item>
     </v-tabs-items>
     <!-- <v-navigation-drawer
@@ -68,13 +73,81 @@ export default {
         { text: "Previous", value: -1 },
         { text: "Next", value: 1 }
       ],
-      tab: null
+      tab: null,
+      balance: {
+        "-1": null,
+        0: null,
+        1: null
+      },
+      gameValues: {}
     };
   },
   methods: {
+    calculateChange(change) {
+      const { type, oldHost, newHost, host, game, bestOf } = change;
+      const value = this.gameValues[game] * bestOf;
+      if (type === "hostChange") {
+        this.balance[this.selectedWeek][game][
+          oldHost.nickname
+        ].current -= value;
+
+        if (newHost) {
+          this.balance[this.selectedWeek][game][
+            newHost.nickname
+          ].current += value;
+        }
+      } else if (type === "hostAdd") {
+        if (!this.balance[this.selectedWeek][game][host.nickname]) {
+          this.$set(this.balance[this.selectedWeek][game], host.nickname, {
+            lost: 0,
+            current: value
+          });
+        } else {
+          this.balance[this.selectedWeek][game][host.nickname].current += value;
+        }
+      }
+    },
+    getBalance(week = 0) {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.$http
+        .get(`${APIURL}/data/schedule/?week=${week}`)
+        .then(response => {
+          this.balance[week] = response.data;
+        })
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            type: "error",
+            message:
+              error.response.data || "Error while fetching balance values."
+          });
+        });
+    },
     onAvailableList(list) {
       this.availableList = list;
       this.modal = true;
+    }
+  },
+  created() {
+    this.getBalance();
+  },
+  mounted() {
+    const APIURL = process.env.VUE_APP_APIURL;
+    this.$http
+      .get(`${APIURL}/data/gamevalues`)
+      .then(response => {
+        this.gameValues = response.data;
+      })
+      .catch(error => {
+        this.$store.commit("snackbarMessage", {
+          type: "error",
+          message: "No game values found. Balance won't be working."
+        });
+      });
+  },
+  watch: {
+    selectedWeek(newValue) {
+      if (this.balance[newValue]) return;
+      this.getBalance(newValue);
     }
   }
 };

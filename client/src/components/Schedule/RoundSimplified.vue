@@ -24,7 +24,7 @@
     <v-card-text class="pa-0">
       <HostsTables
         :round="round"
-        @changesMade="changesMade = true"
+        @changesMade="onBalanceChange"
         @excludedAdd="onExcludedAdd"
         @excludedRemove="onExcludedRemove"
       />
@@ -51,6 +51,10 @@ export default {
     };
   },
   methods: {
+    onBalanceChange(payload) {
+      this.changesMade = true;
+      this.$emit("balanceChange", payload);
+    },
     onChange() {
       this.$emit("roundChanged", {
         round: this.round,
