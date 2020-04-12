@@ -71,7 +71,7 @@ router.get("/:rid", auth, validateAccess("host"), validateObjectId, async (req, 
   res.send(round);
 });
 
-router.delete("/:rid", auth, validateAccess("teamleader"), validateObjectId, async (req, res) => {
+router.delete("/:rid", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return res.status(400).send("No tournament found.");
 

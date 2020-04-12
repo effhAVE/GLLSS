@@ -54,11 +54,6 @@ function createLogger(filenameError, filenameInfo) {
 
 router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => {
   const weekNumber = req.query.week || 0;
-  /* const previousWeekStart = moment().startOf("isoWeek").isoWeek(forWeek - 1).format();
-  const previousWeekEnd = moment().endOf("isoWeek").isoWeek(forWeek - 1).format();
-  const currentWeekStart = moment().startOf("isoWeek").isoWeek(forWeek).format();
-  const currentWeekEnd = moment().endOf("isoWeek").isoWeek(forWeek).format(); */
-
   const previousWeekStart = moment().add(weekNumber - 1, "weeks").startOf("isoWeek").toDate();
   const previousWeekEnd = moment().add(weekNumber - 1, "weeks").endOf("isoWeek").toDate();
   const currentWeekStart = moment().add(weekNumber, "weeks").startOf("isoWeek").toDate();

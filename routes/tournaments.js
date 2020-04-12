@@ -19,12 +19,16 @@ const moment = require("moment");
 
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
+  const limitSize = +req.query.limit || 10;
+  const page = +req.query.page || 0;
   const tournaments = await Tournament.find({
       "endDate": {
         $gte: new Date()
       }
     })
-    .sort("startDate");
+    .sort("startDate")
+    .limit(limitSize)
+    .skip(limitSize * page);
 
   res.send(tournaments);
 });

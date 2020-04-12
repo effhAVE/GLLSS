@@ -19,6 +19,7 @@ router.get("/", auth, validateAccess("admin"), async (req, res) => {
       $ne: "guest"
     }
   }).select("-tournamentsHosted -password").sort("_id").lean();
+  // remove it for production, use user.createdAt instead.
   users.forEach(user => {
     user.createdAt = user._id.getTimestamp();
   });
