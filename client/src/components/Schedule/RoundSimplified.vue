@@ -19,6 +19,8 @@
         >
         <br />
         {{ round.startDate | moment("MMM Do LT") }}
+        <br />
+        Best of: {{ round.bestOf }}
       </v-card-subtitle>
     </div>
     <v-card-text class="pa-0">

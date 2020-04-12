@@ -161,7 +161,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
   res.send(monthData);
 });
 
-router.get("/:date", auth, validateAccess("admin"), async (req, res) => {
+router.get("/:date", auth, validateAccess("host"), async (req, res) => {
   const data = await Data.findOne({
     date: req.params.date
   });
