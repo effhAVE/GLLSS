@@ -10,7 +10,7 @@
         {{ round.name }}
         <v-spacer></v-spacer>
       </v-card-title>
-      <v-card-subtitle>
+      <v-card-subtitle class="oneline-text">
         Part of
         <span class="accent--text"
           ><router-link :to="`/tournaments/${round.tournamentID}`">{{
@@ -79,3 +79,11 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.oneline-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>
