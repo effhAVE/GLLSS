@@ -78,7 +78,12 @@
         <span>Loading...</span>
       </template>
     </v-btn>
-    <TournamentsSimplifiedTable v-else :tournaments="tournaments" />
+    <TournamentsSimplifiedTable
+      v-else
+      :tournaments="tournaments"
+      :allLoaded="allLoaded"
+      @getNextPage="getNextTournamentPage"
+    />
   </v-card>
 </template>
 
@@ -105,7 +110,10 @@ export default {
       deleteModal: false,
       editModal: false,
       tournamentsLoading: false,
-      tournamentsLoaded: false
+      tournamentsLoaded: false,
+      page: 0,
+      limit: 10,
+      allLoadedd: false
     };
   },
   methods: {
@@ -126,9 +134,12 @@ export default {
       this.tournamentsLoading = true;
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .get(`${APIURL}/series/${this.series._id}/tournaments`)
+        .get(
+          `${APIURL}/series/${this.series._id}/tournaments?limit=${this.limit}&page=${this.page}`
+        )
         .then(response => {
-          this.tournaments = response.data;
+          if (response.data.length < this.limit) this.allLoaded = true;
+          this.tournaments.push(...response.data);
           this.tournamentsLoading = false;
           this.tournamentsLoaded = true;
         })
@@ -139,6 +150,10 @@ export default {
           });
           this.tournamentsLoading = false;
         });
+    },
+    getNextTournamentPage() {
+      this.page++;
+      this.getTournaments();
     },
     deleteSeries(id) {
       const APIURL = process.env.VUE_APP_APIURL;

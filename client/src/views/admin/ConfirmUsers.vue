@@ -20,6 +20,7 @@
       item-key="_id"
       show-select
       class="table-background"
+      disable-pagination
       hide-default-footer
     >
       <template v-slot:item.createdAt="{ item }">

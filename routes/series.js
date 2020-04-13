@@ -28,7 +28,14 @@ router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, r
 });
 
 router.get("/:id/tournaments", auth, validateObjectId, validateAccess("host"), async (req, res) => {
-  const series = await Series.findById(req.params.id).populate("tournaments", "name startDate endDate").sort("-endDate");
+  const limitSize = +req.query.limit || 10;
+  const page = +req.query.page || 0;
+  const series = await Series
+    .findById(req.params.id)
+    .populate("tournaments", "name startDate endDate")
+    //.sort("-tournaments.endDate") not working with populated fields
+    .limit(limitSize)
+    .skip(limitSize * page);
   if (!series) res.status(404).send("No series found.")
 
   res.send(series.tournaments);

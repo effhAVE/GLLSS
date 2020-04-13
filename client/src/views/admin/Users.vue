@@ -21,6 +21,7 @@
       show-select
       class="table-background"
       hide-default-footer
+      disable-pagination
     >
       <template v-slot:item.data-table-select="{ item, select, isSelected }">
         <v-simple-checkbox

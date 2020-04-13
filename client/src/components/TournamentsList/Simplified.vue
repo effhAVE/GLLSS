@@ -18,6 +18,20 @@
       <template v-slot:item.endDate="{ item }">
         <span>{{ item.endDate | moment("lll") }}</span>
       </template>
+      <template v-slot:footer>
+        <div class="v-data-footer">
+          <v-spacer></v-spacer>
+          <v-btn
+            class="accent--text"
+            text
+            tile
+            @click="$emit('getNextPage')"
+            :disabled="allLoaded"
+          >
+            Load more
+          </v-btn>
+        </div>
+      </template>
     </v-data-table>
   </div>
 </template>
@@ -29,6 +43,10 @@ export default {
     tournaments: {
       type: Array,
       default: () => []
+    },
+    allLoaded: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
