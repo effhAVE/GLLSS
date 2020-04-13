@@ -7,6 +7,7 @@
     no-data-text="No series"
     item-key="_id"
     hide-default-footer
+    disable-pagination
   >
   </v-data-table>
 </template>
