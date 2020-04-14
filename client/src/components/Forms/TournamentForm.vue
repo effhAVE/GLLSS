@@ -3,6 +3,7 @@
     <v-text-field
       v-model="draft.name"
       color="accent"
+      :disabled="!!draft.series && !belongsToSeries"
       label="Name"
       prepend-icon="mdi-pencil"
       required
@@ -102,9 +103,13 @@ export default {
         name: "Unnamed tournament",
         endDate: this.$moment()
           .utc()
+          .add(8, "hours")
+          .startOf("hour")
           .format("YYYY-MM-DD HH:mm"),
         startDate: this.$moment()
           .utc()
+          .add(1, "hours")
+          .startOf("hour")
           .format("YYYY-MM-DD HH:mm"),
         series: null,
         game: "",

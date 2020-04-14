@@ -31,13 +31,11 @@
       </v-tab>
     </v-tabs>
     <v-tabs-items v-model="tab" class="transparent">
-      <v-tab-item>
-        <ScheduleTable
-          @scheduleList="onAvailableList"
-          @balanceChange="calculateChange"
-          :week="selectedWeek"
-        />
-      </v-tab-item>
+      <ScheduleTable
+        @scheduleList="onAvailableList"
+        @balanceChange="calculateChange"
+        :week="selectedWeek"
+      />
       <v-tab-item>
         <BalanceTable :balance="balance[selectedWeek]" />
       </v-tab-item>

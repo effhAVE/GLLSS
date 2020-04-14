@@ -30,14 +30,24 @@
             <template v-slot:default>
               <thead>
                 <tr>
+                  <th>Hosted</th>
                   <th>Round name</th>
+                  <th>Best of</th>
                   <th>Start date</th>
                   <th>End date</th>
                 </tr>
               </thead>
               <tbody>
                 <tr :key="round._id" v-for="round in item.rounds">
+                  <td width="50">
+                    <v-simple-checkbox
+                      color="accent"
+                      :ripple="false"
+                      :value="round.isHosting"
+                    ></v-simple-checkbox>
+                  </td>
                   <td>{{ round.name }}</td>
+                  <td>{{ round.bestOf }}</td>
                   <td>{{ round.startDate | moment("lll") }}</td>
                   <td>{{ round.endDate | moment("lll") }}</td>
                 </tr>
@@ -46,11 +56,25 @@
           </v-simple-table>
         </td>
       </template>
+      <template v-slot:item.name="{ item }">
+        <router-link :to="`tournaments/${item._id}`" class="white--text">{{
+          item.name
+        }}</router-link>
+      </template>
       <template v-slot:item.startDate="{ item }">
         <span>{{ item.startDate | moment("lll") }}</span>
       </template>
       <template v-slot:item.endDate="{ item }">
         <span>{{ item.endDate | moment("lll") }}</span>
+      </template>
+      <template v-slot:item.data-table-expand="{ expand, isExpanded }">
+        <v-btn
+          color="accent"
+          class="black--text"
+          small
+          @click.stop="expand(!isExpanded)"
+          >EXPAND</v-btn
+        >
       </template>
       <template v-slot:footer>
         <div class="v-data-footer">

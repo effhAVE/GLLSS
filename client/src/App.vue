@@ -114,4 +114,10 @@ html {
 .v-application .primary.has-border {
   border: thin solid rgba(255, 255, 255, 0.12) !important;
 }
+
+.icon-size {
+  width: 24px;
+  height: 24px;
+  margin: 0 4px;
+}
 </style>

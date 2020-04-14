@@ -1,18 +1,5 @@
 <template>
   <v-card color="transparent" width="25%" raised>
-    <v-snackbar
-      v-model="changesMade"
-      color="secondary border--accent"
-      bottom
-      right
-      multi-line
-      :timeout="0"
-    >
-      Do you want to save the changes?
-      <v-btn text color="accent" @click="saveRound(round)">
-        Save
-      </v-btn>
-    </v-snackbar>
     <div class="secondary">
       <v-card-title>
         {{ round.name }}
@@ -128,9 +115,9 @@ export default {
         "hide-default-footer": true
       },
       excluded: [],
-      changesMade: false,
       editRoundModal: false,
-      deleteRoundModal: false
+      deleteRoundModal: false,
+      changesMade: false
     };
   },
   methods: {
@@ -151,9 +138,15 @@ export default {
           });
         });
     },
+    onChange() {
+      this.$emit("roundChanged", {
+        round: this.round,
+        excluded: this.excluded
+      });
+    },
     saveRound(round) {
-      this.changesMade = false;
       this.editRoundModal = false;
+      this.changesMade = false;
       const APIURL = process.env.VUE_APP_APIURL;
 
       this.$http
@@ -221,6 +214,13 @@ export default {
             message: error.response.data || "Error while updating."
           });
         });
+    }
+  },
+  watch: {
+    changesMade(newValue) {
+      if (newValue === true) {
+        this.onChange();
+      }
     }
   }
 };

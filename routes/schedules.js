@@ -116,7 +116,7 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
       },
       {
         $sort: {
-          "rounds.localStartDate": 1
+          "rounds.startDate": 1
         }
       },
       {

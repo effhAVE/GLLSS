@@ -1,5 +1,18 @@
 <template>
   <v-card height="100%" color="transparent" v-if="tournament">
+    <v-snackbar
+      v-model="changedRounds.length"
+      color="secondary border--accent"
+      bottom
+      right
+      multi-line
+      :timeout="0"
+    >
+      Do you want to save the changes?
+      <v-btn text color="accent" @click="saveRoundsChanges">
+        Save
+      </v-btn>
+    </v-snackbar>
     <v-card-title>
       {{ tournament.name }}
       <v-spacer></v-spacer>
@@ -87,6 +100,7 @@
         :user="user"
         :usersAvailable="usersAvailable"
         class="mt-12 mr-12"
+        @roundChanged="changedRounds.push($event)"
       />
     </div>
   </v-card>
@@ -117,7 +131,8 @@ export default {
       deleteModal: false,
       addRoundModal: false,
       editModal: false,
-      usersAvailable: []
+      usersAvailable: [],
+      changedRounds: []
     };
   },
   methods: {
@@ -140,7 +155,27 @@ export default {
           }
         });
     },
-
+    saveRoundsChanges() {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.$http
+        .put(
+          `${APIURL}/tournaments/${this.tournament._id}/rounds`,
+          this.changedRounds
+        )
+        .then(() => {
+          this.changedRounds.splice(0);
+          this.$store.commit("snackbarMessage", {
+            message: "Rounds updated!",
+            type: "success"
+          });
+        })
+        .catch(error =>
+          this.$store.commit("snackbarMessage", {
+            message: "Error while saving rounds.",
+            type: "error"
+          })
+        );
+    },
     addNewRound(round) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.addRoundModal = false;

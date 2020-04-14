@@ -25,13 +25,20 @@
       item-key="_id"
       hide-default-footer
       disable-pagination
+      ref="tournamentsTable"
     >
+      <template v-slot:header.data-table-expand>
+        <v-btn color="accent" class="black--text" small @click.stop="expandAll">
+          Expand all
+        </v-btn>
+      </template>
       <template v-slot:item.rounds="{ item }">
         <div class="d-flex justify-space-between">
           <v-simple-checkbox
             color="accent"
             :on-icon="setIcon(item)"
             :value="checkTournamentAvailability(item)"
+            @input="setTournamentAvailability($event, item)"
             :ripple="false"
           ></v-simple-checkbox>
           <v-simple-checkbox
@@ -48,14 +55,16 @@
               <thead>
                 <tr>
                   <th>Available</th>
+                  <th>Hosting</th>
                   <th>Round name</th>
+                  <th>Best of</th>
                   <th>Start date</th>
                   <th>End date</th>
                 </tr>
               </thead>
               <tbody>
                 <tr :key="round._id" v-for="round in item.rounds">
-                  <td>
+                  <td width="50">
                     <v-simple-checkbox
                       v-model="round.myAvailability"
                       :disabled="round.isHosting"
@@ -64,7 +73,15 @@
                       @input="onAvailabilityChange($event, item, round)"
                     ></v-simple-checkbox>
                   </td>
+                  <td width="50">
+                    <v-simple-checkbox
+                      color="accent"
+                      :ripple="false"
+                      :value="round.isHosting"
+                    ></v-simple-checkbox>
+                  </td>
                   <td>{{ round.name }}</td>
+                  <td>{{ round.bestOf }}</td>
                   <td>{{ round.startDate | moment("lll") }}</td>
                   <td>{{ round.endDate | moment("lll") }}</td>
                 </tr>
@@ -73,11 +90,25 @@
           </v-simple-table>
         </td>
       </template>
+      <template v-slot:item.name="{ item }">
+        <router-link :to="`tournaments/${item._id}`" class="white--text">{{
+          item.name
+        }}</router-link>
+      </template>
       <template v-slot:item.startDate="{ item }">
         <span>{{ item.startDate | moment("lll") }}</span>
       </template>
       <template v-slot:item.endDate="{ item }">
         <span>{{ item.endDate | moment("lll") }}</span>
+      </template>
+      <template v-slot:item.data-table-expand="{ expand, isExpanded }">
+        <v-btn
+          color="accent"
+          class="black--text"
+          small
+          @click.stop="expand(!isExpanded)"
+          >EXPAND</v-btn
+        >
       </template>
       <template v-slot:footer>
         <div class="v-data-footer">
@@ -147,7 +178,7 @@ export default {
           if (tournaments.length < this.limit) this.allLoaded = true;
           tournaments.forEach(tournament => {
             tournament.rounds.forEach(round => {
-              round.isHosting = this.isHosting(round);
+              round.isHosting = this.isHosting(round) || this.isLeading(round);
               round.myAvailability = this.checkAvailability(round);
             });
           });
@@ -165,11 +196,21 @@ export default {
     isHosting(round) {
       return round.hosts.some(hostObj => hostObj.host === this.user._id);
     },
+    isLeading(round) {
+      return round.teamLeads.some(TLObj => TLObj.host === this.user._id);
+    },
     isHostingTournament(rounds) {
       return rounds.some(round => round.isHosting);
     },
     onAvailabilityChange(value, tournament, round) {
       this.$emit("availabilityChange", { value, tournament, round });
+    },
+    setTournamentAvailability(value, tournament) {
+      for (const round of tournament.rounds) {
+        if (round.isHosting || round.myAvailability === value) continue;
+        round.myAvailability = value;
+        this.$emit("availabilityChange", { value, tournament, round });
+      }
     },
     setIcon(tournament) {
       if (tournament.rounds.every(round => round.myAvailability === false))
@@ -183,6 +224,20 @@ export default {
     },
     redirect(tournament) {
       return this.$router.push(`/tournaments/${tournament._id}`);
+    },
+    expandAll() {
+      if (
+        this.$refs.tournamentsTable.expanded.length ===
+        this.tournamentsList.length
+      ) {
+        this.$set(this.$refs.tournamentsTable, "expanded", []);
+      } else {
+        this.$set(
+          this.$refs.tournamentsTable,
+          "expanded",
+          this.tournamentsList
+        );
+      }
     }
   },
   mounted() {

@@ -185,7 +185,9 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
 
   const logger = createLogger(`${data.date}-error`, `${data.date}-log`);
   logger.info("New calculation:");
-  const gameValues = req.body;
+  const gameValues = req.body.gameValues;
+  const TLRatio = req.body.TLRatio;
+  logger.notice(`TL Ratio provided: ${TLRatio}`);
   logger.notice(`Game values provided:`);
   for (let [name, value] of Object.entries(gameValues)) {
     logger.info(`${name}: ${value}`);
@@ -272,18 +274,17 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
       return res.status(400).send(`No game value provided for ${game}`);
     }
     if (!calcGame[region]) {
-      calcGame[region] = {};
+      calcGame[region] = 0;
     }
 
-    const calcRegion = calcGame[region];
     for (const round of tournament.rounds) {
 
       round.hosts.forEach(hostObject => {
         if (!hostObject.host) return;
         const hostID = hostObject.host.nickname;
-        if (!calcRegion[hostID]) {
+        /* if (!calcRegion[hostID]) {
           calcRegion[hostID] = 0;
-        }
+        } */
         if (!calcGame.total[hostID]) {
           calcGame.total[hostID] = {
             hostValue: 0,
@@ -315,15 +316,15 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
           calculation.regions[region].totalValue += value;
           calculation.games[game].totalValue += value;
 
-          calculation.hosts.summary[hostID].games += calcGame.total[hostID].games += round.bestOf;
-          calculation.regions[region].gamesHosted += round.bestOf;
-          calculation.games[game].gamesHosted += round.bestOf;
-          calculation.total.gamesHosted += round.bestOf;
+          calculation.hosts.summary[hostID].games += calcGame.total[hostID].games += (round.bestOf + hostObject.timeBalance);
+          calculation.regions[region].gamesHosted += (round.bestOf + hostObject.timeBalance);
+          calculation.games[game].gamesHosted += (round.bestOf + hostObject.timeBalance);
+          calculation.total.gamesHosted += (round.bestOf + hostObject.timeBalance);
 
           calculation.total.hostingValue += value;
           calculation.total.totalValue += value;
           calculation.hosts.summary[hostID].totalValue += calcGame.total[hostID].totalValue = calcGame.total[hostID].hostValue + calcGame.total[hostID].TLValue;
-          calcRegion[hostID] += round.bestOf;
+          calcGame[region] += (round.bestOf + hostObject.timeBalance);
         } else {
           logger.info(`Host: ${hostObject.host.nickname} lost hosting of the following round - ${round.name} inside ${tournament.name}`);
         }
@@ -410,7 +411,7 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
       mergedTimeSlots.push(moment(lastSlot.endDate).diff(lastSlot.startDate, "minutes"));
       timeSlot.splice(0, timeSlot.length, ...mergedTimeSlots);
       const TLTime = TLTimeSlots[id][game].reduce((value, current) => value + current);
-      const value = Math.ceil((TLTime / 60) * 100);
+      const value = Math.ceil((TLTime / 60) * TLRatio);
 
       calculation.hosts.summary[id].TLTime += calculation.hosts[game].total[id].TLTime = TLTime;
       calculation.hosts.summary[id].TLValue += calculation.hosts[game].total[id].TLValue = value;

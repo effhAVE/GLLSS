@@ -11,9 +11,37 @@
         <v-menu bottom left offset-y>
           <template v-slot:activator="{ on }">
             <div class="px-4" v-on="on">
+              <v-btn
+                icon
+                color="error"
+                @click.stop="changeRoundHost(round, item.host, '')"
+                x-small
+              >
+                <v-icon>mdi-skull-crossbones</v-icon>
+              </v-btn>
               {{ item.host.nickname }}
               <div class="ml-auto">
-                <v-tooltip bottom v-if="item.ready" color="success">
+                <div
+                  v-if="+item.timeBalance"
+                  class="icon-size"
+                  :class="
+                    item.timeBalance > 0 ? 'success--text' : 'error--text'
+                  "
+                >
+                  <span v-if="item.timeBalance > 0">+</span
+                  >{{ item.timeBalance }}
+                </div>
+                <v-tooltip bottom v-if="item.lostHosting" color="warning">
+                  <template v-slot:activator="{ on }">
+                    <span v-on="on">
+                      <v-icon color="warning" small>
+                        mdi-account-off
+                      </v-icon>
+                    </span>
+                  </template>
+                  <span>Lost hosting</span>
+                </v-tooltip>
+                <v-tooltip bottom v-else-if="item.ready" color="success">
                   <template v-slot:activator="{ on }">
                     <span v-on="on">
                       <v-icon color="success" small>
@@ -33,22 +61,12 @@
                   </template>
                   <span>Not ready</span>
                 </v-tooltip>
-                <v-tooltip bottom v-if="item.lostHosting" color="warning">
-                  <template v-slot:activator="{ on }">
-                    <span v-on="on">
-                      <v-icon color="warning" small>
-                        mdi-account-off
-                      </v-icon>
-                    </span>
-                  </template>
-                  <span>Lost hosting</span>
-                </v-tooltip>
               </div>
             </div>
           </template>
           <v-list>
             <v-list-item
-              v-for="(host, i) in ['', ...round.available]"
+              v-for="(host, i) in round.available"
               :key="i"
               @click="changeRoundHost(round, item.host, host)"
             >
@@ -92,9 +110,37 @@
         <v-menu bottom left offset-y>
           <template v-slot:activator="{ on }">
             <div class="px-4" v-on="on">
+              <v-btn
+                icon
+                color="error"
+                @click.stop="changeRoundTL(round, item.host, '')"
+                x-small
+              >
+                <v-icon>mdi-skull-crossbones</v-icon>
+              </v-btn>
               {{ item.host.nickname }}
               <div class="ml-auto">
-                <v-tooltip bottom v-if="item.ready" color="success">
+                <div
+                  v-if="+item.timeBalance"
+                  class="icon-size"
+                  :class="
+                    item.timeBalance > 0 ? 'success--text' : 'error--text'
+                  "
+                >
+                  <span v-if="item.timeBalance > 0">+</span
+                  >{{ item.timeBalance }}
+                </div>
+                <v-tooltip bottom v-if="item.lostHosting" color="warning">
+                  <template v-slot:activator="{ on }">
+                    <span v-on="on">
+                      <v-icon color="warning" small>
+                        mdi-account-off
+                      </v-icon>
+                    </span>
+                  </template>
+                  <span>Lost hosting</span>
+                </v-tooltip>
+                <v-tooltip bottom v-else-if="item.ready" color="success">
                   <template v-slot:activator="{ on }">
                     <span v-on="on">
                       <v-icon color="success" small>
@@ -114,22 +160,12 @@
                   </template>
                   <span>Not ready</span>
                 </v-tooltip>
-                <v-tooltip bottom v-if="item.lostLeading" color="warning">
-                  <template v-slot:activator="{ on }">
-                    <span v-on="on">
-                      <v-icon color="warning" small>
-                        mdi-account-off
-                      </v-icon>
-                    </span>
-                  </template>
-                  <span>Lost leading</span>
-                </v-tooltip>
               </div>
             </div>
           </template>
           <v-list>
             <v-list-item
-              v-for="(host, i) in ['', ...availableTLs]"
+              v-for="(host, i) in availableTLs"
               :key="i"
               @click="changeRoundTL(round, item.host, host)"
             >

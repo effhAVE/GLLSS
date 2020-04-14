@@ -86,9 +86,14 @@ export default {
         name: "Unnamed series",
         endDate: this.$moment()
           .utc()
+          .add(1, "hours")
+          .add(1, "years")
+          .startOf("hour")
           .format("YYYY-MM-DD HH:mm"),
         startDate: this.$moment()
           .utc()
+          .add(1, "hours")
+          .startOf("hour")
           .format("YYYY-MM-DD HH:mm"),
         game: "",
         region: "",

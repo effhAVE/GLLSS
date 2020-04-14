@@ -11,6 +11,14 @@
       <v-menu bottom left offset-y>
         <template v-slot:activator="{ on }">
           <div class="px-4" v-on="on">
+            <v-btn
+              icon
+              color="error"
+              @click.stop="changeRoundHost(round, item.host, '')"
+              v-if="user.roles.includes('teamleader')"
+            >
+              <v-icon>mdi-skull-crossbones</v-icon>
+            </v-btn>
             {{ item.host.nickname }}
             <div class="ml-auto">
               <v-btn
@@ -21,7 +29,17 @@
               >
                 <v-icon color="success">mdi-check</v-icon>
               </v-btn>
-              <v-icon v-if="item.ready" color="success">
+              <div
+                v-if="+item.timeBalance"
+                class="icon-size"
+                :class="item.timeBalance > 0 ? 'success--text' : 'error--text'"
+              >
+                <span v-if="item.timeBalance > 0">+</span>{{ item.timeBalance }}
+              </div>
+              <v-icon v-if="item.lostHosting" color="warning">
+                mdi-account-off
+              </v-icon>
+              <v-icon v-else-if="item.ready" color="success">
                 mdi-account-check
               </v-icon>
               <v-icon v-else color="error">
@@ -42,7 +60,7 @@
                 <v-list>
                   <div class="text-center">{{ item.host.nickname }}</div>
                   <v-form>
-                    <v-list-item>
+                    <v-list-item v-if="user.roles.includes('admin')">
                       <v-checkbox
                         v-model="item.ready"
                         label="Ready"
@@ -58,7 +76,7 @@
                     </v-list-item>
                     <v-list-item>
                       <v-text-field
-                        label="Time balance"
+                        label="Round balance"
                         v-model="item.timeBalance"
                         type="number"
                         color="accent"
@@ -86,7 +104,7 @@
         </template>
         <v-list v-if="user.roles.includes('teamleader')">
           <v-list-item
-            v-for="(host, i) in ['', ...round.available]"
+            v-for="(host, i) in round.available"
             :key="i"
             @click="changeRoundHost(round, item.host, host)"
           >

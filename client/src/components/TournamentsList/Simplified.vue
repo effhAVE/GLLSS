@@ -12,6 +12,11 @@
       item-key="_id"
       hide-default-footer
     >
+      <template v-slot:item.name="{ item }">
+        <router-link :to="`/tournaments/${item._id}`" class="white--text">{{
+          item.name
+        }}</router-link>
+      </template>
       <template v-slot:item.startDate="{ item }">
         <span>{{ item.startDate | moment("lll") }}</span>
       </template>

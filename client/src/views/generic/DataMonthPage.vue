@@ -294,10 +294,13 @@ export default {
           }
         });
     },
-    recalculate(gameValues) {
+    recalculate(values) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .post(`${APIURL}/data/${this.date}/calculate`, gameValues)
+        .post(`${APIURL}/data/${this.date}/calculate`, {
+          gameValues: values.gameValues,
+          TLRatio: values.TLRatio
+        })
         .catch(error => {
           this.$store.commit("snackbarMessage", {
             message: error.response.data || `Error while calculating`,

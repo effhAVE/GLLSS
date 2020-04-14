@@ -16,7 +16,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
 const moment = require("moment");
-
+const tournamentRegions = require("../collections/regions");
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
   const limitSize = +req.query.limit || 10;
@@ -26,7 +26,10 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
         $gte: new Date()
       }
     })
-    .sort("startDate")
+    .sort({
+      startDate: 1,
+      endDate: 1
+    })
     .limit(limitSize)
     .skip(limitSize * page);
 
@@ -41,7 +44,10 @@ router.get("/past", auth, validateAccess("host"), async (req, res) => {
         $lt: new Date()
       }
     })
-    .sort("-endDate")
+    .sort({
+      endDate: -1,
+      startDate: -1
+    })
     .limit(limitSize)
     .skip(limitSize * page);
 
@@ -119,10 +125,13 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
   if (tournament.series) {
     series = await Series.findById(tournament.series);
     if (!series) return res.status(400).send("No series with the given ID.");
+    const regionObject = tournamentRegions.find(region => region.name === series.region);
+    const localStartDate = moment(tournament.startDate).add(regionObject.offset, "hours").format();
+
     if (series.recurrence === "daily") {
-      tournament.name = `#${moment(tournament.startDate).isoWeek()} ${moment(tournament.startDate).format("ddd")} ${series.name}`;
+      tournament.name = `#${moment(localStartDate).isoWeek()} ${moment(localStartDate).format("ddd")} ${series.name}`;
     } else if (series.recurrence === "weekly") {
-      tournament.name = `#${moment(tournament.startDate).isoWeek()} ${series.name}`;
+      tournament.name = `#${moment(localStartDate).isoWeek()} ${series.name}`;
     }
 
     tournament.game = series.game;

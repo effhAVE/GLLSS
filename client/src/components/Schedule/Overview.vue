@@ -1,5 +1,5 @@
 <template>
-  <v-card-text>
+  <v-tab-item>
     <v-snackbar
       v-model="changedRounds.length"
       color="secondary border--accent"
@@ -13,24 +13,51 @@
         Save
       </v-btn>
     </v-snackbar>
-    <div v-for="gameObject in groupedRounds" :key="gameObject.game">
-      <h3 class="title accent--text">{{ gameObject.game }}</h3>
-      <div v-for="(rounds, day) in gameObject.rounds" :key="day">
-        <h4 class="subtitle">{{ day | moment("LL") }}</h4>
-        <div class="d-flex overflow-x-auto mb-8">
-          <Round
-            v-for="round in rounds"
-            :key="round._id"
-            :round="round"
-            @roundChanged="changedRounds.push($event)"
-            @balanceChange="
-              $emit('balanceChange', { ...$event, game: gameObject.game })
-            "
-          />
+    <v-tabs v-model="gamesTab" background-color="primary" slider-color="accent">
+      <v-tab>All</v-tab>
+      <v-tab v-for="gameObject in groupedRounds" :key="gameObject.game">
+        {{ gameObject.game }}
+      </v-tab>
+    </v-tabs>
+    <v-tabs-items v-model="gamesTab" class="py-4">
+      <v-tab-item>
+        <div v-for="gameObject in groupedRounds" :key="gameObject.game">
+          <h3 class="title accent--text">{{ gameObject.game }}</h3>
+          <div v-for="(rounds, day) in gameObject.rounds" :key="day">
+            <h4 class="subtitle">{{ day | moment("LL") }}</h4>
+            <div class="d-flex overflow-x-auto mb-8">
+              <Round
+                v-for="round in rounds"
+                :key="round._id"
+                :round="round"
+                @roundChanged="changedRounds.push($event)"
+                @balanceChange="
+                  $emit('balanceChange', { ...$event, game: gameObject.game })
+                "
+              />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </v-card-text>
+      </v-tab-item>
+      <v-tab-item v-for="gameObject in groupedRounds" :key="gameObject.game">
+        <h3 class="title accent--text">{{ gameObject.game }}</h3>
+        <div v-for="(rounds, day) in gameObject.rounds" :key="day">
+          <h4 class="subtitle">{{ day | moment("LL") }}</h4>
+          <div class="d-flex overflow-x-auto mb-8">
+            <Round
+              v-for="round in rounds"
+              :key="round._id"
+              :round="round"
+              @roundChanged="changedRounds.push($event)"
+              @balanceChange="
+                $emit('balanceChange', { ...$event, game: gameObject.game })
+              "
+            />
+          </div>
+        </div>
+      </v-tab-item>
+    </v-tabs-items>
+  </v-tab-item>
 </template>
 <script>
 import Round from "./RoundSimplified";
@@ -45,7 +72,8 @@ export default {
     return {
       groupedRounds: [],
       availabilityList: [],
-      changedRounds: []
+      changedRounds: [],
+      gamesTab: null
     };
   },
   methods: {

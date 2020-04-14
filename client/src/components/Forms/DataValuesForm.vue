@@ -15,6 +15,15 @@
           type="number"
           :rules="validation"
         ></v-text-field>
+        <v-text-field
+          v-model="TLRatio"
+          color="accent"
+          label="Teamleads value"
+          required
+          type="number"
+          :rules="TLRatioValidations"
+        >
+        </v-text-field>
       </v-form>
       <span class="warning--text">
         This operation is API intensive and may take up to a few seconds. Please
@@ -38,10 +47,15 @@ export default {
   data() {
     return {
       gamesList: [],
+      TLRatio: 100,
       valid: true,
       validation: [
         v => !!v || "All game values are required",
         v => v > 0 || "Game value must be positive"
+      ],
+      TLRatioValidations: [
+        v => !!v || "Teamleads value is required",
+        v => v > 0 || "Teamleads value must be positive"
       ]
     };
   },
@@ -52,15 +66,17 @@ export default {
         gameValues[game.name] = game.value;
       });
 
-      this.$emit("submit", gameValues);
+      this.$emit("submit", { gameValues, TLRatio: this.TLRatio });
     }
   },
   mounted() {
     const APIURL = process.env.VUE_APP_APIURL;
     this.$http.get(`${APIURL}/collections/games`).then(response => {
-      this.gamesList = response.data.map(
-        game => (game = { name: game, value: 70 })
-      );
+      this.gamesList = response.data.map(game => {
+        let value = 70;
+        if (game === "Apex") value = 40;
+        return (game = { name: game, value: value });
+      });
     });
   }
 };
