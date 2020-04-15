@@ -2,6 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
+import PasswordReset from '../views/PasswordReset'
+import ForgotPassword from '../views/ForgotPassword'
 import Register from '../views/Register.vue'
 import Schedule from '../views/Schedule.vue'
 import Data from '../views/Data.vue'
@@ -102,6 +104,16 @@ const routes = [{
     component: Register
   },
   {
+    path: "/password-reset",
+    name: "Password reset",
+    component: PasswordReset
+  },
+  {
+    path: "/forgot-password",
+    name: "Forgot password",
+    component: ForgotPassword
+  },
+  {
     path: "/admin",
     meta: {
       requiresAuth: true,
@@ -147,7 +159,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (store.getters.isLoggedIn && (to.name === "Login" || to.name === "Register")) return next("/");
+  if (store.getters.isLoggedIn && (to.name === "Login" || to.name === "Register" || to.name === "Password reset" || to.name === "Forgot password")) return next("/");
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (store.getters.isLoggedIn) {
       return next();

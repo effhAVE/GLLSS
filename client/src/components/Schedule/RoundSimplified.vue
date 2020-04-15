@@ -10,13 +10,10 @@
         {{ round.name }}
         <v-spacer></v-spacer>
       </v-card-title>
-      <v-card-subtitle class="oneline-text">
-        Part of
-        <span class="accent--text"
-          ><router-link :to="`/tournaments/${round.tournamentID}`">{{
-            round.tournamentName
-          }}</router-link></span
-        >
+      <v-card-subtitle class="oneline-text"
+        ><router-link :to="`/tournaments/${round.tournamentID}`">{{
+          round.tournamentName
+        }}</router-link>
         <br />
         {{ round.startDate | moment("MMM Do LT") }}
         <br />
