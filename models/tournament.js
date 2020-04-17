@@ -45,6 +45,10 @@ const tournamentSchema = new mongoose.Schema({
     type: String,
     enum: regionNames
   },
+  gllURL: {
+    type: String,
+    default: ""
+  },
   countedByRounds: {
     type: Boolean,
     default: true
@@ -78,6 +82,7 @@ function validateTournament(tournament) {
       then: Joi.allow(""),
       otherwise: Joi.string().valid(...regionNames).required()
     }),
+    gllURL: Joi.string(),
     countedByRounds: Joi.boolean()
   };
 

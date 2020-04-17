@@ -25,6 +25,13 @@
         {{ item.name }}
       </template>
     </v-select>
+    <v-text-field
+      v-model="draft.gllURL"
+      color="accent"
+      label="Admin page URL"
+      prepend-icon="mdi-share"
+      :rules="validations.url"
+    ></v-text-field>
     <DatetimePicker
       :date="draft.startDate"
       label="Start date"
@@ -101,6 +108,7 @@ export default {
     return {
       draft: {
         name: "Unnamed tournament",
+        gllURL: "",
         endDate: this.$moment()
           .utc()
           .add(8, "hours")
@@ -133,7 +141,8 @@ export default {
               "This field cannot be empty when not a part of a series"
             );
           }
-        ]
+        ],
+        url: validations.tournamentUrl
       },
       valid: true,
       belongsToSeries: false,

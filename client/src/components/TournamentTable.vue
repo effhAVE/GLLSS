@@ -22,6 +22,15 @@
           </td>
         </tr>
         <tr>
+          <th>Admin page URL</th>
+          <td>
+            <a :href="tournament.gllURL" v-if="tournament.gllURL">
+              {{ tournament.gllURL }}
+            </a>
+            <span v-else>null</span>
+          </td>
+        </tr>
+        <tr>
           <th>Game</th>
           <td>{{ tournament.game }}</td>
         </tr>

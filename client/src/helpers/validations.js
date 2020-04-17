@@ -56,5 +56,8 @@ export default {
     required,
     v => v >= 0 || "Preparation time cannot be negative",
     v => v <= 180 || "Preparation time cannot be greater than 180"
+  ],
+  tournamentUrl: [
+    v => (/^(https:\/\/)?(w{3}\.)?admin.gll.gg\/tournament\/(.+)?$/.test(v) || v === "") || "Must be a valid GLL URL"
   ]
 }
