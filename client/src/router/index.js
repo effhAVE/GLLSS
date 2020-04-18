@@ -5,6 +5,7 @@ import Login from '../views/Login.vue'
 import PasswordReset from '../views/PasswordReset'
 import ForgotPassword from '../views/ForgotPassword'
 import Register from '../views/Register.vue'
+import Calendar from '../views/Calendar.vue'
 import Schedule from '../views/Schedule.vue'
 import Data from '../views/Data.vue'
 import DataMonthPage from '../views/generic/DataMonthPage.vue'
@@ -44,6 +45,15 @@ const routes = [{
     path: "/data",
     name: "Data",
     component: Data,
+    meta: {
+      requiresAuth: true,
+      requiredRole: "host"
+    }
+  },
+  {
+    path: "/calendar",
+    name: "Calendar",
+    component: Calendar,
     meta: {
       requiresAuth: true,
       requiredRole: "host"
