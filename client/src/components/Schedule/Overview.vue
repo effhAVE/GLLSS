@@ -143,37 +143,6 @@ export default {
             type: "error"
           })
         );
-      /* const promises = [];
-      this.changedRounds.forEach(el => {
-        const { teamLeads, hosts, available, tournamentID } = el.round;
-        console.log(el);
-        promises.push(
-          this.$http.put(`${APIURL}/schedules`, {
-            round: {
-              teamLeads,
-              hosts,
-              available
-            },
-            excluded: el.excluded,
-            tournamentID: tournamentID
-          })
-        );
-      });
-
-      this.changedRounds.splice(0);
-      Promise.all(promises)
-        .then(() => {
-          this.$store.commit("snackbarMessage", {
-            message: "Rounds updated!",
-            type: "success"
-          });
-        })
-        .catch(error =>
-          this.$store.commit("snackbarMessage", {
-            message: "Error while saving rounds.",
-            type: "error"
-          })
-        ); */
     }
   },
   mounted() {

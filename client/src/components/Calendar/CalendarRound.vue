@@ -28,7 +28,7 @@
       </v-card-subtitle>
     </div>
     <v-card-text class="pa-0">
-      <HostsTables :round="round" :user="user" />
+      <HostsTables :round="round" :user="user" :game="game" />
     </v-card-text>
   </v-card>
 </template>
@@ -44,7 +44,8 @@ export default {
       type: Object,
       required: true
     },
-    user: Object
+    user: Object,
+    game: String
   }
 };
 </script>

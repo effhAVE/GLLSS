@@ -18,6 +18,7 @@
                 :key="round._id"
                 :round="round"
                 :user="user"
+                :game="gameObject.game"
               />
             </div>
           </div>
@@ -33,6 +34,7 @@
               :key="round._id"
               :round="round"
               :user="user"
+              :game="gameObject.game"
             />
           </div>
         </div>
