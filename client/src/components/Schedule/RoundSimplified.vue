@@ -29,6 +29,7 @@
         @changesMade="onBalanceChange"
         @excludedAdd="onExcludedAdd"
         @excludedRemove="onExcludedRemove"
+        @userUpdate="onChange"
       />
     </v-card-text>
   </v-card>

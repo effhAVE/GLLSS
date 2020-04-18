@@ -61,6 +61,46 @@
                   </template>
                   <span>Not ready</span>
                 </v-tooltip>
+                <v-menu bottom right offset-x :close-on-content-click="false">
+                  <template v-slot:activator="{ on }">
+                    <v-btn icon v-on="on" small>
+                      <v-icon small>mdi-pencil</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <div class="text-center">{{ item.host.nickname }}</div>
+                    <v-form>
+                      <v-list-item>
+                        <v-checkbox
+                          v-model="item.lostHosting"
+                          label="Lost hosting"
+                          color="accent"
+                        ></v-checkbox>
+                      </v-list-item>
+                      <v-list-item>
+                        <v-text-field
+                          label="Round balance"
+                          v-model="item.timeBalance"
+                          type="number"
+                          color="accent"
+                        ></v-text-field>
+                      </v-list-item>
+                      <v-container>
+                        <v-row>
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            text
+                            class="mr-4"
+                            color="accent"
+                            @click.prevent="$emit('userUpdate', item)"
+                          >
+                            Save
+                          </v-btn>
+                        </v-row>
+                      </v-container>
+                    </v-form>
+                  </v-list>
+                </v-menu>
               </div>
             </div>
           </template>
@@ -130,7 +170,7 @@
                   <span v-if="item.timeBalance > 0">+</span
                   >{{ item.timeBalance }}
                 </div>
-                <v-tooltip bottom v-if="item.lostHosting" color="warning">
+                <v-tooltip bottom v-if="item.lostLeading" color="warning">
                   <template v-slot:activator="{ on }">
                     <span v-on="on">
                       <v-icon color="warning" small>
@@ -160,6 +200,46 @@
                   </template>
                   <span>Not ready</span>
                 </v-tooltip>
+                <v-menu bottom right offset-x :close-on-content-click="false">
+                  <template v-slot:activator="{ on }">
+                    <v-btn icon v-on="on" small>
+                      <v-icon small>mdi-pencil</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <div class="text-center">{{ item.host.nickname }}</div>
+                    <v-form>
+                      <v-list-item>
+                        <v-checkbox
+                          v-model="item.lostLeading"
+                          label="Lost leading"
+                          color="accent"
+                        ></v-checkbox>
+                      </v-list-item>
+                      <v-list-item>
+                        <v-text-field
+                          label="Time balance"
+                          v-model="item.timeBalance"
+                          type="number"
+                          color="accent"
+                        ></v-text-field>
+                      </v-list-item>
+                      <v-container>
+                        <v-row>
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            text
+                            class="mr-4"
+                            color="accent"
+                            @click.prevent="$emit('userUpdate', item)"
+                          >
+                            Save
+                          </v-btn>
+                        </v-row>
+                      </v-container>
+                    </v-form>
+                  </v-list>
+                </v-menu>
               </div>
             </div>
           </template>

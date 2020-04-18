@@ -29,6 +29,7 @@
     "lodash": "^4.17.4",
     "moment": "^2.24.0",
     "mongoose": "^5.0.2",
+    "sort-keys-recursive": "^2.0.1",
     "winston": "^3.2.1",
     "winston-mongodb": "^3.0.0"
   },

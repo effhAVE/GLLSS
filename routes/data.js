@@ -20,6 +20,7 @@ const winston = require("winston");
 const fs = require("fs");
 const path = require("path");
 const logDir = "dataLogs";
+const sortKeysRecursive = require('sort-keys-recursive');
 
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
@@ -273,8 +274,8 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
       logger.error(`ERROR: No game value provided for ${game}!`);
       return res.status(400).send(`No game value provided for ${game}`);
     }
-    if (!calcGame[region]) {
-      calcGame[region] = 0;
+    if (!calculation.games[game][region]) {
+      calculation.games[game][region] = 0;
     }
 
     for (const round of tournament.rounds) {
@@ -282,9 +283,6 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
       round.hosts.forEach(hostObject => {
         if (!hostObject.host) return;
         const hostID = hostObject.host.nickname;
-        /* if (!calcRegion[hostID]) {
-          calcRegion[hostID] = 0;
-        } */
         if (!calcGame.total[hostID]) {
           calcGame.total[hostID] = {
             hostValue: 0,
@@ -324,7 +322,7 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
           calculation.total.hostingValue += value;
           calculation.total.totalValue += value;
           calculation.hosts.summary[hostID].totalValue += calcGame.total[hostID].totalValue = calcGame.total[hostID].hostValue + calcGame.total[hostID].TLValue;
-          calcGame[region] += (round.bestOf + hostObject.timeBalance);
+          calculation.games[game][region] += (round.bestOf + hostObject.timeBalance);
         } else {
           logger.info(`Host: ${hostObject.host.nickname} lost hosting of the following round - ${round.name} inside ${tournament.name}`);
         }
@@ -422,8 +420,11 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
     }
   }
 
+  const sortedCalculation = sortKeysRecursive(calculation, {
+    compareFunction: (a, b) => a.toLowerCase() > b.toLowerCase()
+  });
 
-  data.calculation = calculation;
+  data.calculation = sortedCalculation;
   await data.save();
   const routeEndTime = new Date().getTime();
   logger.info(`Calculation time: ${routeEndTime - routeStartTime}ms \n\n`);

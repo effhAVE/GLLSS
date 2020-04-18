@@ -30,7 +30,7 @@
                 v-for="round in rounds"
                 :key="round._id"
                 :round="round"
-                @roundChanged="changedRounds.push($event)"
+                @roundChanged="addChanged"
                 @balanceChange="
                   $emit('balanceChange', { ...$event, game: gameObject.game })
                 "
@@ -48,7 +48,7 @@
               v-for="round in rounds"
               :key="round._id"
               :round="round"
-              @roundChanged="changedRounds.push($event)"
+              @roundChanged="addChanged"
               @balanceChange="
                 $emit('balanceChange', { ...$event, game: gameObject.game })
               "
@@ -77,6 +77,19 @@ export default {
     };
   },
   methods: {
+    addChanged(roundObject) {
+      const existingRound = this.changedRounds.some(
+        changedRound => changedRound.round._id === roundObject.round._id
+      );
+
+      if (existingRound) {
+        this.changedRounds = this.changedRounds.filter(
+          changedRound => changedRound.round._id !== roundObject.round._id
+        );
+      }
+
+      this.changedRounds.push(roundObject);
+    },
     getRounds(week = 0) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http.get(`${APIURL}/schedules/?week=${week}`).then(response => {

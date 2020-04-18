@@ -65,9 +65,13 @@
                     {{ hostName }}
                   </th>
                   <th v-else>
-                    <v-badge dot color="secondary">
+                    <span class="accent--text font-weight-bold">
+                      <v-icon color="accent" small
+                        >mdi-account-arrow-left</v-icon
+                      >
                       {{ hostName }}
-                    </v-badge>
+                      <v-icon></v-icon>
+                    </span>
                   </th>
                   <td>{{ host.games }}</td>
                   <td>{{ host.hostValue }}</td>
@@ -119,9 +123,13 @@
                         {{ hostName }}
                       </th>
                       <th v-else>
-                        <v-badge dot color="secondary">
+                        <span class="accent--text font-weight-bold">
+                          <v-icon color="accent" small
+                            >mdi-account-arrow-left</v-icon
+                          >
                           {{ hostName }}
-                        </v-badge>
+                          <v-icon></v-icon>
+                        </span>
                       </th>
                       <td>{{ host.games }}</td>
                       <td>{{ host.hostValue }}</td>
@@ -189,6 +197,7 @@
                   <thead>
                     <tr>
                       <th>Game</th>
+                      <th>Region | Games hosted</th>
                       <th>Games hosted</th>
                       <th>Total value</th>
                     </tr>
@@ -201,6 +210,35 @@
                       <th>
                         {{ game }}
                       </th>
+                      <td>
+                        <v-simple-table
+                          class="my-4 table-background table-simple"
+                        >
+                          <tbody>
+                            <tr v-for="(value, name) in values" :key="name">
+                              <th
+                                v-if="
+                                  name !== 'gamesHosted' &&
+                                    name !== 'totalValue'
+                                "
+                              >
+                                {{ name }}
+                              </th>
+                              <td
+                                v-if="
+                                  name !== 'gamesHosted' &&
+                                    name !== 'totalValue'
+                                "
+                                width="100px"
+                                align="center"
+                              >
+                                {{ value }}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </v-simple-table>
+                      </td>
+
                       <td>{{ values.gamesHosted }}</td>
                       <td>{{ values.totalValue }}</td>
                     </tr>
