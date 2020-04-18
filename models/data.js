@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const moment = require("moment");
+const hash = require("object-hash");
 
 const dataSchema = new mongoose.Schema({
   date: {
@@ -19,6 +20,10 @@ const dataSchema = new mongoose.Schema({
   calculation: {
     type: Object,
     default: null
+  },
+  calcHash: {
+    type: String,
+    default: ""
   }
 }, {
   timestamps: {
@@ -27,7 +32,9 @@ const dataSchema = new mongoose.Schema({
   }
 });
 
-
+dataSchema.methods.generateCalcHash = function(calculation) {
+  return hash.MD5(calculation);
+}
 
 const Data = mongoose.model("Data", dataSchema);
 

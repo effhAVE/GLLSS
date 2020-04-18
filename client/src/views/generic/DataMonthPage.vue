@@ -318,7 +318,7 @@ export default {
       this.$http
         .get(`${APIURL}/data/${date}`)
         .then(response => {
-          this.dataObject = response.data;
+          this.dataObject = response.data.data;
           const summaryKey = "summary";
           const {
             ["summary"]: _,

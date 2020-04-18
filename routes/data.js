@@ -162,7 +162,10 @@ router.get("/:date", auth, validateAccess("host"), async (req, res) => {
     date: req.params.date
   });
 
-  res.send(data);
+  res.send({
+    data,
+    currentHash: data.generateCalcHash(data.calculation)
+  });
 });
 
 router.get("/:date/log", auth, validateAccess("admin"), async (req, res) => {
@@ -425,8 +428,11 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
   });
 
   data.calculation = sortedCalculation;
+  data.calcHash = data.generateCalcHash(calculation);
   await data.save();
   const routeEndTime = new Date().getTime();
+  logger.info(`Calculation hash: ${data.calcHash}`);
+  logger.info(`Use GET /api/data/${data.date} to fetch the results.`);
   logger.info(`Calculation time: ${routeEndTime - routeStartTime}ms \n\n`);
   res.send(data);
 });

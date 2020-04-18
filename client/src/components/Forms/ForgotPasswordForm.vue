@@ -11,28 +11,8 @@
         required
         :rules="validations.email"
       ></v-text-field>
-
-      <v-text-field
-        id="password"
-        color="accent"
-        placeholder="Password"
-        v-model="password"
-        name="password"
-        prepend-icon="mdi-lock"
-        type="password"
-        :rules="validations.required"
-      ></v-text-field>
     </v-card-text>
     <v-card-actions>
-      <div>
-        <p class="mb-0">
-          No account? <router-link to="/register">Register now!</router-link>
-        </p>
-        <p class="mb-0">
-          Or maybe you
-          <router-link to="/forgot-password">forgot your password?</router-link>
-        </p>
-      </div>
       <v-spacer></v-spacer>
       <v-btn
         color="accent"
@@ -40,8 +20,8 @@
         large
         type="submit"
         :disabled="!valid"
-        @click.prevent="$emit('submit', { email, password })"
-        >Sign in</v-btn
+        @click.prevent="$emit('submit', email)"
+        >Send email</v-btn
       >
     </v-card-actions>
   </v-form>
@@ -52,7 +32,6 @@ export default {
   data() {
     return {
       email: "",
-      password: "",
       validations: validations,
       valid: true
     };

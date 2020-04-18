@@ -46,7 +46,9 @@ userSchema.methods.generateAuthToken = function() {
     _id: this._id,
     roles: this.roles,
     nickname: this.nickname
-  }, config.get("jwtPrivateKey"));
+  }, config.get("jwtPrivateKey"), {
+    expiresIn: 15 * 60
+  });
   return token;
 }
 

@@ -79,6 +79,10 @@ export default {
       }
     );
 
+    if (this.isLoggedIn) {
+      this.$store.dispatch("renewTokenTask");
+    }
+
     this.$store.subscribe((mutation, state) => {
       if (mutation.type === "snackbarMessage") {
         this.snackbar.show = true;
