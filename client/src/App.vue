@@ -38,7 +38,9 @@
     </v-app-bar>
 
     <v-content class="primary">
-      <router-view class="pa-8" :user="user"></router-view>
+      <keep-alive include="Home">
+        <router-view class="pa-8" :user="user"></router-view>
+      </keep-alive>
     </v-content>
 
     <v-footer app color="primary darken-1">

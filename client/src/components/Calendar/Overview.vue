@@ -11,7 +11,9 @@
         <div v-for="gameObject in groupedRounds" :key="gameObject.game">
           <h3 class="title accent--text">{{ gameObject.game }}</h3>
           <div v-for="(rounds, day) in gameObject.rounds" :key="day">
-            <h4 class="subtitle">{{ day | moment("LL") }}</h4>
+            <h4 class="subtitle">
+              {{ day | moment("LL") }} - {{ day | moment("dddd") }}
+            </h4>
             <div class="d-flex overflow-x-auto mb-2">
               <Round
                 v-for="round in rounds"
@@ -27,7 +29,9 @@
       <v-tab-item v-for="gameObject in groupedRounds" :key="gameObject.game">
         <h3 class="title accent--text">{{ gameObject.game }}</h3>
         <div v-for="(rounds, day) in gameObject.rounds" :key="day">
-          <h4 class="subtitle">{{ day | moment("LL") }}</h4>
+          <h4 class="subtitle">
+            {{ day | moment("LL") }} - {{ day | moment("dddd") }}
+          </h4>
           <div class="d-flex overflow-x-auto mb-2">
             <Round
               v-for="round in rounds"

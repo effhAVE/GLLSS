@@ -82,7 +82,7 @@ function validateTournament(tournament) {
       then: Joi.allow(""),
       otherwise: Joi.string().valid(...regionNames).required()
     }),
-    gllURL: Joi.string(),
+    gllURL: Joi,
     countedByRounds: Joi.boolean()
   };
 

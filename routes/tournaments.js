@@ -55,15 +55,32 @@ router.get("/past", auth, validateAccess("host"), async (req, res) => {
 });
 
 router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
-  const user = await User.findById(req.user._id).select("tournamentsHosted -_id").populate({
-    path: "tournamentsHosted",
-    select: "name startDate endDate",
-    match: {
-      "endDate": {
-        $gte: new Date()
-      }
-    }
-  }).sort("tournamentsHosted.startDate");
+  const pastHosted = req.query.past;
+  const limitSize = +req.query.limit || 5;
+  const page = +req.query.page || 0;
+  const endDateQuery = {};
+  let sortBy = "";
+  if (pastHosted) {
+    endDateQuery["$lt"] = new Date();
+    sortBy = "-endDate";
+  } else {
+    endDateQuery["$gte"] = new Date();
+    sortBy = "startDate";
+  }
+
+  const user = await User.findById(req.user._id).select("tournamentsHosted -_id")
+    .populate({
+      path: "tournamentsHosted",
+      match: {
+        "endDate": endDateQuery
+      },
+      options: {
+        limit: limitSize,
+        sort: sortBy,
+        skip: limitSize * page
+      },
+      select: "name startDate endDate game"
+    });
   res.send(user.tournamentsHosted);
 });
 
