@@ -1,5 +1,5 @@
 <template>
-  <v-card height="100%" color="transparent">
+  <v-card height="100%" color="transparent" v-if="user">
     <v-card-title>
       Overview
     </v-card-title>
@@ -223,9 +223,6 @@ export default {
       this.$http.get(`${APIURL}/users/admins`).then(response => {
         this.admins = response.data;
       });
-    } else {
-      this.getActiveTournaments();
-      this.getPastTournaments();
     }
   },
   methods: {
@@ -268,6 +265,10 @@ export default {
   watch: {
     $route() {
       this.date = new Date();
+    },
+    user() {
+      this.getActiveTournaments();
+      this.getPastTournaments();
     }
   }
 };

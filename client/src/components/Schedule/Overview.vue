@@ -65,6 +65,7 @@
 </template>
 <script>
 import Round from "./RoundSimplified";
+import availabilityGroup from "../../helpers/availabilityGroup";
 export default {
   props: {
     week: Number
@@ -103,15 +104,17 @@ export default {
             rounds.forEach(round => {
               let names = round.available.map(host => host.nickname);
               names = [...new Set(names)];
+
               this.availabilityList.push({
                 round: round.name,
-                tournanent: round.tournamentName,
+                tournament: round.tournamentName,
                 names
               });
             });
           }
         });
 
+        this.availabilityList = availabilityGroup(this.availabilityList);
         this.$emit("scheduleList", this.availabilityList);
       });
     },

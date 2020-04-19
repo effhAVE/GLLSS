@@ -17,10 +17,9 @@
       bottom
       left
       fab
-      disabled
       @click="modal = !modal"
     >
-      <v-icon>mdi-calculator</v-icon>
+      <v-icon>mdi-account-clock</v-icon>
     </v-btn>
     <v-tabs fixed-tabs v-model="tab" background-color="secondary">
       <v-tab>
@@ -40,26 +39,33 @@
         <BalanceTable :balance="balance[selectedWeek]" />
       </v-tab-item>
     </v-tabs-items>
-    <!-- <v-navigation-drawer
-      v-model="modal"
-      color="primary lighten-1"
-      right
-      fixed
-      clipped
-    >
-      <pre>
-        {{ availableList }}
-      </pre>
-    </v-navigation-drawer> -->
+    <v-dialog v-model="modal" width="70%">
+      <v-card color="primary">
+        <v-card-title class="headline secondary" primary-title>
+          Availability table
+        </v-card-title>
+        <AvailabilityTable :availableList="availableList" />
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="accent" text @click="modal = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 <script>
 import ScheduleTable from "../components/Schedule/Overview";
 import BalanceTable from "../components/Schedule/Balance";
+import AvailabilityTable from "../components/Schedule/AvailabilityTable";
 export default {
   components: {
     ScheduleTable,
-    BalanceTable
+    BalanceTable,
+    AvailabilityTable
   },
   data() {
     return {
@@ -122,7 +128,6 @@ export default {
     },
     onAvailableList(list) {
       this.availableList = list;
-      this.modal = true;
     }
   },
   created() {
@@ -150,3 +155,24 @@ export default {
   }
 };
 </script>
+<style lang="scss">
+.availability-table table {
+  text-align: center;
+  .fixed {
+    position: absolute;
+    left: auto;
+    top: auto;
+    border: none !important;
+    width: 150px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  td.has-border {
+    border-left: thin solid rgba(255, 255, 255, 0.13);
+  }
+  tr:last-of-type td {
+    border-bottom: none !important;
+  }
+}
+</style>
