@@ -223,7 +223,9 @@ export default {
       return !!this.setIcon(tournament);
     },
     redirect(tournament) {
-      return this.$router.push(`/tournaments/${tournament._id}`);
+      return this.$router
+        .push(`/tournaments/${tournament._id}`)
+        .catch(err => {});
     },
     expandAll() {
       if (

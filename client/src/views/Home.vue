@@ -217,7 +217,7 @@ export default {
     }
   },
   mounted() {
-    setInterval(() => (this.now = new Date()), 1000 * 60);
+    window.setInterval(() => (this.now = new Date()), 1000 * 60);
     const APIURL = process.env.VUE_APP_APIURL;
     if (this.user.roles.includes("guest")) {
       this.$http.get(`${APIURL}/users/admins`).then(response => {
@@ -260,7 +260,14 @@ export default {
       this.getPastTournaments();
     },
     redirect(tournament) {
-      return this.$router.push(`/tournaments/${tournament._id}`);
+      return this.$router
+        .push(`/tournaments/${tournament._id}`)
+        .catch(err => {});
+    }
+  },
+  watch: {
+    $route() {
+      this.date = new Date();
     }
   }
 };
