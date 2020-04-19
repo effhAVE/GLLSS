@@ -7,6 +7,7 @@ import ForgotPassword from '../views/ForgotPassword'
 import Register from '../views/Register.vue'
 import Calendar from '../views/Calendar.vue'
 import Schedule from '../views/Schedule.vue'
+import Teamkills from '../views/Teamkills.vue'
 import Data from '../views/Data.vue'
 import DataMonthPage from '../views/generic/DataMonthPage.vue'
 import Series from '../views/Series.vue'
@@ -30,6 +31,15 @@ const routes = [{
     component: Home,
     meta: {
       requiresAuth: true
+    }
+  },
+  {
+    path: "/teamkills",
+    name: "Teamkills",
+    component: Teamkills,
+    meta: {
+      requiresAuth: true,
+      requiredRole: "host"
     }
   },
   {

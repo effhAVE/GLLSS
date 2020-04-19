@@ -48,6 +48,14 @@
         <v-list-item-title>Data</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
+    <v-list-item link to="/teamkills" v-if="user.roles.includes(`host`)">
+      <v-list-item-action>
+        <v-icon>mdi-target-account</v-icon>
+      </v-list-item-action>
+      <v-list-item-content>
+        <v-list-item-title>Teamkills script</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
     <v-list-item
       link
       href="https://docs.google.com/document/d/1Pr5SR5eYc-W2-28ZWG_nft1PO4NjvgQe6EtKEeJ9vUU/edit?fbclid=IwAR3vUT4mmnuNmlGoAfEFzHRE35eRXqmFfDooGxKi1_phIZR5BuOHl0A58TU"
