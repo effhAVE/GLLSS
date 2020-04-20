@@ -110,7 +110,7 @@
           <h3 class="title">Useful links</h3>
           <ul>
             <li>
-              <a href="https://help.gll.gg/hc/en-us">GLL Support Sire</a>
+              <a href="https://help.gll.gg/hc/en-us">GLL Support Site</a>
             </li>
             <li>
               <a href=" https://pubg.seatlon.eu/">PUBG Match/Player Search</a>
@@ -223,6 +223,9 @@ export default {
       this.$http.get(`${APIURL}/users/admins`).then(response => {
         this.admins = response.data;
       });
+    } else {
+      this.getActiveTournaments();
+      this.getPastTournaments();
     }
   },
   methods: {
@@ -265,10 +268,6 @@ export default {
   watch: {
     $route() {
       this.date = new Date();
-    },
-    user() {
-      this.getActiveTournaments();
-      this.getPastTournaments();
     }
   }
 };

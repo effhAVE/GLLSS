@@ -104,13 +104,18 @@
               </div>
             </div>
           </template>
-          <v-list>
+          <v-list v-if="round.available.length">
             <v-list-item
               v-for="(host, i) in round.available"
               :key="i"
               @click="changeRoundHost(round, item.host, host)"
             >
               <v-list-item-title>{{ host.nickname }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+          <v-list v-else>
+            <v-list-item>
+              <v-list-item-title>No hosts available.</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -243,13 +248,18 @@
               </div>
             </div>
           </template>
-          <v-list>
+          <v-list v-if="availableTLs.length">
             <v-list-item
               v-for="(host, i) in availableTLs"
               :key="i"
               @click="changeRoundTL(round, item.host, host)"
             >
               <v-list-item-title>{{ host.nickname }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+          <v-list v-else>
+            <v-list-item>
+              <v-list-item-title>No teamleaders available.</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
