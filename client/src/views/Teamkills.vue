@@ -36,7 +36,7 @@
       </p>
       <div v-for="(teamkill, index) in teamkills" :key="index">
         <span class="font-weight-bold accent--text">{{ teamkill.name }}</span>
-        should have {{ teamkill.teamKills }} kill(s)
+        should have {{ teamkill.kills }} kill(s)
       </div>
     </v-card-text>
   </v-card>

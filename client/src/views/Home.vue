@@ -177,7 +177,11 @@
 
 <script>
 export default {
-  name: "Home",
+  props: {
+    user: {
+      type: Object
+    }
+  },
   data() {
     return {
       admins: [],
@@ -210,11 +214,6 @@ export default {
         { text: "End date", value: "endDate" }
       ]
     };
-  },
-  computed: {
-    user() {
-      return this.$jwt.decode(this.$store.state.token);
-    }
   },
   mounted() {
     window.setInterval(() => (this.now = new Date()), 1000 * 60);
