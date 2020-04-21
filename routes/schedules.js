@@ -110,6 +110,10 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
             "rounds.localStartDate": {
               $lte: rangeEnd
             }
+          }, {
+            "rounds.localStartDate": {
+              $gte: rangeStart
+            }
           }]
 
         }

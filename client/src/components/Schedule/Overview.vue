@@ -97,6 +97,7 @@ export default {
     },
     getRounds(week = 0) {
       const APIURL = process.env.VUE_APP_APIURL;
+      this.availabilityList = [];
       this.$http.get(`${APIURL}/schedules/?week=${week}`).then(response => {
         this.groupedRounds = response.data;
         this.groupedRounds.forEach(gameObject => {

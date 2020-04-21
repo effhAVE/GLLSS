@@ -3,6 +3,7 @@
     <v-simple-table
       class="table-background not-editable availability-table"
       dense
+      v-if="availableList.length"
     >
       <tbody>
         <tr>
