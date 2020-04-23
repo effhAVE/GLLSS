@@ -328,7 +328,6 @@ export default {
           this.gameSpecificValues = games;
         })
         .catch(error => {
-          console.log(error);
           if (error.response.status === 400) {
             this.$router.push("/notfound");
           }
