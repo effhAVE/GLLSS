@@ -8,7 +8,7 @@
       :items="tournamentsList"
       :headers="headers"
       :expanded.sync="expanded"
-      @click:row="redirect"
+      @click:row="expand"
       no-data-text="No tournaments"
       show-expand
       hide-default-footer
@@ -48,8 +48,8 @@
                   </td>
                   <td>{{ round.name }}</td>
                   <td>{{ round.bestOf }}</td>
-                  <td>{{ round.startDate | moment("lll") }}</td>
-                  <td>{{ round.endDate | moment("lll") }}</td>
+                  <td>{{ round.startDate | moment("MMMM DD, YYYY HH:mm") }}</td>
+                  <td>{{ round.endDate | moment("MMMM DD, YYYY HH:mm") }}</td>
                 </tr>
               </tbody>
             </template>
@@ -62,19 +62,10 @@
         }}</router-link>
       </template>
       <template v-slot:item.startDate="{ item }">
-        <span>{{ item.startDate | moment("lll") }}</span>
+        <span>{{ item.startDate | moment("MMMM DD, YYYY HH:mm") }}</span>
       </template>
       <template v-slot:item.endDate="{ item }">
-        <span>{{ item.endDate | moment("lll") }}</span>
-      </template>
-      <template v-slot:item.data-table-expand="{ expand, isExpanded }">
-        <v-btn
-          color="accent"
-          class="black--text"
-          small
-          @click.stop="expand(!isExpanded)"
-          >EXPAND</v-btn
-        >
+        <span>{{ item.endDate | moment("MMMM DD, YYYY HH:mm") }}</span>
       </template>
       <template v-slot:footer>
         <div class="v-data-footer">
@@ -130,7 +121,7 @@ export default {
         },
         { text: "Start date", value: "startDate" },
         { text: "End date", value: "endDate" },
-        { text: "", value: "data-table-expand" }
+        { text: "", value: "data-table-expand", width: 100 }
       ]
     };
   },
@@ -177,10 +168,10 @@ export default {
     checkTournamentAvailability(tournament) {
       return !!this.setIcon(tournament);
     },
-    redirect(tournament) {
-      return this.$router
-        .push(`/tournaments/${tournament._id}`)
-        .catch(err => {});
+    expand(row) {
+      this.expanded.includes(row)
+        ? (this.expanded = this.expanded.filter(expanded => expanded !== row))
+        : this.expanded.push(row);
     }
   },
   mounted() {

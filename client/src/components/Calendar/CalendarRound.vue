@@ -21,7 +21,7 @@
         </v-tooltip>
         <p class="ma-0 caption">{{ round.name }}</p>
         <p class="ma-0 caption">
-          {{ round.startDate | moment("MMM Do LT") }}
+          {{ round.startDate | moment("MMM Do HH:mm") }}
           <span class="accent--text">|</span> BO:
           <span class="accent--text">{{ round.bestOf }}</span>
         </p>

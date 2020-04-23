@@ -49,8 +49,8 @@
         </v-dialog>
       </v-card-title>
       <v-card-subtitle>
-        start: {{ round.startDate | moment("LLL") }} <br />
-        end: {{ round.endDate | moment("LLL") }}
+        start: {{ round.startDate | moment("MMMM DD, YYYY HH:mm") }} <br />
+        end: {{ round.endDate | moment("MMMM DD, YYYY HH:mm") }}
       </v-card-subtitle>
     </div>
     <v-card-text>

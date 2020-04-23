@@ -19,16 +19,21 @@
       :search="search"
       :headers="headers"
       :expanded.sync="expanded"
-      @click:row="redirect"
-      no-data-text="No tournaments"
+      @click:row="expand"
       show-expand
+      no-data-text="No tournaments"
       item-key="_id"
       hide-default-footer
       disable-pagination
       ref="tournamentsTable"
     >
       <template v-slot:header.data-table-expand>
-        <v-btn color="accent" class="black--text" small @click.stop="expandAll">
+        <v-btn
+          color="accent"
+          class="black--text"
+          x-small
+          @click.stop="expandAll"
+        >
           Expand all
         </v-btn>
       </template>
@@ -82,8 +87,8 @@
                   </td>
                   <td>{{ round.name }}</td>
                   <td>{{ round.bestOf }}</td>
-                  <td>{{ round.startDate | moment("lll") }}</td>
-                  <td>{{ round.endDate | moment("lll") }}</td>
+                  <td>{{ round.startDate | moment("MMMM DD, YYYY HH:mm") }}</td>
+                  <td>{{ round.endDate | moment("MMMM DD, YYYY HH:mm") }}</td>
                 </tr>
               </tbody>
             </template>
@@ -96,19 +101,10 @@
         }}</router-link>
       </template>
       <template v-slot:item.startDate="{ item }">
-        <span>{{ item.startDate | moment("lll") }}</span>
+        <span>{{ item.startDate | moment("MMMM DD, YYYY HH:mm") }}</span>
       </template>
       <template v-slot:item.endDate="{ item }">
-        <span>{{ item.endDate | moment("lll") }}</span>
-      </template>
-      <template v-slot:item.data-table-expand="{ expand, isExpanded }">
-        <v-btn
-          color="accent"
-          class="black--text"
-          small
-          @click.stop="expand(!isExpanded)"
-          >EXPAND</v-btn
-        >
+        <span>{{ item.endDate | moment("MMMM DD, YYYY HH:mm") }}</span>
       </template>
       <template v-slot:footer>
         <div class="v-data-footer">
@@ -164,7 +160,7 @@ export default {
         },
         { text: "Start date", value: "startDate" },
         { text: "End date", value: "endDate" },
-        { text: "", value: "data-table-expand" }
+        { text: "", value: "data-table-expand", width: 100 }
       ]
     };
   },
@@ -222,23 +218,16 @@ export default {
     checkTournamentAvailability(tournament) {
       return !!this.setIcon(tournament);
     },
-    redirect(tournament) {
-      return this.$router
-        .push(`/tournaments/${tournament._id}`)
-        .catch(err => {});
+    expand(row) {
+      this.expanded.includes(row)
+        ? (this.expanded = this.expanded.filter(expanded => expanded !== row))
+        : this.expanded.push(row);
     },
     expandAll() {
-      if (
-        this.$refs.tournamentsTable.expanded.length ===
-        this.tournamentsList.length
-      ) {
-        this.$set(this.$refs.tournamentsTable, "expanded", []);
+      if (this.expanded.length === this.tournamentsList.length) {
+        this.expanded = [];
       } else {
-        this.$set(
-          this.$refs.tournamentsTable,
-          "expanded",
-          this.tournamentsList
-        );
+        this.expanded = this.tournamentsList;
       }
     }
   },

@@ -41,12 +41,12 @@
         <tr>
           <th>Start date</th>
           <td>
-            {{ tournament.startDate | moment("LLL") }}
+            {{ tournament.startDate | moment("MMMM DD, YYYY HH:mm") }}
           </td>
         </tr>
         <tr>
           <th>End date</th>
-          <td>{{ tournament.endDate | moment("LLL") }}</td>
+          <td>{{ tournament.endDate | moment("MMMM DD, YYYY HH:mm") }}</td>
         </tr>
       </tbody>
     </template>

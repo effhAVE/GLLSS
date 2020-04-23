@@ -15,7 +15,7 @@
           round.tournamentName
         }}</router-link>
         <br />
-        {{ round.startDate | moment("MMM Do LT") }}
+        {{ round.startDate | moment("MMM Do HH:mm") }}
         <br />
         Best of: {{ round.bestOf }}
       </v-card-subtitle>

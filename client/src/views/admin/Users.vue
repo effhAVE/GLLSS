@@ -35,7 +35,7 @@
         ></v-simple-checkbox>
       </template>
       <template v-slot:item.createdAt="{ item }">
-        <span>{{ item.createdAt | moment("lll") }}</span>
+        <span>{{ item.createdAt | moment("MMMM DD, YYYY HH:mm") }}</span>
       </template>
       <template v-slot:item.roles="{ item }">
         <v-select

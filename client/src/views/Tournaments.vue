@@ -1,12 +1,12 @@
 <template>
   <v-card height="100%" color="transparent">
     <v-snackbar
-      v-model="availableQueue.length"
       color="secondary border--accent"
       bottom
       right
       multi-line
       :timeout="0"
+      :value="availableQueue.length"
     >
       You have {{ availableQueue.length }} availability change
       <span v-if="availableQueue.length !== 1"> s </span>. Do you want to save

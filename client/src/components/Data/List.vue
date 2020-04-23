@@ -12,7 +12,7 @@
       <span>{{ item.date | moment("MMMM YYYY") }}</span>
     </template>
     <template v-slot:item.updatedAt="{ item }">
-      <span>{{ item.updatedAt | moment("MMMM Do LT") }}</span>
+      <span>{{ item.updatedAt | moment("MMMM Do HH:mm") }}</span>
     </template>
   </v-data-table>
 </template>

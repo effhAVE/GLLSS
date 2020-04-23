@@ -18,10 +18,10 @@
         }}</router-link>
       </template>
       <template v-slot:item.startDate="{ item }">
-        <span>{{ item.startDate | moment("lll") }}</span>
+        <span>{{ item.startDate | moment("MMMM DD, YYYY HH:mm") }}</span>
       </template>
       <template v-slot:item.endDate="{ item }">
-        <span>{{ item.endDate | moment("lll") }}</span>
+        <span>{{ item.endDate | moment("MMMM DD, YYYY HH:mm") }}</span>
       </template>
       <template v-slot:footer>
         <div class="v-data-footer">

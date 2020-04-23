@@ -25,12 +25,12 @@
         <tr>
           <th>Start date</th>
           <td>
-            {{ series.startDate | moment("LLL") }}
+            {{ series.startDate | moment("MMMM DD, YYYY HH:mm") }}
           </td>
         </tr>
         <tr>
           <th>End date</th>
-          <td>{{ series.endDate | moment("LLL") }}</td>
+          <td>{{ series.endDate | moment("MMMM DD, YYYY HH:mm") }}</td>
         </tr>
       </tbody>
     </template>
