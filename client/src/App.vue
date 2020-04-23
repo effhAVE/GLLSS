@@ -81,6 +81,10 @@ export default {
       }
     );
 
+    window.setInterval(() => {
+      this.$store.commit("updateDate");
+    }, 1000 * 60);
+
     if (this.isLoggedIn) {
       this.$store.dispatch("renewTokenTask");
     }

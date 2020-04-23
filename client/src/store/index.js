@@ -13,6 +13,7 @@ const APIURL = process.env.VUE_APP_APIURL;
 
 export default new Vuex.Store({
   state: {
+    now: new Date(),
     status: "",
     token: localStorage.getItem("token"),
     tokenExpiry: null,
@@ -23,6 +24,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    updateDate(state) {
+      state.now = new Date()
+    },
     AUTH_REQUEST(state) {
       state.status = "pending";
     },

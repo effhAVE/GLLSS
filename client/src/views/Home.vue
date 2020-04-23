@@ -85,6 +85,7 @@
                             icon
                             v-if="!isReady(round)"
                             @click="onReady(item._id, round)"
+                            :disabled="readyDisabled(round)"
                           >
                             <v-icon color="error">
                               mdi-account-off
@@ -242,7 +243,6 @@ export default {
     return {
       admins: [],
       activeHosted: [],
-      now: new Date(),
       pastHosted: [],
       allLoadedActive: false,
       allLoadedPast: false,
@@ -271,8 +271,12 @@ export default {
       ]
     };
   },
+  computed: {
+    now() {
+      return this.$store.state.now;
+    }
+  },
   mounted() {
-    window.setInterval(() => (this.now = new Date()), 1000 * 60);
     const APIURL = process.env.VUE_APP_APIURL;
     if (this.user.roles.includes("guest")) {
       this.$http.get(`${APIURL}/users/admins`).then(response => {
@@ -284,6 +288,12 @@ export default {
     }
   },
   methods: {
+    readyDisabled(round) {
+      return (
+        this.$moment(round.startDate).diff(this.now, "minutes") > 60 ||
+        this.$moment(round.startDate).diff(this.now, "minutes") < 30
+      );
+    },
     isLeading(round) {
       return round.teamLeads.some(TLObject => TLObject.host === this.user._id);
     },
@@ -367,11 +377,6 @@ export default {
       return this.$router
         .push(`/tournaments/${tournament._id}`)
         .catch(err => {});
-    }
-  },
-  watch: {
-    $route() {
-      this.date = new Date();
     }
   }
 };

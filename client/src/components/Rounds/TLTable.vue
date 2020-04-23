@@ -26,6 +26,7 @@
                 icon
                 class="ml-auto"
                 @click.stop="$emit('ready', item)"
+                :disabled="readyDisabled()"
               >
                 <v-icon color="success">mdi-check</v-icon>
               </v-btn>
@@ -182,6 +183,18 @@ export default {
     }
   },
   methods: {
+    readyDisabled() {
+      return (
+        this.$moment(this.round.startDate).diff(
+          this.$store.state.now,
+          "minutes"
+        ) > 60 ||
+        this.$moment(this.round.startDate).diff(
+          this.$store.state.now,
+          "minutes"
+        ) < 30
+      );
+    },
     changeRoundTL(round, oldHost, newHost) {
       this.$emit("changesMade");
       const arrayIndex = round.teamLeads.findIndex(
