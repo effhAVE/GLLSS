@@ -1,5 +1,5 @@
 <template>
-  <v-card height="100%" color="transparent" v-if="dataObject.calculation">
+  <v-card height="100%" color="transparent">
     <v-row justify="center">
       <v-dialog v-model="calculateDialog" persistent max-width="600px">
         <ValuesForm @submit="recalculate" @cancel="calculateDialog = false" />
@@ -25,7 +25,7 @@
       fixed-tabs
       v-model="tab"
       background-color="secondary"
-      v-if="dataObject.calculation.hosts"
+      v-if="dataObject.calculation"
     >
       <v-tab>
         Overview
@@ -319,14 +319,16 @@ export default {
         .get(`${APIURL}/data/${date}`)
         .then(response => {
           this.dataObject = response.data.data;
-          const summaryKey = "summary";
+          if (!this.dataObject.calculation) return;
           const {
             ["summary"]: _,
             ...games
           } = this.dataObject.calculation.hosts;
+
           this.gameSpecificValues = games;
         })
         .catch(error => {
+          console.log(error);
           if (error.response.status === 400) {
             this.$router.push("/notfound");
           }

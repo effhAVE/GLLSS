@@ -21,6 +21,13 @@ const fs = require("fs");
 const path = require("path");
 const logDir = "dataLogs";
 const sortKeysRecursive = require('sort-keys-recursive');
+const gridfs = require('gridfs-stream');
+gridfs.mongo = mongoose.mongo;
+const connection = mongoose.connection;
+let gfs;
+connection.once('open', function() {
+  gfs = gridfs(connection.db);
+});
 
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
@@ -169,13 +176,20 @@ router.get("/:date", auth, validateAccess("host"), async (req, res) => {
 });
 
 router.get("/:date/log", auth, validateAccess("admin"), async (req, res) => {
-  const fileName = path.join(logDir, `${req.params.date}-log.log`);
-  const file = path.resolve(fileName);
-  if (fs.existsSync(file)) {
-    return res.download(file);
-  }
+  const fileName = `${req.params.date}-log.log`;
+  gfs.exist({
+    filename: fileName
+  }, function(err, file) {
+    if (err || !file) {
+      res.send("File Not Found");
+    } else {
+      const readstream = gfs.createReadStream({
+        filename: fileName
+      });
 
-  return res.status(404).send("No log file for date provided");
+      readstream.pipe(res);
+    }
+  });
 });
 
 router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) => {
@@ -434,6 +448,24 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
   logger.info(`Calculation hash: ${data.calcHash}`);
   logger.info(`Use GET /api/data/${data.date} to fetch the results.`);
   logger.info(`Calculation time: ${routeEndTime - routeStartTime}ms \n\n`);
+  const writestream = gfs.createWriteStream({
+    filename: `${data.date}-log.log`,
+    content_type: "text/plain",
+    mode: "w"
+  });
+
+  gfs.exist({
+    filename: `${data.date}-log.log`
+  }, function(err, file) {
+    if (file) {
+      gfs.remove({
+        filename: `${data.date}-log.log`
+      });
+    }
+
+    fs.createReadStream(`${logDir}/${data.date}-log.log`).pipe(writestream);
+  });
+
   res.send(data);
 });
 

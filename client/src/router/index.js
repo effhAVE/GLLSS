@@ -21,6 +21,7 @@ import Users from '../views/admin/Users.vue'
 import Admin from '../views/admin/Admin.vue'
 import TournamentCreate from '../views/admin/TournamentCreate.vue'
 import SeriesCreate from '../views/admin/SeriesCreate.vue'
+import DataCreate from '../views/admin/DataCreate.vue'
 import store from "../store"
 
 Vue.use(VueRouter)
@@ -157,6 +158,10 @@ const routes = [{
       {
         path: "series/create",
         component: SeriesCreate
+      },
+      {
+        path: "data/create",
+        component: DataCreate
       }
     ]
   },

@@ -98,6 +98,11 @@
           <v-list-item-title>Create a series</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item link to="/admin/data/create">
+        <v-list-item-content>
+          <v-list-item-title>Create a data month</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
     </v-list-group>
   </v-list>
 </template>
