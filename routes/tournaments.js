@@ -77,10 +77,16 @@ router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
       options: {
         limit: limitSize,
         sort: sortBy,
-        skip: limitSize * page
+        skip: limitSize * page,
       },
-      select: "name startDate endDate game"
+      select: "name startDate endDate game rounds",
     });
+
+  user.tournamentsHosted.forEach(tournament => {
+    tournament.rounds = tournament.rounds
+      .filter(round => round.hosts.some(hostObject => hostObject.host.equals(req.user._id)) || round.teamLeads.some(TLObject => TLObject.host.equals(req.user._id)));
+  });
+
   res.send(user.tournamentsHosted);
 });
 

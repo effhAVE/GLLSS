@@ -25,7 +25,7 @@
           ></v-switch>
           <h3 class="subtitle accent--text">Upcoming tournaments</h3>
           <v-data-table
-            class="table-background mb-4"
+            class="table-background mb-4 not-editable headers--accent"
             :items="activeHosted"
             :headers="headersActive"
             @click:row="redirect"
@@ -36,18 +36,74 @@
             disable-sort
             :items-per-page="5"
           >
-            <template v-slot:item.name="{ item }">
-              <router-link
-                :to="`tournaments/${item._id}`"
-                class="white--text"
-                >{{ item.name }}</router-link
+            <template v-slot:item="{ item }">
+              <tr class="primary lighten-1">
+                <td>
+                  <router-link
+                    :to="`tournaments/${item._id}`"
+                    class="white--text"
+                    >{{ item.name }}</router-link
+                  >
+                </td>
+                <td>{{ item.game }}</td>
+                <td>{{ $moment(item.startDate).format("MMMM DD HH:mm") }}</td>
+                <td>{{ $moment(item.startDate).from(now) }}</td>
+              </tr>
+              <tr
+                class="v-data-table__expanded v-data-table__expanded__content"
               >
-            </template>
-            <template v-slot:item.startDate="{ item }">
-              <span>{{ $moment(item.startDate).calendar() }}</span>
-            </template>
-            <template v-slot:item.startsIn="{ item }">
-              <span>{{ $moment(item.startDate).from(now) }}</span>
+                <td :colspan="headersActive.length">
+                  <table
+                    style="table-layout: fixed;"
+                    class="header-borders pa-2"
+                  >
+                    <thead class="accent--text">
+                      <th>Round name</th>
+                      <th>Start date</th>
+                      <th>Best of</th>
+                      <th>Role</th>
+                      <th>Ready</th>
+                      <th>Starts</th>
+                    </thead>
+                    <tbody>
+                      <tr v-for="round in item.rounds" :key="round._id">
+                        <td>{{ round.name }}</td>
+                        <td>
+                          {{ $moment(round.startDate).format("MMMM DD HH:mm") }}
+                        </td>
+                        <td>{{ round.bestOf }}</td>
+                        <td>
+                          <span v-if="isLeading(round)" class="blue--text">
+                            teamlead
+                          </span>
+                          <span v-else>
+                            host
+                          </span>
+                        </td>
+                        <td>
+                          <v-btn
+                            icon
+                            v-if="!isReady(round)"
+                            @click="onReady(item._id, round)"
+                          >
+                            <v-icon color="error">
+                              mdi-account-off
+                            </v-icon>
+                          </v-btn>
+                          <v-btn icon v-else>
+                            <v-icon color="success">
+                              mdi-account-check
+                            </v-icon>
+                          </v-btn>
+                        </td>
+                        <td>
+                          {{ $moment(round.startDate).from(now) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
             </template>
             <template v-slot:footer>
               <div class="v-data-footer">
@@ -68,7 +124,7 @@
             Past tournaments
           </h3>
           <v-data-table
-            class="table-background"
+            class="table-background not-editable"
             :items="pastHosted"
             :headers="headersPast"
             @click:row="redirect"
@@ -200,7 +256,7 @@ export default {
           align: "start",
           value: "name"
         },
-        { text: "Game", value: "game", align: "center", width: 200 },
+        { text: "Game", value: "game", width: 200 },
         { text: "Start date", value: "startDate" },
         { text: "Starts", value: "startsIn" }
       ],
@@ -228,6 +284,55 @@ export default {
     }
   },
   methods: {
+    isLeading(round) {
+      return round.teamLeads.some(TLObject => TLObject.host === this.user._id);
+    },
+    onReady(tournamentID, round) {
+      const APIURL = process.env.VUE_APP_APIURL;
+      const isLeading = this.isLeading(round);
+      let host;
+      let source;
+      if (isLeading) {
+        host = round.teamLeads.find(
+          TLObject => TLObject.host === this.user._id
+        );
+        source = "TL";
+      } else {
+        host = round.hosts.find(
+          hostObject => hostObject.host === this.user._id
+        );
+        source = "host";
+      }
+
+      this.$http
+        .post(
+          `${APIURL}/tournaments/${tournamentID}/rounds/${round._id}/ready`,
+          { source }
+        )
+        .then(response => {
+          host.ready = true;
+        })
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            type: "error",
+            message: error.response.data || "Error while updating."
+          });
+        });
+    },
+    isReady(round) {
+      const myHost = round.hosts.find(
+        hostObject => hostObject.host === this.user._id
+      );
+
+      if (myHost) {
+        return myHost.ready;
+      } else {
+        const myTL = round.teamLeads.find(
+          TLObject => TLObject.host === this.user._id
+        );
+        return myTL.ready;
+      }
+    },
     getActiveTournaments() {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
@@ -271,3 +376,16 @@ export default {
   }
 };
 </script>
+<style lang="scss">
+.headers--accent.theme--dark.v-data-table thead tr th {
+  color: var(--v-accent-base);
+}
+.header-borders {
+  tr:last-of-type > td {
+    border-bottom: none !important;
+  }
+  th {
+    border-bottom: thin solid rgba(255, 255, 255, 0.12);
+  }
+}
+</style>
