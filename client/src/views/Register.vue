@@ -27,7 +27,7 @@ export default {
         .then(() => {
           this.$router.push("/");
           this.$store.commit("snackbarMessage", {
-            message: "Successfully registed!",
+            message: "Verification email sent!",
             type: "success"
           });
         })

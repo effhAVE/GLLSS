@@ -83,6 +83,7 @@ export default {
         },
         { text: "ID", value: "_id" },
         { text: "Registration date", value: "createdAt" },
+        { text: "Verified", value: "isVerified" },
         { text: "Role", value: "roles", width: 250, align: "center" }
       ]
     };

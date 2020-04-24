@@ -11,22 +11,49 @@ const {
 const {
   Tournament
 } = require("../models/tournament");
+const {
+  Token
+} = require("../models/token");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
 const roles = require("../collections/roles");
+const crypto = require("crypto");
+const {
+  smtpTransport,
+  mailerEmail
+} = require("../startup/nodemailer");
+
+async function prepareVerificationEmail(user) {
+  const token = new Token({
+    user: user._id,
+    token: crypto.randomBytes(16).toString("hex")
+  });
+
+  const data = {
+    to: user.email,
+    from: mailerEmail,
+    template: "verify-email",
+    subject: "GLLSS - Confirm your email",
+    context: {
+      url: "https://www.gllss.grzegorz-kowalczyk.eu/verify-email?token=" + token.token,
+      name: user.nickname,
+      email: user.email
+    }
+  };
+
+  await token.save();
+  return data;
+}
 
 router.get("/", auth, validateAccess("admin"), async (req, res) => {
   const users = await User.find({
-    roles: {
-      $ne: "guest"
-    }
-  }).select("-tournamentsHosted -password").sort("_id").lean();
-  // remove it for production, use user.createdAt instead.
-  users.forEach(user => {
-    user.createdAt = user._id.getTimestamp();
-  });
-
+      roles: {
+        $ne: "guest"
+      }
+    })
+    .select("-tournamentsHosted")
+    .sort("_id");
   res.send(users);
 });
 
@@ -102,8 +129,52 @@ router.post("/", async (req, res) => {
   user.password = await bcrypt.hash(user.password, salt);
   await user.save();
 
-  const token = user.generateAuthToken();
-  res.header("x-auth-token", token).send(user);
+  const data = await prepareVerificationEmail(user);
+  smtpTransport.sendMail(data, function(err) {
+    if (!err) {
+      return res.send("Verification email sent!");
+    } else {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+  });
+});
+
+router.get("/verify-email", async (req, res) => {
+  const token = req.query.token;
+  if (!token) return res.status(400).send("No token provided.");
+  const dbToken = await Token.findOne({
+    token: token
+  });
+  if (!dbToken) return res.status(400).send("No token found.");
+
+  const user = await User.findById(dbToken.user);
+  if (!user) return res.status(400).send("We were unable to find a user for this token.");
+  if (user.isVerified) return res.status(400).send("This user is already verified!");
+
+  user.isVerified = true;
+  await user.save();
+  res.send("Your accounts has been verified. You can log in.");
+});
+
+router.post("/resend-verification", async (req, res) => {
+  const email = req.body.email;
+  if (!email) return res.status(400).send("No email provided.");
+
+  const user = await User.findOne({
+    email: email
+  });
+  if (!user) return res.status(400).send("No user with such email.");
+  if (user.isVerified) return res.status(400).send("This user is already verified!");
+  const data = await prepareVerificationEmail(user);
+  smtpTransport.sendMail(data, function(err) {
+    if (!err) {
+      return res.send("Email sent!");
+    } else {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+  });
 });
 
 router.put("/:id/roles", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
@@ -141,10 +212,7 @@ router.post("/:id/confirm", auth, validateAccess("admin"), validateObjectId, asy
 router.get("/unconfirmed", auth, validateAccess("admin"), async (req, res) => {
   const unconfirmedUsers = await User.find({
     roles: "guest"
-  }).select("nickname").lean();
-  unconfirmedUsers.forEach(user => {
-    user.createdAt = user._id.getTimestamp();
-  });
+  }).select("nickname isVerified createdAt");
 
   res.send(unconfirmedUsers);
 });

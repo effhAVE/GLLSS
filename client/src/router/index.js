@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import PasswordReset from '../views/PasswordReset'
 import ForgotPassword from '../views/ForgotPassword'
+import EmailVerification from '../views/EmailVerification'
 import Register from '../views/Register.vue'
 import Calendar from '../views/Calendar.vue'
 import Schedule from '../views/Schedule.vue'
@@ -123,6 +124,11 @@ const routes = [{
     path: "/register",
     name: "Register",
     component: Register
+  },
+  {
+    path: "/verify-email",
+    name: "Email verification",
+    component: EmailVerification
   },
   {
     path: "/password-reset",

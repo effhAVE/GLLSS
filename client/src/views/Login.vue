@@ -2,13 +2,27 @@
   <v-container fluid fill-height>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="4">
-        <v-card class="elevation-12" color="primary">
+        <v-card class="elevation-12 mb-4" color="primary">
           <v-toolbar color="secondary" flat>
             <v-toolbar-title>Sign in to continue</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
           <LoginForm @submit="login" />
         </v-card>
+        <v-dialog v-model="emailVerificationModal" max-width="600px">
+          <template v-slot:activator="{ on }">
+            <v-btn text x-small v-on="on">
+              Need verification email?
+            </v-btn>
+          </template>
+          <v-card color="primary">
+            <v-toolbar color="secondary" flat>
+              <v-toolbar-title>Send verification email</v-toolbar-title>
+              <v-spacer></v-spacer>
+            </v-toolbar>
+            <EmailForm @submit="sendVerificationEmail" />
+          </v-card>
+        </v-dialog>
       </v-col>
     </v-row>
   </v-container>
@@ -16,11 +30,30 @@
 
 <script>
 import LoginForm from "../components/Forms/LoginForm";
+import EmailForm from "../components/Forms/ForgotPasswordForm";
 export default {
   components: {
-    LoginForm
+    LoginForm,
+    EmailForm
+  },
+  data() {
+    return {
+      emailVerificationModal: false
+    };
   },
   methods: {
+    sendVerificationEmail(email) {
+      this.emailVerificationModal = false;
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.$http
+        .post(`${APIURL}/users/resend-verification`, { email: email })
+        .then(response => {
+          this.$store.commit("snackbarMessage", {
+            message: response.data || response,
+            type: "success"
+          });
+        });
+    },
     login({ email, password }) {
       this.$store
         .dispatch("login", { email, password })
@@ -32,8 +65,13 @@ export default {
           });
         })
         .catch(error => {
+          let message = error;
+          if (error.response) {
+            message = error.response.data;
+          }
+
           this.$store.commit("snackbarMessage", {
-            message: error.response.data,
+            message: message,
             type: "error"
           });
         });

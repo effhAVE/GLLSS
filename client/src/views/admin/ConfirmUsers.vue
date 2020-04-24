@@ -24,7 +24,7 @@
       hide-default-footer
     >
       <template v-slot:item.createdAt="{ item }">
-        <span>{{ new Date(item.createdAt).toLocaleString() }}</span>
+        <span>{{ item.createdAt | moment("MMMM DD, YYYY HH:mm") }}</span>
       </template>
     </v-data-table>
     <v-card-actions>
@@ -52,6 +52,7 @@ export default {
           value: "nickname"
         },
         { text: "ID", value: "_id" },
+        { text: "Verified", value: "isVerified" },
         { text: "Registration date", value: "createdAt" }
       ]
     };

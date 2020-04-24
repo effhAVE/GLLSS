@@ -65,6 +65,10 @@ export default new Vuex.Store({
         commit("AUTH_REQUEST");
         axios.post(`${APIURL}/auth`, user)
           .then(response => {
+            if (response.type === "not-verified") {
+              return reject(response.message);
+            }
+
             const token = response.data.token;
             const user = response.data.user;
             commit("tokenUpdate", token);
@@ -92,17 +96,7 @@ export default new Vuex.Store({
         commit("AUTH_REQUEST");
         axios.post(`${APIURL}/users/`, user)
           .then(response => {
-            const token = response.headers["x-auth-token"];
-            const user = response.data;
-            commit("tokenUpdate", token);
-            localStorage.setItem("token", token);
-            const timer = dispatch("renewTokenTask");
-            commit("timerUpdate", timer);
-            axios.defaults.headers.common["x-auth-token"] = token;
-            commit("AUTH_SUCCESS", token);
-            // eslint-disable-next-line no-console
-            console.log(greeting(user.nickname));
-            resolve(response);
+            resolve(response.data);
           }).catch(error => {
             commit("AUTH_ERROR");
             localStorage.removeItem("token");

@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema({
     minlength: 5,
     maxlength: 1024
   },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
   roles: {
     type: [String],
     default: ["guest"],
