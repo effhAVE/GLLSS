@@ -131,6 +131,8 @@ export default {
             message: "Users successfully deleted.",
             type: "success"
           });
+
+          this.$router.go();
         })
         .catch(error =>
           this.$store.commit("snackbarMessage", {

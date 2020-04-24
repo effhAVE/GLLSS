@@ -66,28 +66,25 @@ export default {
     }
   }),
   created: function() {
+    if (this.isLoggedIn) {
+      this.$store.dispatch("renewTokenTask");
+    }
+
     this.$http.interceptors.response.use(
       response => response,
       error => {
         const status = error.response ? error.response.status : null;
-        return new Promise((resolve, reject) => {
-          if (status === 401) {
-            this.$store.dispatch("logout");
-          } else if (status === 404) {
-            this.$router.push("/notfound");
-          }
-          throw error;
-        });
+        if (status === 401) {
+          this.$store.dispatch("logout");
+        } else if (status === 404) {
+          this.$router.push("/notfound");
+        }
       }
     );
 
     window.setInterval(() => {
       this.$store.commit("updateDate");
     }, 1000 * 60);
-
-    if (this.isLoggedIn) {
-      this.$store.dispatch("renewTokenTask");
-    }
 
     this.$store.subscribe((mutation, state) => {
       if (mutation.type === "snackbarMessage") {

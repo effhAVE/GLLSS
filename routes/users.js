@@ -8,6 +8,9 @@ const {
   User,
   validate
 } = require("../models/user");
+const {
+  Tournament
+} = require("../models/tournament");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
@@ -33,6 +36,21 @@ router.delete("/", auth, validateAccess("masteradmin"), async (req, res) => {
   for (const user of usersToDelete) {
     const foundUser = await User.findById(user._id);
     if (foundUser) {
+      const tournaments = await Tournament.find({
+        _id: {
+          $in: foundUser.tournamentsHosted
+        }
+      });
+
+      for (const tournament of tournaments) {
+        tournament.rounds.forEach(round => {
+          round.available = round.available.filter(user => !user.equals(foundUser._id));
+          round.hosts = round.hosts.filter(hostObject => !hostObject.host.equals(foundUser._id));
+          round.teamLeads = round.teamLeads.filter(TLObject => !TLObject.host.equals(foundUser._id));
+        });
+        await tournament.save();
+      };
+
       await foundUser.remove();
     } else {
       return res.status(400).send("One of the users was not found and cannot be deleted.");
