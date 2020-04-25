@@ -277,7 +277,6 @@ export default {
     }
   },
   mounted() {
-    if (!this.user) return;
     const APIURL = process.env.VUE_APP_APIURL;
     if (this.user.roles.includes("guest")) {
       this.$http.get(`${APIURL}/users/admins`).then(response => {
