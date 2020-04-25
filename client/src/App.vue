@@ -75,7 +75,7 @@ export default {
       error => {
         const status = error.response ? error.response.status : null;
         if (status === 401 && !error.response.data.type) {
-          this.$store.dispatch("logout");
+          this.logout();
         } else if (status === 404) {
           this.$router.push("/notfound");
         }

@@ -282,7 +282,11 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
     if (!calculation.games[game]) {
       calculation.games[game] = {
         gamesHosted: 0,
-        totalValue: 0
+        TLTime: 0,
+        totalLeading: 0,
+        totalHosting: 0,
+        totalValue: 0,
+        regions: {}
       }
     }
 
@@ -292,7 +296,7 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
       return res.status(400).send(`No game value provided for ${game}`);
     }
     if (!calculation.games[game][region]) {
-      calculation.games[game][region] = 0;
+      calculation.games[game].regions[region] = 0;
     }
 
     for (const round of tournament.rounds) {
@@ -329,6 +333,7 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
 
           calculation.hosts.summary[hostID].hostValue += calcGame.total[hostID].hostValue += value;
           calculation.regions[region].totalValue += value;
+          calculation.games[game].totalHosting += value;
           calculation.games[game].totalValue += value;
 
           calculation.hosts.summary[hostID].games += calcGame.total[hostID].games += (round.bestOf + hostObject.timeBalance);
@@ -339,7 +344,7 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
           calculation.total.hostingValue += value;
           calculation.total.totalValue += value;
           calculation.hosts.summary[hostID].totalValue += calcGame.total[hostID].totalValue = calcGame.total[hostID].hostValue + calcGame.total[hostID].TLValue;
-          calculation.games[game][region] += (round.bestOf + hostObject.timeBalance);
+          calculation.games[game].regions[region] += (round.bestOf + hostObject.timeBalance);
         } else {
           logger.info(`Host: ${hostObject.host.nickname} lost hosting of the following round - ${round.name} inside ${tournament.name}`);
         }
@@ -432,6 +437,9 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
       calculation.hosts.summary[id].TLValue += calculation.hosts[game].total[id].TLValue = value;
       calculation.hosts.summary[id].totalValue += calculation.hosts[game].total[id].TLValue;
       calculation.hosts[game].total[id].totalValue = calculation.hosts[game].total[id].hostValue + calculation.hosts[game].total[id].TLValue;
+      calculation.games[game].TLTime += TLTime;
+      calculation.games[game].totalLeading += value;
+      calculation.games[game].totalValue += value;
       calculation.total.leadingValue += value;
       calculation.total.totalValue += value;
     }

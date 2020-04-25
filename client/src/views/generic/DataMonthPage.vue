@@ -43,7 +43,9 @@
     <v-tabs-items v-model="tab" class="transparent">
       <v-tab-item>
         <v-card flat color="transparent">
-          <v-simple-table class="table-background table-simple not-editable">
+          <v-simple-table
+            class="table-background table-simple not-editable text-center"
+          >
             <template v-slot:default>
               <thead>
                 <tr>
@@ -101,7 +103,7 @@
               :key="game"
             >
               <v-simple-table
-                class="table-background table-simple not-editable"
+                class="table-background table-simple not-editable text-center"
               >
                 <template v-slot:default>
                   <thead>
@@ -164,7 +166,7 @@
           <v-card flat color="transparent">
             <v-tab-item>
               <v-simple-table
-                class="table-background table-simple not-editable"
+                class="table-background table-simple not-editable text-center"
               >
                 <template v-slot:default>
                   <thead>
@@ -191,7 +193,7 @@
             </v-tab-item>
             <v-tab-item>
               <v-simple-table
-                class="table-background table-simple not-editable"
+                class="table-background table-simple not-editable text-center"
               >
                 <template v-slot:default>
                   <thead>
@@ -199,6 +201,9 @@
                       <th>Game</th>
                       <th>Region | Games hosted</th>
                       <th>Games hosted</th>
+                      <th>Teamlead time</th>
+                      <th>Hosting value</th>
+                      <th>Teamlead value</th>
                       <th>Total value</th>
                     </tr>
                   </thead>
@@ -212,26 +217,17 @@
                       </th>
                       <td>
                         <v-simple-table
-                          class="my-4 table-background table-simple"
+                          class="my-4 table-background table-simple text-center"
                         >
                           <tbody>
-                            <tr v-for="(value, name) in values" :key="name">
-                              <th
-                                v-if="
-                                  name !== 'gamesHosted' &&
-                                    name !== 'totalValue'
-                                "
-                              >
+                            <tr
+                              v-for="(value, name) in values.regions"
+                              :key="name"
+                            >
+                              <th>
                                 {{ name }}
                               </th>
-                              <td
-                                v-if="
-                                  name !== 'gamesHosted' &&
-                                    name !== 'totalValue'
-                                "
-                                width="100px"
-                                align="center"
-                              >
+                              <td width="100px">
                                 {{ value }}
                               </td>
                             </tr>
@@ -240,6 +236,9 @@
                       </td>
 
                       <td>{{ values.gamesHosted }}</td>
+                      <td>{{ values.TLTime }}</td>
+                      <td>{{ values.totalHosting }}</td>
+                      <td>{{ values.totalLeading }}</td>
                       <td>{{ values.totalValue }}</td>
                     </tr>
                   </tbody>
@@ -248,7 +247,7 @@
             </v-tab-item>
             <v-tab-item>
               <v-simple-table
-                class="table-background table-simple not-editable"
+                class="table-background table-simple not-editable text-center"
               >
                 <template v-slot:default>
                   <thead>
