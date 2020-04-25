@@ -295,7 +295,7 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
       logger.error(`ERROR: No game value provided for ${game}!`);
       return res.status(400).send(`No game value provided for ${game}`);
     }
-    if (!calculation.games[game][region]) {
+    if (!calculation.games[game].regions[region]) {
       calculation.games[game].regions[region] = 0;
     }
 
