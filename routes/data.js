@@ -331,19 +331,22 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
 
           const value = (round.bestOf + hostObject.timeBalance) * calcGame.gameValue;
 
-          calculation.hosts.summary[hostID].hostValue += calcGame.total[hostID].hostValue += value;
+          calculation.hosts.summary[hostID].hostValue += value;
+          calcGame.total[hostID].hostValue += value;
           calculation.regions[region].totalValue += value;
           calculation.games[game].totalHosting += value;
           calculation.games[game].totalValue += value;
 
-          calculation.hosts.summary[hostID].games += calcGame.total[hostID].games += (round.bestOf + hostObject.timeBalance);
+          calculation.hosts.summary[hostID].games += (round.bestOf + hostObject.timeBalance);
+          calcGame.total[hostID].games += (round.bestOf + hostObject.timeBalance);
           calculation.regions[region].gamesHosted += (round.bestOf + hostObject.timeBalance);
           calculation.games[game].gamesHosted += (round.bestOf + hostObject.timeBalance);
           calculation.total.gamesHosted += (round.bestOf + hostObject.timeBalance);
 
           calculation.total.hostingValue += value;
           calculation.total.totalValue += value;
-          calculation.hosts.summary[hostID].totalValue += calcGame.total[hostID].totalValue = calcGame.total[hostID].hostValue + calcGame.total[hostID].TLValue;
+          calculation.hosts.summary[hostID].totalValue += value;
+          calcGame.total[hostID].totalValue = calcGame.total[hostID].hostValue;
           calculation.games[game].regions[region] += (round.bestOf + hostObject.timeBalance);
         } else {
           logger.info(`Host: ${hostObject.host.nickname} lost hosting of the following round - ${round.name} inside ${tournament.name}`);
@@ -391,9 +394,13 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
         }
 
         if (!TLObject.lostLeading) {
-          logger.info(`TL: ${TLObject.host.nickname}, Round ${round.name} inside ${tournament.name} \n had following values: prepTime - ${round.prepTime}, timeBalance - ${TLObject.timeBalance}`);
+          if (round.prepTime || TLObject.timeBalance) {
+            logger.info(`TL: ${TLObject.host.nickname}, Round ${round.name} inside ${tournament.name} \n had following values: prepTime - ${round.prepTime}, timeBalance - ${TLObject.timeBalance}`);
+          }
+
           TLTimeSlots[TLObject.host.nickname][tournament.game].push({
-            id: round._id,
+            name: round.name,
+            tournament: tournament.name,
             startDate: moment(round.startDate).subtract(round.prepTime, "minutes").format(),
             endDate: moment(round.endDate).add(TLObject.timeBalance, "minutes").format()
           });
@@ -410,32 +417,49 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
       timeSlot.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
       const timeSlotsLength = timeSlot.length;
       const mergedTimeSlots = [];
-      for (let i = 0; i < timeSlot.length - 1; i++) {
-        if (timeSlot[i].skipped) {
-          timeSlot[i] = timeSlot[i - 1];
-        }
+      logger.info(` Game: ${game}`);
+      if (timeSlotsLength === 1) {
+        mergedTimeSlots.push(moment(timeSlot[0].endDate).diff(timeSlot[0].startDate, "minutes"));
+        logger.info(`   Added ${timeSlot[0].name} of ${timeSlot[0].tournament} to calculation`);
+      } else {
+        for (let i = 0; i < timeSlotsLength - 1; i++) {
+          if (timeSlot[i].skipped) {
+            timeSlot[i] = timeSlot[i - 1];
+          }
 
-        if (moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) && moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)) {
-          timeSlot[i + 1].skipped = true;
-          logger.info(` Skipped ${timeSlot[i + 1].id} (part of ${timeSlot[i].id})`);
-        } else if (moment(timeSlot[i].endDate).isSameOrAfter(timeSlot[i + 1].startDate)) {
-          logger.info(` Merged ${timeSlot[i].id} into ${timeSlot[i + 1].id}`);
-          timeSlot[i + 1].startDate = moment.min(moment(timeSlot[i + 1].startDate), moment(timeSlot[i].startDate));
-          timeSlot[i + 1].endDate = moment.max(moment(timeSlot[i + 1].endDate), moment(timeSlot[i].endDate));
-        } else {
-          mergedTimeSlots.push(moment(timeSlot[i].endDate).diff(timeSlot[i].startDate, "minutes"));
+          if (moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) && moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)) {
+            timeSlot[i + 1].skipped = true;
+            logger.info(`   Skipped ${timeSlot[i + 1].name}, ${timeSlot[i + 1].tournament} (part of ${timeSlot[i].name}, ${timeSlot[i].tournament})`);
+          } else if (moment(timeSlot[i].endDate).isSameOrAfter(timeSlot[i + 1].startDate)) {
+            logger.info(`   Merged ${timeSlot[i].name}, ${timeSlot[i].tournament} into ${timeSlot[i + 1].name}, ${timeSlot[i + 1].tournament}`);
+            timeSlot[i + 1].startDate = moment.min(moment(timeSlot[i + 1].startDate), moment(timeSlot[i].startDate));
+            timeSlot[i + 1].endDate = moment.max(moment(timeSlot[i + 1].endDate), moment(timeSlot[i].endDate));
+          } else {
+            mergedTimeSlots.push(moment(timeSlot[i].endDate).diff(timeSlot[i].startDate, "minutes"));
+            logger.info(`   Added ${timeSlot[0].name} of ${timeSlot[0].tournament} to calculation`);
+          }
+
+          if (i + 1 === timeSlotsLength - 1) {
+            if (timeSlot[i + 1].skipped === true) {
+              mergedTimeSlots.push(moment(timeSlot[i].endDate).diff(timeSlot[i].startDate, "minutes"));
+              logger.info(`   Added ${timeSlot[0].name} of ${timeSlot[0].tournament} to calculation`);
+            } else {
+              mergedTimeSlots.push(moment(timeSlot[i + 1].endDate).diff(timeSlot[i + 1].startDate, "minutes"));
+              logger.info(`   Added ${timeSlot[0].name} of ${timeSlot[0].tournament} to calculation`);
+            }
+          }
         }
       }
 
-      const lastSlot = timeSlot[timeSlotsLength - 1];
-      mergedTimeSlots.push(moment(lastSlot.endDate).diff(lastSlot.startDate, "minutes"));
       timeSlot.splice(0, timeSlot.length, ...mergedTimeSlots);
-      const TLTime = TLTimeSlots[id][game].reduce((value, current) => value + current);
+      const TLTime = TLTimeSlots[id][game].reduce((value, current) => value + current, 0);
       const value = Math.ceil((TLTime / 60) * TLRatio);
 
-      calculation.hosts.summary[id].TLTime += calculation.hosts[game].total[id].TLTime = TLTime;
-      calculation.hosts.summary[id].TLValue += calculation.hosts[game].total[id].TLValue = value;
-      calculation.hosts.summary[id].totalValue += calculation.hosts[game].total[id].TLValue;
+      calculation.hosts.summary[id].TLTime += TLTime
+      calculation.hosts[game].total[id].TLTime += TLTime;
+      calculation.hosts.summary[id].TLValue += value;
+      calculation.hosts[game].total[id].TLValue += value;
+      calculation.hosts.summary[id].totalValue += value;
       calculation.hosts[game].total[id].totalValue = calculation.hosts[game].total[id].hostValue + calculation.hosts[game].total[id].TLValue;
       calculation.games[game].TLTime += TLTime;
       calculation.games[game].totalLeading += value;
