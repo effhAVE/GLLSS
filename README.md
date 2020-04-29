@@ -41,7 +41,7 @@ $ node index
 Purpose of the site is to help staff, especially hosts and teamleaders of GLL to make schedule for them when to work as the main aspect. They can put their availability for certain tournaments and then being scheduled. Site offers as well more functionalities to ease the work. There are several roles to divide people based on their position. We will look into each role and describe the site, functionalities and possibilities within each role.
 
 ## Roles
-Site has right now these roles:
+Site does work on roles principle. There are several roles where next role has something more to access and inherit all the rights from previous role: Right now there are these roles:
 - Uncomfirmed User
 - Guest
 - Host
@@ -86,7 +86,7 @@ If you forgot your password, you can click on **forgot yourr password?** from th
 If you fill it up, you will get a message that password was changed and you can log in using a new password. 
 
 ### Host
-To become a host, you have to be confirmed by one of the admins. If you had been confirmed, you will have to relog to the page to see the changes. Ass a host you will finally see a menu of items and we will go through all of them.
+Host is a person, who is hosting games. From the schedule host knows on which game and when he needs to be here. To become a host, you have to be confirmed by one of the admins. If you had been confirmed, you will have to relog to the page to see the changes. As a host you will finally see a menu of items and we will go through all of them.
 
 ![Host Menu Items](https://i.imgur.com/t70H12Q.png)
 
@@ -230,7 +230,7 @@ After choosing a month then Data for speciic month are shown. To determine of ea
 
 Data consist of several Parts:
 - Overview
-  - User - Display Users in alphabetical Order
+  - User - Display Users in alphabetical Order.
   - Games Hosted - Amount of Total Games Hosted per user. Games Hosted are counted as how many rounds did person host. Round balance is considered here and adds to it.
   - Host Value - Based on Games Hosted and amount per game hosted, total value is calculated. More can be seen on other tabs, this is a total amount of all games hosted together.
   - TeamLead Time - Total amount of time per Lead in minutes spent. This is computed based on how much time did Leader have to spend when leading a tournament or tournaments, where if leading several tournaments at the same time are excluded since it is looking into possible collisions of time where Time Balance and Preparation Time for TeamLeaders is considered. Preparation ttime is the value for the round in minutes, which teamleader has to prepare before tournament starts. So first is taken preparation time, then duration of round and the end Time Balance to specify the timeframe. Theen all timeframes are looked at with possible collision and if there is collision, it is not counted towards total time. 
@@ -240,8 +240,8 @@ Data consist of several Parts:
   ![Data Overview](https://i.imgur.com/veGHCwm.png)
 
 - Games Summary - summary per user per specific game, Overview is sum of all games summaries.
-  - User - Display Users in alphabetical Order
-  - Games Hosted - Amount of Total Games Hosted per user per Game
+  - User - Display Users in alphabetical Order.
+  - Games Hosted - Amount of Total Games Hosted per user per Game.
   - Host Value - Amount of expenses per user based on Games Hosted timed with Game Value.
   - TeamLead Time - Amount of Lead Time per user.
   - TeamLead Value - Amount of expenses per user based on TeamLead Time.
@@ -258,9 +258,9 @@ Data consist of several Parts:
 
   ![Stats Regions](https://i.imgur.com/gbJFpbh.png)
   
-  - Games - Total Stats per Game
-    - Game - Game name
-    - Region | Gamse Hosted - Particualar Regions and total amount of Games Hosted per Region.
+  - Games - Total Stats per Game.
+    - Game - Game name.
+    - Region | Games Hosted - Particualar Regions and total amount of Games Hosted per Region.
     - Games Hosted - Total Amount of Games Hosted .
     - TeamLead Time - Total Amount of Time per Game.
     - Hosting Value - Total Amount of expenses needed for hosting per game.
@@ -269,11 +269,85 @@ Data consist of several Parts:
 
   ![Stats Games](https://i.imgur.com/459sTwG.png)
   
-  - Total - Summing all games together
-    - Games Hosted - All games hosted in the particular month
-    - Hosting - Total amount of costs needed for hosting
-    - Leading - Total amount of costs needed for leading
-    - Total - Summing both hosting and leading
+  - Total - Summing all games together.
+    - Games Hosted - All games hosted in the particular month.
+    - Hosting - Total amount of costs needed for hosting.
+    - Leading - Total amount of costs needed for leading.
+    - Total - Summing both hosting and leading.
 
   ![Stats Total](https://i.imgur.com/IPUkhLW.png)
-    - 
+    
+#### Overview 
+The last past for the host is the Overview, where user can see, what is he/she going to host or lead. There are some useful links, which are commonly used to have them in one place and not around. 
+
+![Overview](https://i.imgur.com/FGyn3Pa.png)
+  
+In the **Upcoming tournaments** you can see all the tournaments, which are active and you are either hosting or leading. **Starts** shows for both Rounds and Tournament in which time the tournament or round will start. **Role** can be either host or teamlead. **Ready** is the same as in Tournaments. You can be ready from the overview. Ready will stay grey, until it is one hour before, then it will turn Red and will become clickable, once you click it it will be green. If you miss the 30 mins ready check-in window. It will become grey again and unclickable. 
+Default limit of upcoming tournaments is 5 and there is Load More button if you need to see more tournaments. 
+
+On the top there is a scrollable button to Show Past Tournaments. On default it is turned off, but if you turn it on, then you can see simplified version of Past tournaments.   
+  
+![Past Tournaments](https://i.imgur.com/mB3PfMI.png)
+
+### TeamLead
+TeamLeader is a role above Host. TeamLeader takes care of running tournaments smooth, preparing tournaments and taking support. There are not many differences between host and teamleader when it comes to application. Main difference is to be able to schedule people. Only changes between host and teamlead will be shown. 
+
+![Menu Items](https://i.imgur.com/73LvAyD.png)
+
+#### Overview 
+Difference here is that Useful Links now contains some more links for Teamleaders. TeamLeaders as well have to check-in before, so even hosts can see that teamleader is ready. 
+
+![Useful Links TL](https://i.imgur.com/LXz3Mgu.png)
+
+#### Tournaments - Specific Tournament 
+First changes comes in specific tournaments, where teamleader can now add/remove hosts/leads from the rounds. 
+
+![Tournaments - Hosts/TLs](https://i.imgur.com/LoGUli8.png)
+
+As can be seen, now it looks a little different. Left button with skull next to the host will remove the host from the round. Green button will show you possibility to add a person or lead which selected their availability for the tournament. If there is no one available message No available host will show, if choosing for teamleaders No available teamleaders. You can as well click on any user which is already selected to replace the user with another user from availability list. 
+
+![Tournaments - Hosts/TLs - changes](https://i.imgur.com/MJBiohj.png)
+
+Last thing which is possible here is to click on pencil, here you can change if person did loose hosting or had a difference in rounds so you can add or remove rounds. If it is a teamleader you are adding or removing amount of time.
+
+![Choosing Hosts](https://i.imgur.com/91rC8XI.png) ![Pencil](https://i.imgur.com/5SBwTlE.png) ![Pencil - TLs](https://i.imgur.com/2JqA3Y4.png)
+
+![Round balance](https://i.imgur.com/ZqrRqMZ.png) ![Lost Hosting](https://i.imgur.com/lCmjn3v.png)
+
+If you do any changes you will need to confirm it by prompt notification on bottom right to Save the changes. 
+
+![Confirm changes](https://i.imgur.com/HKzyp4t.png)
+
+When it comes to availability, if host choose that it is available then it will appear only in Hosts, but if teamleader will choose availability, can be chosen both as host or teamlead, but if choosing one of those, then it cannot be chosen for second role. You either host or if you lead, you can host as well, but cannot be counted as extra. Sometimes it can happen, that at the end you needed someone who had not availability choosen, so for past tournaments, you can choose any host/teamleader either for hosting or leading. 
+
+![Choosing in past Tournaments](https://i.imgur.com/z0xsj0e.png)
+
+#### Schedule
+This is a new item for teamleaders. The purpose of schedule is to make a compact way of schedulling people around as either hosts or Teamleas. Basic Overview is similar Overviews as Calendar, but now you have possibilities as in Tournaments so you can add/remove, edit Round Balance/Time Balance, and so on. 
+
+![Schedule Overview](https://i.imgur.com/fItOrX7.png)
+
+As can be seen it looks very similar to calendar, but with editing features. You can choose All or any game as you want. Round overview is exactly the same as in Calendar and Editing has all the features as in Tournaments.
+Selecting a week now, has only 3 options and those are Current/Previous or Next. It is because when it comes to schedulling those 3 weeks are most important for changes. Previous week is there to check that everything was done properly, but should not have changes to be done. Current week can change based on hosts needed and Next week is there to schedule people for next week.
+
+![Select week](https://i.imgur.com/G3ktFlW.png)
+
+To determine, who is available at which time, you can click on yellow Availability icon on bottom left. which will show all the hosts and leads with their availability. Availability will not show if person is already selected for hosting/leading. From this overview you can easier determine, how you want to put hosts around. 
+
+![Availability Table](https://i.imgur.com/uydjs7F.png)
+
+On the top you can see Tournament Names, and then Rounds. Hosts/Leads are ordered by alphabetical order. **X** stands for available. Tournaments are ordered in the same way, how they are showned on Schedule site page. Availability Table will be displayed based on week selected. 
+
+Last Part in this is another Tab called **Balance** as can be seen on picture below.
+
+![Balance](https://i.imgur.com/NUIOWlM.png)
+
+Balance will show as Availabity table for week selected. It is divided into games, because hosts are being balanced per game individually. Current week value is computed as how many times person in teh current week is selected and timed with Best of per round where person is selected. So if computing Value for Apex is 40 and Round is Best Of 8, then total value is 8*40 = 320. Rounds which are in Tournaments, which have property of Not Counted by Rounds off, are not counted in this balance. Those tournaments are special and are added as extra.
+
+Lost Hosting is a value where person did lost hosting, so he can be compensated. Lost Hosting is from previous week. Because if you loose hosting this week, then you cannot be compensated this week, since schedule is being done for whole next week. Lost hosting happens if person was ready, but unfortunately group he was supposed to host, did not happen. Then teamleader can mark the person who lost hosting by checking lost hosting property and the amount which would be computed goes to next week lost hosting to be compensated.
+
+Difference is computed as `Current week value - Lost Hosting (from previous week)`.
+
+### Admin
+
+### Masteradmin
