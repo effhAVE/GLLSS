@@ -90,6 +90,10 @@ Host is a person, who is hosting games. From the schedule host knows on which ga
 
 ![Host Menu Items](https://i.imgur.com/t70H12Q.png)
 
+Whenever you will be on any page, you can toggle the menu items by clicking menu button on top left. 
+
+![Toggle Menu Items](https://i.imgur.com/mcInvZh.png)
+
 #### Hosting Guide
 Hosting Guide is a step by step guide for hosts how to host each game individually, it is a link to google document which on clicking opens in new wwindow. Plan is to move teh guide to be editable on to the page. 
 
@@ -204,7 +208,7 @@ You can see here as well **Load Series' Tournaments** button, which will show al
 ![Series Tournaments Overview](https://i.imgur.com/0luFAhO.png)
 
 #### Calendar
-Calendar is a week based overview of all the rounds in a compact way, so you have better overview of the tournaments, rounds, hosting. On the top right the week in the year is shown and you can click on it to choose any week to see schedule for the chosen week as shown in the picture and it will display only the chosen week from Monday to Sunday.
+Calendar is a week based overview of all the rounds in a compact way, so you have better overview of the tournaments, rounds, hosting. On the top right the week in the year is shown and you can click on it to choose any week to see schedule for the chosen week as shown in the picture and it will display only the chosen week from Monday to Sunday. You have to click on OK once you select a week for change to happen. 
 
 ![Calendar chooosing week](https://i.imgur.com/9YLS3Ut.png)
 
@@ -289,7 +293,7 @@ On the top there is a scrollable button to Show Past Tournaments. On default it 
   
 ![Past Tournaments](https://i.imgur.com/mB3PfMI.png)
 
-### TeamLead
+### TeamLeader
 TeamLeader is a role above Host. TeamLeader takes care of running tournaments smooth, preparing tournaments and taking support. There are not many differences between host and teamleader when it comes to application. Main difference is to be able to schedule people. Only changes between host and teamlead will be shown. 
 
 ![Menu Items](https://i.imgur.com/73LvAyD.png)
@@ -349,5 +353,162 @@ Lost Hosting is a value where person did lost hosting, so he can be compensated.
 Difference is computed as `Current week value - Lost Hosting (from previous week)`.
 
 ### Admin
+Admin is a role above the teamlead. It is a user which has more right now and access as well for changing tournaments, rounds or users. User is responsible for correctness of these information before teamleaders and hosts have access to them. Menu items now include Admin, which have several subitems.
+
+![Admin ](https://i.imgur.com/PyqxrOb.png)
+
+#### Admin - Confirm Users
+On this page you as an admin can confirm new registered user, who are first as a guest, confirming them will put them a host role. By confirming, you have to select users you want to confirm and then click on **Confirm Selected**. Panel consists of:
+- Nickname - nickname person did use
+- ID - unique ID generated for the user
+- Verified - if person did verify his/her email. 
+- Registration Date - Your local time, when person did register
+- Search - You can search either by name or ID
+
+You can order by any of the panel fields.
+![Admin - Confirm Users](https://i.imgur.com/tI16eXX.png)
+
+#### Admin - Users
+Here you can see the list of all users, which are already registered and confirmed. You can promote another users from Host to Team Lead or vice versa. You can too demote users back to guest and after they will not be able to see anything on the page. All of the fields are having again possibility to order by clicking on them, so you can order by role for example. 
+
+![Admin - Users](https://i.imgur.com/GqFH3J3.png)
+
+- Nickname - nickname person did use
+- ID - unique ID generated for the user
+- Registration Date - Your local time, when person did register
+- Verified - if person did verify his/her email. 
+- Role - Current role person has, you can click on it to change it as shown on picture below and role will update right away.
+- Search - You can search either by name or ID
+
+![Admin - Users - Roles](https://i.imgur.com/PrTHcmF.png)
+
+#### Admin - Create a data month
+This panel will allow you to create a new Data month for computing Data. You can click on calendar, select the month you want to create and then hit **Save**. To confirm and create it you have to hit **Save** again. It will automatically redirect you to Data page after. If you selected month, which is already created, nothing will happen. 
+
+![Admin - Create a data month](https://i.imgur.com/qbgUO0g.png) ![Admin - Create a data month -save](https://i.imgur.com/b85zS4m.png)
+
+#### Admin - Create a series
+Here you can create a new series, which will be then added to other series. All the fields will have to be filled. 
+
+![Create a series](https://i.imgur.com/14DNt6Y.png)
+
+- Name - this is the name of the series and all the tournaments will inherit the name if the series will be selected.
+- Start Date - Start date of the series in UTC time. By default it will show next full hour of the current date. You can click on it to edit it. 
+- End Date - End date of the series in UTC time. By default it will be set to one more year from the start date. You can click on it to edit it, end date has to be later than the start date. 
+- Game - List of available games. 
+- Region - List of available regions.
+- Recurrence - Can be daily or weekly and by choosing one of those 2, then names are generated based on different criterias which were already described before, but will be described here too.
+
+When choosing Start or End Date, Calendar will show up, where you have to first choose the date, then it will jump to an hour. Here make sure you are on correct time by AM or PM on bottom right and left. After hour is selected you can select minutes too. All the time here is displayed in UTC. So you need to take case when you are creating the tournament start and end date. Once you are ok with time, click on **Save**. If it saved, time will be shown on page in UTC time too. 
+
+![Edit - Date](https://i.imgur.com/bcIK8slm.png) ![Edit - Hour](https://i.imgur.com/UwSE1PKm.png) ![Edit - Time](https://i.imgur.com/Oh5EKbwm.png)
+
+Game list is a list of all available games at the moment, to specify it - PUBG, Apex, Autochess, PUBG Mobile.
+
+![List of Games](https://i.imgur.com/PrtMLC5.png)
+
+Recurrence can be either weekly or daily and based on what you choose then tournaments will be generated as follows:
+- daily - Tournaments are happening several times in the week, the name of the tournaments then is generated as `#WN DDD Series Name` - where WN is Week Number and DDD day of the week in at first three letters
+- weekly - Tournaments happen at most once a week. The name is then generated as follows `#WN Series Name` - where WN is a week number.
+
+![List of Recurrence](https://i.imgur.com/sSAS6MO.png)
+
+Region is to choose a region in which tournament is held in. Each region has its own UTC Offset too, as an example Americas Region has the UTC offset of value -4 . This offset is really important to determine the tournament and then as well rounds in the tournament, in which counting day they are happening. Even if Americas would start past midnight UTC on Monday, so UTC time would be Tuesday, because of that offset they will still be displayed in Monday and counted on the date of Monday.
+
+![List of Regions](https://i.imgur.com/PFeehQ2.png)
+
+At the end name has to be specified too. And once all is selected, then as an example this is how the series can be called. Only thing left to do is hitting the **Save** button and you will be redirected to series page. 
+
+![Series - Example](https://i.imgur.com/wMc15Z2.png)
+
+#### Admin - Create a tournament
+Here you can create a new tournament, which will be then added to other tournaments. All the fields will have to be filled except the Admin Page URL, which does not need to be filled, if the tournament is not yet on admin page, but it is known to happen and official for hosts to be created. Fields works the same as in Series creation, so only difference will be explained.
+
+![Create a tournament](https://i.imgur.com/GJR7MXf.png)
+
+- Name - This is the name of the tournament. 
+- Series - List of Series. They are ordered by creation, where latest one will be on the bottom. 
+- Start Date - Start date of the tournament in UTC time. By default it will show next full hour of the current date. You can click on it to edit it. 
+- End Date - End date of the ttournament in UTC time. By default it will be set to plus 8 hours from the start date. You can click on it to edit it, end date has to be later than the start date. 
+- Game - List of available games. 
+- Region - List of available regions.
+- Counted by Rounds - This a parameter, which defines if each round of the tournament is counted by Tournament Round Local Start Date or every round will be counted by end time of the tournament. Some tournaments are considered as bigger projects and are paid after the project is finished. This only influences in which month it will count for Data. By default it will be selected, meaning each round will count by Tournament Round Local Start Date.
+
+If you select the series then Name, Game and Region will not be possible to edit, because those will be inherited from the series. 
+
+![Admin - Choosing Series](https://i.imgur.com/lAhibps.png)
+
+So as an example of the tournament to be created can look like this in the picture. Only thing which remains after is clicking on **Save** button and you will be redirected to the Overview of Tournaments. 
+
+![Admin - Tournaments example](https://i.imgur.com/cJ43NLL.png)
+
+#### Data
+In Data as an admin you have 2 more buttons on top right: **(Re)Calculate** and **Download Logs**. 
+
+![Admin - Data buttons](https://i.imgur.com/bRPDqXF.png)
+
+Clicking on (Re)Calculate will open a window, where you can edit all the values per game and as well value for Teamleads. Value for Teamleads is the amount of expenses per one hour of work. And amount per Game is costs per 1 Round in specific game. Calculation does not happen automatically, so admin has to recalculate after each week when hosts did change or schedule per week is done. To confirm green button **Calculate** has to be pressed. Calculation can take up to few seconds. 
+
+![Admin - Calculate](https://i.imgur.com/pNSDiak.png)
+
+After you do calculation, you can check the logs by downloading them and you can see step by step how calculation was done. You can see especially for teamleaders, how are collisions handled. Full explanation was already mentioned in Data part for Hosts, how the stuff is calculated. On the picture you can see small part of the log. 
+
+![Admin - Logs](https://i.imgur.com/45kInI1.png)
+
+#### Series
+In the series now, you will have option to Edit or delete the series. If you will go to series you will see those buttons on the top. 
+
+![Series - buttons](https://i.imgur.com/64ZBZo5.png)
+
+Clicking on Edit Series will give you option to edit all the parameters for the series, when you had been creating them. Editin them will not change current series, but all the upcoming tournaments, which will be in that series. As a note, cannot be forgotten that Times are being edited in UTC time. 
+
+![Series - editing](https://i.imgur.com/RnXegWk.png)
+
+Clicking on delete is only possible if the series have no tournaments in it. Otherwise the option will be grey. If you click on it, you will get one more prompt window, to make sure you want to perform this action. Action cannot be undone and series will be then deleted.
+
+![Series - Delete](https://i.imgur.com/9wBta8D.png)
+![Series - Cannot be deleted](https://i.imgur.com/UkqIa0H.png)
+
+#### Tournaments - Specific Tournament 
+In the specific tournaments now, you will have option to Edit or delete the tournament similar as in Series, but as well you will have one more button called **Add Round**
+
+![Tournaments - buttons](https://i.imgur.com/zp65GKa.png)
+
+Clicking on Edit will give you back to editinf the tournament. If the tournament is in series, then you can edit only parameters you could edit, when creating a tournament, but option to rename will be there now. If tournament is not in series, you can edit all the fields. Time is here displayed in UTC as in all editing stuff. 
+
+![Tournaments - Edit - Series](https://i.imgur.com/4HBC6Ntm.png) ![Tournaments - Edit - Non Series](https://i.imgur.com/F7fTfAIm.png)
+
+Deleting will now work any time and you will always get second prompt window before hitting delete button, because this action cannot be undone too. 
+
+![Tournaments - Delete](https://i.imgur.com/e9h1pwz.png)
+
+If tournament has all the correct values then rounds needs to be added into the tournament. Clicking on Add Round button will show another window with these values:
+- Name - Name of the round.
+- Start Date: Start date of the round in UTC time. By dafault it will be start date of the tournament.
+- End Date: End date of the round in UTC time. By dafault it will be end date of the tournament.
+- Best Of: Amount of rounds played in specific round. Basically how many games a host will need to host. 
+- Preparation time: This is required time for TeamLeaders for the round to prepare the tournament before the start. If as an example there would be 30 as 30 minutes, that means that TeamLeader have to be here 30 mins before the start to prepare the tournament on GLL site and as well handle support before. This time is counted for computing the amount of expenses.
+
+![Tournaments - Round Creation](https://i.imgur.com/uJsa0H7.png)
+
+If you click on Save button, round to the tournament will be added. If you will do new round, then rounds will get sorted by Start time of the rounds, even if you edit the round after, it will automatically sort them by start time. 
+By adding round to the tournament, Start date and End date of the tournament will adjust based on rounds automatically. So Start date of the tournament will be earliest start date of the Rounds and End date will be latest.
+
+Once you crated rounds, you can see that above rounds there are 2 buttons - Pencil for editing and Trash can for deleting. 
+
+![Rounds - buttons](https://i.imgur.com/ddl7cOY.png)
+
+If you click on Pencil, you will get editing for round, where you can choose and edit all the properties again. 
+
+![Rounds - editing](https://i.imgur.com/yPqjIm4.png)
+
+Clicking on trash can will ask you, if you want to delete the Round from the database, this action cannot be undone.
+
+![Rounds - deleting](https://i.imgur.com/84QNYNk.png)
+
+As an admin you can edit for the users both hosts and leads in the tournament, if they are ready or not. This feature is not available for teamleaders, because they have to follow the same rules as hosts. So if it needs to be edited, it should be edited by an admin.
+
+![Rounds - Editing Ready](https://i.imgur.com/4XMXLBp.png)
 
 ### Masteradmin
+Masteradmin has not really that many changes. User with this role can delete other users or can promote them to an admin role on **Admin - Users** panel, where admin has no possibility to promote another user to admin role.
