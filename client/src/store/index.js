@@ -65,8 +65,12 @@ export default new Vuex.Store({
         commit("AUTH_REQUEST");
         axios.post(`${APIURL}/auth`, user)
           .then(response => {
-            if (response.type === "not-verified") {
-              return reject(response.message);
+            if (response.status >= 400) {
+              if (response.type === "not-verified") {
+                return reject(response.message);
+              } else {
+                return reject(response);
+              }
             }
 
             const token = response.data.token;
@@ -96,6 +100,14 @@ export default new Vuex.Store({
         commit("AUTH_REQUEST");
         axios.post(`${APIURL}/users/`, user)
           .then(response => {
+            if (response.status >= 400) {
+              if (response.type === "not-verified") {
+                return reject(response.message);
+              } else {
+                return reject(response);
+              }
+            }
+
             resolve(response.data);
           }).catch(error => {
             commit("AUTH_ERROR");

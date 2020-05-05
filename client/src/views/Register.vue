@@ -33,7 +33,7 @@ export default {
         })
         .catch(error => {
           this.$store.commit("snackbarMessage", {
-            message: error.response.data,
+            message: error.data || error,
             type: "error"
           });
         });

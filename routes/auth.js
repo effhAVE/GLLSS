@@ -24,13 +24,13 @@ router.post("/", async (req, res) => {
     email: req.body.email
   });
   if (!user) return res.status(400).send("Invalid email or password.");
+
+  const validPassword = await bcrypt.compare(req.body.password, user.password);
+  if (!validPassword) return res.status(400).send("Invalid email or password.");
   if (!user.isVerified) return res.status(401).send({
     type: "not-verified",
     message: "You haven't confirmed your email address."
   });
-
-  const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if (!validPassword) return res.status(400).send("Invalid email or password.");
 
   const token = user.generateAuthToken();
   res.send({

@@ -80,7 +80,7 @@ export default {
           this.$router.push("/notfound");
         }
 
-        return error.response.data;
+        return error.response;
       }
     );
 

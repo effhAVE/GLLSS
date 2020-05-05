@@ -28,7 +28,9 @@ export default {
       this.$http
         .get(`${APIURL}/users/verify-email?token=${this.token}`)
         .then(response => {
-          this.message = "";
+          if (response.status >= 400) {
+            throw Error(response.data);
+          }
           this.$store.commit("snackbarMessage", {
             message: response.data || response,
             type: "success"
@@ -38,7 +40,7 @@ export default {
         })
         .catch(error => {
           this.$store.commit("snackbarMessage", {
-            message: "Invalid token.",
+            message: error,
             type: "error"
           });
         });

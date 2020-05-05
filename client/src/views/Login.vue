@@ -48,9 +48,19 @@ export default {
       this.$http
         .post(`${APIURL}/users/resend-verification`, { email: email })
         .then(response => {
+          if (response.status >= 400) {
+            throw new Error(response.data);
+          }
+
           this.$store.commit("snackbarMessage", {
-            message: response.data || response,
+            message: response.data,
             type: "success"
+          });
+        })
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            message: error,
+            type: "error"
           });
         });
     },
@@ -65,13 +75,8 @@ export default {
           });
         })
         .catch(error => {
-          let message = error;
-          if (error.response) {
-            message = error.response.data;
-          }
-
           this.$store.commit("snackbarMessage", {
-            message: message,
+            message: error.data || error,
             type: "error"
           });
         });
