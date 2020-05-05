@@ -66,8 +66,8 @@ export default new Vuex.Store({
         axios.post(`${APIURL}/auth`, user)
           .then(response => {
             if (response.status >= 400) {
-              if (response.type === "not-verified") {
-                return reject(response.message);
+              if (response.data.type === "not-verified") {
+                return reject(response.data.message);
               } else {
                 return reject(response);
               }

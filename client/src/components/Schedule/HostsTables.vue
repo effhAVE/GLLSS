@@ -339,6 +339,7 @@ export default {
         el => el.host._id === oldHost._id
       );
 
+      round.available = round.available.filter(hostObj => hostObj !== newHost);
       round.available.push(oldHost);
       if (newHost === "") {
         if (!this.excludedHosts.some(hostObj => hostObj === oldHost))

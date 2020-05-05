@@ -90,7 +90,10 @@ export default {
     calculateChange(change) {
       const { type, oldHost, newHost, host, game, bestOf } = change;
       const value = this.gameValues[game] * bestOf;
-      if (type === "hostChange") {
+      if (
+        type === "hostChange" &&
+        this.balance[this.selectedWeek][game][oldHost]
+      ) {
         this.balance[this.selectedWeek][game][
           oldHost.nickname
         ].current -= value;

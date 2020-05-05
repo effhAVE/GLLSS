@@ -99,6 +99,7 @@
         :key="round._id"
         :user="user"
         :usersAvailable="usersAvailable"
+        ref="round"
         class="mt-12 mr-12"
         @roundChanged="changedRounds.push($event)"
       />

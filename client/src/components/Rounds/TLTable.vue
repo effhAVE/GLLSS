@@ -37,7 +37,7 @@
               >
                 <span v-if="item.timeBalance > 0">+</span>{{ item.timeBalance }}
               </div>
-              <v-icon v-if="item.lostHosting" color="warning">
+              <v-icon v-if="item.lostLeading" color="warning">
                 mdi-account-off
               </v-icon>
               <v-icon v-else-if="item.ready" color="success">
@@ -70,8 +70,8 @@
                     </v-list-item>
                     <v-list-item>
                       <v-checkbox
-                        v-model="item.lostHosting"
-                        label="Lost hosting"
+                        v-model="item.lostLeading"
+                        label="Lost leading"
                         color="accent"
                       ></v-checkbox>
                     </v-list-item>
@@ -112,7 +112,7 @@
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
-        <v-list v-else>
+        <v-list v-else-if="user.roles.includes('teamleader')">
           <v-list-item>
             <v-list-item-title>No teamleaders available.</v-list-item-title>
           </v-list-item>
@@ -201,6 +201,7 @@ export default {
         el => el.host._id === oldHost._id
       );
 
+      round.available = round.available.filter(hostObj => hostObj !== newHost);
       round.available.push(oldHost);
       if (newHost === "") {
         if (!this.excludedHosts.some(hostObj => hostObj === oldHost))

@@ -56,6 +56,7 @@ export default {
       this.$emit("balanceChange", payload);
     },
     onChange() {
+      this.changesMade = false;
       this.$emit("roundChanged", {
         round: this.round,
         excluded: this.excluded
