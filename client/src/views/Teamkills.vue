@@ -9,6 +9,7 @@
         color="accent"
         label="Match ID"
         required
+        @keydown.enter="getTeamkills"
       >
       </v-text-field>
     </v-card-text>
@@ -61,22 +62,19 @@ export default {
       this.$http
         .get(`${APIURL}/collections/teamkills?match=${this.matchID}`)
         .then(response => {
+          if (response.status >= 400) throw new Error(response.data);
           this.teamkills = this.checkTeamkills(response.data);
           this.fetching = false;
           this.requestSent = true;
         })
         .catch(error => {
-          let message = error;
           this.requestSent = false;
           this.teamkills = [];
           this.fetching = false;
-          if (error.response) {
-            message = error.response.data;
-          }
 
           this.$store.commit("snackbarMessage", {
             type: "error",
-            message: message
+            message: error
           });
         });
     },
@@ -84,9 +82,12 @@ export default {
       const players = matchData.included.filter(
         el => el.type === "participant"
       );
-      const playersWithTeamkills = players.filter(
-        player => player.attributes.stats.teamKills !== 0
-      );
+      const playersWithTeamkills = players.filter(player => {
+        const { teamKills, deathType } = player.attributes.stats;
+        const suicideTK = deathType === "suicide" && teamKills > 1;
+        const otherTK = deathType !== "suicide" && teamKills !== 0;
+        return suicideTK || otherTK;
+      });
 
       const playersStats = playersWithTeamkills.map(
         player => player.attributes.stats

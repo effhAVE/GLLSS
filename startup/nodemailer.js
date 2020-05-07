@@ -4,7 +4,6 @@ const nodemailer = require("nodemailer");
 const hbs = require("nodemailer-express-handlebars");
 
 const smtpTransport = nodemailer.createTransport({
-  //service: process.env.MAILER_SERVICE_PROVIDER || "serwer2030304.home.pl",
   host: "serwer2030304.home.pl",
   port: 465,
   secure: true,

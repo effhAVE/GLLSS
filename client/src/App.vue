@@ -45,7 +45,10 @@
 
     <v-footer app color="primary darken-1">
       <v-spacer />
-      <span>Created for GLL by <a href="#">hAVE</a> &copy; 2020</span>
+      <span
+        >Created for GLL by <router-link to="/aboutme">hAVE</router-link> &copy;
+        2020</span
+      >
       <v-spacer />
     </v-footer>
   </v-app>

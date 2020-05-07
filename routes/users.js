@@ -36,7 +36,7 @@ async function prepareVerificationEmail(user) {
     template: "verify-email",
     subject: "GLLSS - Confirm your email",
     context: {
-      url: "https://www.gllss.grzegorz-kowalczyk.eu/verify-email?token=" + token.token,
+      url: "https://www.gllss.eu/verify-email?token=" + token.token,
       name: user.nickname,
       email: user.email
     }
@@ -89,10 +89,15 @@ router.delete("/", auth, validateAccess("masteradmin"), async (req, res) => {
 
 router.get("/list", auth, validateAccess("teamleader"), async (req, res) => {
   const users = await User.find({
-    roles: {
-      $ne: "guest"
-    }
-  }).select("nickname");
+      roles: {
+        $ne: "guest"
+      }
+    })
+    .select("nickname")
+    .collation({
+      locale: "en"
+    })
+    .sort("nickname");
 
   res.send(users);
 })

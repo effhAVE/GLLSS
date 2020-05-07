@@ -164,10 +164,41 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
   res.send(monthData);
 });
 
-router.get("/:date", auth, validateAccess("host"), async (req, res) => {
+router.get("/:date/my", auth, validateAccess("host"), async (req, res) => {
   const data = await Data.findOne({
     date: req.params.date
   });
+
+  if (!data) return res.status(400).send("No such data period.");
+  const hosts = data.calculation.hosts;
+  const myCalculation = {
+    hosts: {}
+  };
+  for (let [game, values] of Object.entries(hosts)) {
+    if (hosts[game].total) {
+      if (!hosts[game].total[req.user.nickname]) continue;
+    }
+
+    myCalculation.hosts[game] = {};
+    if (values.total) {
+      myCalculation.hosts[game].gameValue = values.gameValue;
+      myCalculation.hosts[game].total = {};
+      myCalculation.hosts[game].total[req.user.nickname] = values.total[req.user.nickname];
+    } else {
+      myCalculation.hosts[game][req.user.nickname] = values[req.user.nickname];
+    }
+  }
+
+  data.calculation = myCalculation;
+  res.send(data);
+});
+
+router.get("/:date", auth, validateAccess("admin"), async (req, res) => {
+  const data = await Data.findOne({
+    date: req.params.date
+  });
+
+  if (!data) return res.status(400).send("No such data period.");
 
   res.send({
     data,

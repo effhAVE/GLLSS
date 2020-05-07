@@ -97,7 +97,7 @@ router.post("/forgot-password", async (req, res) => {
     template: "password-reset",
     subject: "GLLSS - Password reset",
     context: {
-      url: "https://www.gllss.grzegorz-kowalczyk.eu/password-reset?token=" + token,
+      url: "https://www.gllss.eu/password-reset?token=" + token,
       name: user.nickname
     }
   };

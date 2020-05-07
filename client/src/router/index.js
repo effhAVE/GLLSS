@@ -9,6 +9,7 @@ import Register from '../views/Register.vue'
 import Calendar from '../views/Calendar.vue'
 import Schedule from '../views/Schedule.vue'
 import Teamkills from '../views/Teamkills.vue'
+import AboutMe from '../views/AboutMe.vue'
 import Data from '../views/Data.vue'
 import DataMonthPage from '../views/generic/DataMonthPage.vue'
 import Series from '../views/Series.vue'
@@ -43,6 +44,11 @@ const routes = [{
       requiresAuth: true,
       requiredRole: "host"
     }
+  },
+  {
+    path: "/aboutme",
+    name: "About me",
+    component: AboutMe
   },
   {
     path: "/schedule",

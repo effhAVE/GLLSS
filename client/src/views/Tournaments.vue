@@ -18,11 +18,16 @@
     <v-card-title>
       Tournaments
     </v-card-title>
+    <v-switch
+      v-model="showPastTournaments"
+      label="Show past tournaments"
+      color="accent"
+    ></v-switch>
     <ActiveTournaments
       :user="user"
       @availabilityChange="onAvailabilityChange"
     />
-    <PastTournaments :user="user" />
+    <PastTournaments :user="user" v-show="showPastTournaments" />
   </v-card>
 </template>
 
@@ -40,7 +45,8 @@ export default {
   },
   data() {
     return {
-      availableQueue: []
+      availableQueue: [],
+      showPastTournaments: false
     };
   },
   methods: {

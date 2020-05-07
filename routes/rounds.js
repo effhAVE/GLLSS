@@ -77,6 +77,26 @@ router.delete("/:rid", auth, validateAccess("admin"), validateObjectId, async (r
 
   const round = tournament.rounds.id(req.params.rid);
   if (!round) return res.status(400).send("No round found.");
+  const otherRounds = tournament.rounds.filter(roundObject => roundObject._id !== round._id);
+
+  [round.hosts, round.teamLeads].forEach(array => {
+    for (const hostObject of array) {
+      (async function() {
+        for (const round of otherRounds) {
+          if (round.hosts.some(host => host.host.equals(hostObject.host)) || round.teamLeads.some(TL => TL.host.equals(hostObject.host))) return;
+        }
+
+        await User.findByIdAndUpdate(hostObject.host, {
+            "$pull": {
+              "tournamentsHosted": tournament._id
+            }
+          }, {
+            new: true
+          })
+          .exec((error, data) => data);
+      })();
+    };
+  });
 
   await round.remove();
   await tournament.save();
@@ -137,9 +157,6 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
     });
 
     excluded.forEach(async hostObject => {
-      for (const round of tournament.rounds) {
-        if (round.hosts.some(hostObj => hostObj.host.equals(req.user._id))) return;
-      }
       await User.findByIdAndUpdate(hostObject, {
           "$pull": {
             "tournamentsHosted": tournament._id
@@ -215,9 +232,6 @@ router.put("/", auth, validateAccess("teamleader"), validateObjectId, async (req
       });
 
       excluded.forEach(async hostObject => {
-        for (const round of tournament.rounds) {
-          if (round.hosts.some(hostObj => hostObj.host.equals(req.user._id))) return;
-        }
         await User.findByIdAndUpdate(hostObject, {
             "$pull": {
               "tournamentsHosted": tournament._id

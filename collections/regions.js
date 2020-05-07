@@ -57,5 +57,9 @@ module.exports = [{
   {
     name: "NA",
     offset: -4
+  },
+  {
+    name: "SEA",
+    offset: 8
   }
 ];

@@ -26,6 +26,7 @@ export default {
       this.$http
         .post(`${APIURL}/auth/forgot-password`, { email: email })
         .then(response => {
+          if (response.status >= 400) throw new Error(response.data);
           this.$store.commit("snackbarMessage", {
             message: "Email sent!",
             type: "success"
@@ -35,7 +36,7 @@ export default {
         })
         .catch(error => {
           this.$store.commit("snackbarMessage", {
-            message: "Error while sending email.",
+            message: error,
             type: "error"
           });
         });

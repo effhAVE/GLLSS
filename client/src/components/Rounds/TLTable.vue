@@ -8,7 +8,7 @@
     no-data-text="No team leads set."
   >
     <template v-slot:item.teamLeads="{ item }">
-      <v-menu bottom left offset-y>
+      <v-menu bottom left offset-y max-height="300px">
         <template v-slot:activator="{ on }">
           <div class="px-4" v-on="on">
             <v-btn
@@ -120,7 +120,7 @@
       </v-menu>
     </template>
     <template v-slot:body.append v-if="user.roles.includes('teamleader')">
-      <v-menu bottom left>
+      <v-menu bottom left max-height="300px">
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" color="success" width="100%">
             <v-icon>mdi-plus</v-icon>

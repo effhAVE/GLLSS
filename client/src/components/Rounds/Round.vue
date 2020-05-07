@@ -1,5 +1,5 @@
 <template>
-  <v-card color="transparent" width="25%" raised>
+  <v-card color="transparent" width="22%" raised>
     <div class="secondary">
       <v-card-title>
         {{ round.name }}
@@ -49,8 +49,9 @@
         </v-dialog>
       </v-card-title>
       <v-card-subtitle>
-        start: {{ round.startDate | moment("MMMM DD, YYYY HH:mm") }} <br />
-        end: {{ round.endDate | moment("MMMM DD, YYYY HH:mm") }}
+        Start: {{ round.startDate | moment("MMMM DD, YYYY HH:mm") }} <br />
+        End: {{ round.endDate | moment("MMMM DD, YYYY HH:mm") }} <br />
+        Preparation time: {{ round.prepTime }} minutes
       </v-card-subtitle>
     </div>
     <v-card-text>

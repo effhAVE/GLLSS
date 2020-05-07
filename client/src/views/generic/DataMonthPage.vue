@@ -33,7 +33,7 @@
       <v-tab>
         Games summary
       </v-tab>
-      <v-tab>
+      <v-tab v-if="user.roles.includes('admin')">
         Stats
       </v-tab>
     </v-tabs>
@@ -314,23 +314,42 @@ export default {
   methods: {
     getData(date) {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http
-        .get(`${APIURL}/data/${date}`)
-        .then(response => {
-          this.dataObject = response.data.data;
-          if (!this.dataObject.calculation) return;
-          const {
-            ["summary"]: _,
-            ...games
-          } = this.dataObject.calculation.hosts;
+      if (this.user.roles.includes("admin")) {
+        this.$http
+          .get(`${APIURL}/data/${date}`)
+          .then(response => {
+            this.dataObject = response.data.data;
+            if (!this.dataObject.calculation) return;
+            const {
+              ["summary"]: _,
+              ...games
+            } = this.dataObject.calculation.hosts;
 
-          this.gameSpecificValues = games;
-        })
-        .catch(error => {
-          if (error.response.status === 400) {
-            this.$router.push("/notfound");
-          }
-        });
+            this.gameSpecificValues = games;
+          })
+          .catch(error => {
+            if (error.response.status === 400) {
+              this.$router.push("/notfound");
+            }
+          });
+      } else {
+        this.$http
+          .get(`${APIURL}/data/${date}/my`)
+          .then(response => {
+            this.dataObject = response.data;
+            if (!this.dataObject.calculation) return;
+            const {
+              ["summary"]: _,
+              ...games
+            } = this.dataObject.calculation.hosts;
+            this.gameSpecificValues = games;
+          })
+          .catch(error => {
+            if (error.response.status === 400) {
+              this.$router.push("/notfound");
+            }
+          });
+      }
     },
     recalculate(values) {
       const APIURL = process.env.VUE_APP_APIURL;

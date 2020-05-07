@@ -100,7 +100,7 @@
         :user="user"
         :usersAvailable="usersAvailable"
         ref="round"
-        class="mt-12 mr-12"
+        class="mt-12 mx-4"
         @roundChanged="changedRounds.push($event)"
       />
     </div>

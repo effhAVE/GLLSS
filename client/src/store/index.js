@@ -46,6 +46,7 @@ export default new Vuex.Store({
     logout(state) {
       state.status = "";
       state.token = "";
+      clearInterval(state.tokenTimer);
       state.tokenTimer = null;
     },
     snackbarMessage(state, {

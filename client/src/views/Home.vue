@@ -202,6 +202,11 @@
                 >Accounts in use</a
               >
             </li>
+            <li>
+              <a href="https://forms.gle/CSvPYkJb2dL8XeJ97"
+                >Application form for Casters</a
+              >
+            </li>
           </ul>
           <div v-if="user.roles.includes('teamleader')">
             <h4 class="subtitle">Teamleaders:</h4>
@@ -222,6 +227,12 @@
                 <a
                   href="https://docs.google.com/spreadsheets/d/1fArbNdRzg-RcLdR2JJqmD3_1Z2p5pYxIT1FnvpuXy-M/edit?usp=sharing"
                   >Team Lead Schedule
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://docs.google.com/spreadsheets/d/1VGbRvQH0Gwsj3J4QrmAuvD70FnvT0UWN0Zv46YnXCEo/edit#gid=0"
+                  >List of Approved Casters
                 </a>
               </li>
             </ul>
