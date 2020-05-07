@@ -258,61 +258,62 @@ On the top there is a checkbox to Show Past Tournaments. By default it is turned
 ![Past Tournaments](https://i.imgur.com/mB3PfMI.png)
 
 ### Teamleader
-TeamLeader is a role above Host. TeamLeader takes care of running tournaments smooth, preparing tournaments and taking support. There are not many differences between host and teamleader when it comes to application. Main difference is to be able to schedule people. Only changes between host and teamlead will be shown. 
+Teamleader is a role above Host. Teamleader takes care of running tournaments smoothly, preparing them and taking support. There are not many differences between a host and a teamleader when it comes to the application. The main difference is being able to schedule people. Only the changes between hosts and teamleads will be shown. 
 
 ![Menu Items](https://i.imgur.com/73LvAyD.png)
 
 #### Overview 
-Difference here is that Useful Links now contains some more links for Teamleaders. TeamLeaders as well have to check-in before, so even hosts can see that teamleader is ready. 
+**Useful Links** now contains links for Teamleaders. Teamleaders also have to check-in before a tournament, so even hosts can see that teamleader is ready. 
 
 ![Useful Links TL](https://i.imgur.com/LXz3Mgu.png)
 
 #### Tournaments - Specific Tournament 
-First changes comes in specific tournaments, where teamleader can now add/remove hosts/leads from the rounds. 
+The first difference in Tournament Page is that teamleaders can add/remove hosts/leads from the rounds. 
 
 ![Tournaments - Hosts/TLs](https://i.imgur.com/LoGUli8.png)
 
-As can be seen, now it looks a little different. Left button with skull next to the host will remove the host from the round. Green button will show you possibility to add a person or lead which selected their availability for the tournament. If there is no one available message No available host will show, if choosing for teamleaders No available teamleaders. You can as well click on any user which is already selected to replace the user with another user from availability list. 
+As you can see, now it looks a little different. A button on the left to the host with a skull icon will remove the host from the round. Green button will allow you to add a person or a teamleader who selected their availability for the particular tournament. If there is no one available a message "No available hosts" will show or alternatively "No available teamleaders". You can also click on any user which is already selected which allows you to replace him with another user from availability list. 
 
 ![Tournaments - Hosts/TLs - changes](https://i.imgur.com/MJBiohj.png)
 
-Last thing which is possible here is to click on pencil, here you can change if person did loose hosting or had a difference in rounds so you can add or remove rounds. If it is a teamleader you are adding or removing amount of time.
+Last thing which is possible here is to click on a pencil icon. Here you can change values for the specific user. Keep in mind editing teamleaders may show you different fields.
 
 ![Choosing Hosts](https://i.imgur.com/91rC8XI.png) ![Pencil](https://i.imgur.com/5SBwTlE.png) ![Pencil - TLs](https://i.imgur.com/2JqA3Y4.png)
 
 ![Round balance](https://i.imgur.com/ZqrRqMZ.png) ![Lost Hosting](https://i.imgur.com/lCmjn3v.png)
 
-If you do any changes you will need to confirm it by prompt notification on bottom right to Save the changes. 
+If you do any changes you need to confirm them by pressing a button on bottom right. 
 
 ![Confirm changes](https://i.imgur.com/HKzyp4t.png)
 
-When it comes to availability, if host choose that it is available then it will appear only in Hosts, but if teamleader will choose availability, can be chosen both as host or teamlead, but if choosing one of those, then it cannot be chosen for second role. You either host or if you lead, you can host as well, but cannot be counted as extra. Sometimes it can happen, that at the end you needed someone who had not availability choosen, so for past tournaments, you can choose any host/teamleader either for hosting or leading. 
+When it comes to availability if a host chose that he/she is available then they appear only as available in Hosts, but if a teamleader did it they can be chosen both as a host and as a teamlead but only one at the time. 
+
+Sometimes it can happen that at the end you needed someone who hadn't selected his availability so for the past tournaments you can choose any host/teamleader.
 
 ![Choosing in past Tournaments](https://i.imgur.com/z0xsj0e.png)
 
 #### Schedule
-This is a new item for teamleaders. The purpose of schedule is to make a compact way of schedulling people around as either hosts or Teamleas. Basic Overview is similar Overviews as Calendar, but now you have possibilities as in Tournaments so you can add/remove, edit Round Balance/Time Balance, and so on. 
+This is a new menu item for teamleaders. The purpose of the Schedule is to have a compact way of scheduling people. Overview looks similar to the Calendar but with possibilities as in Tournaments, meaning you can add/remove, edit Round Balance/Time Balance and so on. 
 
 ![Schedule Overview](https://i.imgur.com/fItOrX7.png)
 
-As can be seen it looks very similar to calendar, but with editing features. You can choose All or any game as you want. Round overview is exactly the same as in Calendar and Editing has all the features as in Tournaments.
-Selecting a week now, has only 3 options and those are Current/Previous or Next. It is because when it comes to schedulling those 3 weeks are most important for changes. Previous week is there to check that everything was done properly, but should not have changes to be done. Current week can change based on hosts needed and Next week is there to schedule people for next week.
+You can choose All or any game as you want. Selecting a week has only 3 options and those are Current (default), Previous or Next. It is because when it comes to scheduling those 3 weeks are the most important for changes. Previous week is there to check that everything was done properly but should not have any changes. Current week can change based on hosts needed and Next week is there to schedule people for next week.
 
 ![Select week](https://i.imgur.com/G3ktFlW.png)
 
-To determine, who is available at which time, you can click on yellow Availability icon on bottom left. which will show all the hosts and leads with their availability. Availability will not show if person is already selected for hosting/leading. From this overview you can easier determine, how you want to put hosts around. 
+To determine who is available at which time you can click on a yellow icon on bottom left which will show all the hosts and leads with their availability. Availability will not show if a person is already selected for hosting/leading.
 
 ![Availability Table](https://i.imgur.com/uydjs7F.png)
 
-On the top you can see Tournament Names, and then Rounds. Hosts/Leads are ordered by alphabetical order. **X** stands for available. Tournaments are ordered in the same way, how they are showned on Schedule site page. Availability Table will be displayed based on week selected. 
+On the top you can see Tournament names, and then Rounds. Hosts/Leads are ordered by alphabetical order. **X** stands for available. Tournaments are ordered in the same way how they are shown on the Schedule page. Availability Table will be displayed based on the week selected. 
 
-Last Part in this is another Tab called **Balance** as can be seen on picture below.
+The last part in this is another Tab called **Balance** as can be seen in the picture below.
 
 ![Balance](https://i.imgur.com/NUIOWlM.png)
 
-Balance will show as Availabity table for week selected. It is divided into games, because hosts are being balanced per game individually. Current week value is computed as how many times person in teh current week is selected and timed with Best of per round where person is selected. So if computing Value for Apex is 40 and Round is Best Of 8, then total value is 8*40 = 320. Rounds which are in Tournaments, which have property of Not Counted by Rounds off, are not counted in this balance. Those tournaments are special and are added as extra.
+Balance is divided into games because hosts are being balanced per game individually. Current week value is computed by how many times a person is selected in the current week and multiplied by Best of in rounds where the person is selected. So if calculation value for Apex is 40 and a Round is Best Of 8, then total value is 8*40 = 320. Rounds of Tournaments which have a property of Counted by Rounds set to false are not counted in this balance. Those tournaments are special and are added as extra.
 
-Lost Hosting is a value where person did lost hosting, so he can be compensated. Lost Hosting is from previous week. Because if you loose hosting this week, then you cannot be compensated this week, since schedule is being done for whole next week. Lost hosting happens if person was ready, but unfortunately group he was supposed to host, did not happen. Then teamleader can mark the person who lost hosting by checking lost hosting property and the amount which would be computed goes to next week lost hosting to be compensated.
+Lost Hosting is a value where a person lost hosting so he can be compensated. Lost Hosting is only from the previous week. Lost hosting happens if the person was ready but unfortunately the group he was supposed to host did not happen. A teamleader can mark the person who lost hosting by checking lost hosting property and the amount which would be computed goes to the next week as Lost Hosting.
 
 Difference is computed as `Current week value - Lost Hosting (from previous week)`.
 
