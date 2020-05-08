@@ -65,7 +65,7 @@ export default {
     relativeWeek() {
       return this.$moment(this.selectedWeek)
         .startOf("isoWeek")
-        .diff(this.$moment(), "weeks");
+        .diff(this.$moment().startOf("isoWeek"), "weeks");
     }
   },
   methods: {
