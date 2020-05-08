@@ -97,7 +97,10 @@ Now to specify each of the fields of the tournament
 - Start date - It is a start date and time of the tournament. Displayed in your local time.
 - End date - It is an end date and time of the tournament. Displayed in your local time.
 
-**Search** field allows you to filter upcoming tournaments. You can either type some string from the tournament or specify the game by typing game name.
+**Search** field allows you to filter upcoming tournaments. You can either type some string from the tournament or specify the game by typing game name. To see tournaments of one game only, you should click on **Load more** until you can see all the tournaments. Type after the game and you will see only selected games as on picture below.
+
+![Selected View](https://i.imgur.com/p0LZzPW.png)
+
 If you click anywhere except Tournament name on the table row, the tournament row will show its rounds as well and you will be able to see slightly more detailed information of Rounds.
 
 ![Rounds in OverView](https://i.imgur.com/PbgmdRh.png)
