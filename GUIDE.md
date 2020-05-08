@@ -48,6 +48,11 @@ If you forget your password you can click on **forgot your password?** from the 
 
 If you fill it up, you will get a message that the password was changed and you can log in using a new password. 
 
+#### hAVE Page
+A self explanatory site about the developer of the applicattion with his information and a beautiful photo.
+
+![hAVE Page](https://i.imgur.com/rlL6jq1.png)
+
 ### Host
 Host is a person who is hosting games. From the schedule host knows on which game and when he needs to be here. To become a host, you have to be confirmed by one of the admins. If you had been confirmed, you will have to relog to the page to see the changes. As a host you will finally see a menu of items and we will go through all of them.
 
@@ -61,22 +66,26 @@ Whenever you are on any page, you can toggle the menu items by clicking the menu
 Hosting Guide is a step by step guide for hosts about how to host each game individually. It is a link to a Google document. The plan is to move the guide to be editable onto the page. 
 
 #### Teamkills Script
-It is a script which looks at the Teamkill Value of PUBG games through their API. GLL site does not have the teamkills fixed while scoring through API and this is an easy tool to correct the teamkills if there are any. The script will always show the right amount of kills that a person should have. To make it work you have to paste the full match ID from PUBG and click search. 
+It is a script which looks at the Teamkill Value of PUBG games through their API. GLL site does not have the teamkills fixed while scoring through API and this is an easy tool to correct the teamkills if there are any. The script will always show the right amount of kills that a person should have, if the person has a teamkill. To make it work you have to paste the full match ID from PUBG and click search. You can alternatively press Enter too.
 
 ![TeamKills Script](https://i.imgur.com/jMxJB0j.png)
+
+If you will paste an incorrect or outdated Match ID, error message will appear.
+
+![TeamKills Script Error](https://i.imgur.com/w65Bh10.png)
 
 #### Tournaments - Overview
 This is where we start with main functionalities of the site. As the host you want to host specific tournaments, and on this page you have all the upcoming/running tournaments and past tournaments. It looks like in the picture and we will go through each point. 
 
-![Tournament Overview](https://i.imgur.com/xQ9ME3s.png)
+![Tournament Overview](https://i.imgur.com/92QQtvb.png)
 
 **Active Tournaments** are all the tournaments which did not end yet. They are sorted by default by their start date.
-**Past Tournament** are all the tournaments which end time is already in the past. They are sorted by the end time. A tournament which ended most recently will be on top. 
+**Past Tournament** are all the tournaments which end time is already in the past. They are sorted by the end time. A tournament which ended most recently will be on top. To show past tournaments click on the button **Show Past tournaments**. By default this button is off.
 If you would like to use another sorting, you can order Active or Past tournaments by clicking on the Game/Start date or End date. If you click on Game Tournaments will be ordered the same way, but bundled by game first. 
 
 ![Game ordering](https://i.imgur.com/RoZUw4O.png)
 
-By default there are only 10 tournaments shown. To load more, there is a Load more button on the bottom to load 10 more tournaments. 
+By default there are only 15 tournaments shown. To load more, there is a Load more button on the bottom to load 10 more tournaments. 
 
 ![Load More Button](https://i.imgur.com/AnNj8DU.png)
 
@@ -126,9 +135,9 @@ To specify additional fields.
 
 Second part of the tournaments is its Round View.
 
-![Tournament Round View](https://i.imgur.com/goTeVhh.png)
+![Tournament Round View](https://i.imgur.com/10EeMDk.png)
 
-On the top there is specified name of the round and its start and end dates. Then you can see selected hosts/teamleads and icons next to it. On the bottom there is displayed best of. 
+On the top there is specified name of the round and its start and end dates. Next field **Preparation time** specifies amount of time team leader have to spend to prepare the tournament. Then you can see selected hosts/teamleads and icons next to it. On the bottom there is displayed best of. 
 Icons can be:
 - Green - Person pressed Ready
 - Red - Person did not press Ready
@@ -193,22 +202,22 @@ This section is to display total values for Hosting/Leading, additional stats pe
 
 ![Month Period](https://i.imgur.com/eNvjise.png)
 
-After choosing a month, Data for specific month is shown. To determine which round goes to which month:
+After choosing a month, Data for specific month for a user is shown. To determine which round goes to which month:
 It takes into consideration Tournament Round Local Start date and puts it accordingly in that month. Some tournaments have additional property which regulates if the whole tournament is counted by Round Tournament Local Start Time or every round belongs to the month tournaments ends.
 
 Data consist of several Parts:
 - Overview
-  - User - Display Users in alphabetical order.
+  - User - Display users, where it will show only you, if you are Host/Team Lead.
   - Games Hosted - Number of total Games Hosted per user. Games Hosted are counted as how many rounds a person hosted. Round balance is considered here and added.
   - Host Value - Based on Games Hosted and value per game hosted, total value is calculated. More can be seen on other tabs, this is a total amount of all games hosted together.
   - Teamlead Time - Total amount of time per Teamlead in minutes spent. This is computed based on how much time did leader have to spend when leading a tournament or tournaments. If leading several tournaments at the same time some are excluded since it is looking into possible collisions of times where Time Balance and Preparation Time for Teamleaders is considered. Preparation time is a value for the round in minutes, which teamleader has to prepare before tournament starts. To specify the timeframe, as a first value Preparation Time is taken, then duration of round and in the end Time Balance. Then all timeframes are looked at with possible collision and if there is a collision it is not counted towards total time. 
   - Teamlead Value - It is the total amount of expenses per user for Leading based on Teamlead Time. 
   - Total Value - Sum of the Host value and Teamlead value per user. It is translated as total amount of expenses which person will earn or has earned. 
   
-  ![Data Overview](https://i.imgur.com/veGHCwm.png)
+  ![Data Overview](https://i.imgur.com/J54aeFA.png)
 
 - Games Summary - summary per user per specific game, Overview is a sum of all games summaries.
-  - User - Display Users in alphabetical order.
+  - User - Display users, where it will show only you, if you are Host/Team Lead.
   - Games Hosted - Number of Games Hosted per user per Game.
   - Host Value - Amount of expenses per user based on Games Hosted multiplied by Game Value.
   - Teamlead Time - Amount of Lead Time per user.
@@ -216,34 +225,7 @@ Data consist of several Parts:
   - Total Value - Sum of the Host value and Teamlead value per user.
   - Game Value - Can be seen on the bottom, it is the multiplier per Game Hosted of the specific Game.
   
-  ![Games Summary](https://i.imgur.com/kHMKykC.png)
-
-- Stats - These are total stats of the month:
-  - Regions - Total stats per Regions.
-    - Region - Name of the Region.
-    - Games Hosted - Number of games hosted in specific regions from all the games.
-    - Total Value - Total amount per Region by games hosted. 
-
-  ![Stats Regions](https://i.imgur.com/gbJFpbh.png)
-  
-  - Games - Total Stats per Game.
-    - Game - Game name.
-    - Region | Games Hosted - Particular Regions and total number of Games Hosted per Region.
-    - Games Hosted - Total number of Games Hosted .
-    - Teamlead Time - Total Amount of Time per Game.
-    - Hosting Value - Total Amount of expenses needed for hosting per game.
-    - Teamlead Value - Total Amount of expenses needed for leading per game.
-    - Total Value - Counts both Hosting Value and Teamlead Value. So it is the total amount of expenses per Game needed.
-
-  ![Stats Games](https://i.imgur.com/459sTwG.png)
-  
-  - Total - Summing all games together.
-    - Games Hosted - All games hosted in the particular month.
-    - Hosting - Total amount of costs needed for hosting.
-    - Leading - Total amount of costs needed for leading.
-    - Total - Summing both hosting and leading.
-
-  ![Stats Total](https://i.imgur.com/IPUkhLW.png)
+  ![Games Summary](https://i.imgur.com/nB5N1N7.png)
     
 #### Overview 
 The last part for the host is the Overview where the user can see what he/she is going to host or lead. There are some useful links, which are commonly used. 
@@ -272,9 +254,9 @@ The first difference in Tournament Page is that teamleaders can add/remove hosts
 
 ![Tournaments - Hosts/TLs](https://i.imgur.com/LoGUli8.png)
 
-As you can see, now it looks a little different. A button on the left to the host with a skull icon will remove the host from the round. Green button will allow you to add a person or a teamleader who selected their availability for the particular tournament. If there is no one available a message "No available hosts" will show or alternatively "No available teamleaders". You can also click on any user which is already selected which allows you to replace him with another user from availability list. 
+As you can see, now it looks a little different. A button on the left to the host with a skull icon will remove the host from the round. Green button will allow you to add a person or a teamleader who selected their availability for the particular tournament. If there is no one available a message "No available hosts" will show or alternatively "No available teamleaders". You can also click on any user which is already selected which allows you to replace him with another user from the availability list. Availability list is ordered alphabetically.
 
-![Tournaments - Hosts/TLs - changes](https://i.imgur.com/MJBiohj.png)
+![Tournaments - Hosts/TLs - changes](https://i.imgur.com/PFR2B01.png)
 
 Last thing which is possible here is to click on a pencil icon. Here you can change values for the specific user. Keep in mind editing teamleaders may show you different fields.
 
@@ -288,9 +270,9 @@ If you do any changes you need to confirm them by pressing a button on bottom ri
 
 When it comes to availability if a host chose that he/she is available then they appear only as available in Hosts, but if a teamleader did it they can be chosen both as a host and as a teamlead but only one at the time. 
 
-Sometimes it can happen that at the end you needed someone who hadn't selected his availability so for the past tournaments you can choose any host/teamleader.
+Sometimes it can happen that at the end you needed someone who hadn't selected his availability so for the past tournaments you can choose any host/teamleader. 
 
-![Choosing in past Tournaments](https://i.imgur.com/z0xsj0e.png)
+![Choosing in past Tournaments](https://i.imgur.com/AcR87gx.png)
 
 #### Schedule
 This is a new menu item for teamleaders. The purpose of the Schedule is to have a compact way of scheduling people. Overview looks similar to the Calendar but with possibilities as in Tournaments, meaning you can add/remove, edit Round Balance/Time Balance and so on. 
@@ -318,13 +300,13 @@ Lost Hosting is a value where a person lost hosting so he can be compensated. Lo
 Difference is computed as `Current week value - Lost Hosting (from previous week)`.
 
 ### Admin
-Admin is a role above the teamlead. It is a user which has more right now and access as well for changing tournaments, rounds or users. User is responsible for correctness of these information before teamleaders and hosts have access to them. Menu items now include Admin, which have several subitems.
+Admin is a role above the teamlead. It is a user which has more rights and access for changing tournaments, rounds or users. Admin is responsible for correctness of these information before teamleaders and hosts have access to them. Menu items now include Admin panel, which have several subitems.
 
 ![Admin ](https://i.imgur.com/PyqxrOb.png)
 
 #### Admin - Confirm Users
-On this page you as an admin can confirm new registered user, who are first as a guest, confirming them will put them a host role. By confirming, you have to select users you want to confirm and then click on **Confirm Selected**. Panel consists of:
-- Nickname - nickname person did use
+On this page you as an admin can confirm new registered user, who are first as a guest. Confirming them will put them a host role. By confirming, you have to select users you want to confirm and then click on **Confirm Selected**. Panel consists of:
+- Nickname - nickname of the user
 - ID - unique ID generated for the user
 - Verified - if person did verify his/her email. 
 - Registration Date - Your local time, when person did register
@@ -334,21 +316,21 @@ You can order by any of the panel fields.
 ![Admin - Confirm Users](https://i.imgur.com/tI16eXX.png)
 
 #### Admin - Users
-Here you can see the list of all users, which are already registered and confirmed. You can promote another users from Host to Team Lead or vice versa. You can too demote users back to guest and after they will not be able to see anything on the page. All of the fields are having again possibility to order by clicking on them, so you can order by role for example. 
+Here you can see the list of all the users, which are already registered and confirmed. You can promote another users from Host to Team Lead or vice versa. You can too demote users back to guest and after, they will not be able to see anything on the page. All of the fields are having again possibility to order by clicking on them, so you can order by role for example. 
 
 ![Admin - Users](https://i.imgur.com/GqFH3J3.png)
 
-- Nickname - nickname person did use
+- Nickname - nickname of the user
 - ID - unique ID generated for the user
 - Registration Date - Your local time, when person did register
 - Verified - if person did verify his/her email. 
-- Role - Current role person has, you can click on it to change it as shown on picture below and role will update right away.
+- Role - Current role person has, you can click on it to change it as shown on the picture below and role will update right away.
 - Search - You can search either by name or ID
 
 ![Admin - Users - Roles](https://i.imgur.com/PrTHcmF.png)
 
 #### Admin - Create a data month
-This panel will allow you to create a new Data month for computing Data. You can click on calendar, select the month you want to create and then hit **Save**. To confirm and create it you have to hit **Save** again. It will automatically redirect you to Data page after. If you selected month, which is already created, nothing will happen. 
+This panel will allow you to create a new Data month for computing Data. You can click on calendar, select the month you want to create and then hit **Save**. To confirm and create it, you have to hit **Save** again. It will automatically redirect you to Data page after. If you selected month, which is already created, nothing will happen. 
 
 ![Admin - Create a data month](https://i.imgur.com/qbgUO0g.png) ![Admin - Create a data month -save](https://i.imgur.com/b85zS4m.png)
 
@@ -362,9 +344,9 @@ Here you can create a new series, which will be then added to other series. All 
 - End Date - End date of the series in UTC time. By default it will be set to one more year from the start date. You can click on it to edit it, end date has to be later than the start date. 
 - Game - List of available games. 
 - Region - List of available regions.
-- Recurrence - Can be daily or weekly and by choosing one of those 2, then names are generated based on different criterias which were already described before, but will be described here too.
+- Recurrence - Can be daily or weekly and by choosing one of those 2, names are generated based on different criterias which were already described before, but will be described here too.
 
-When choosing Start or End Date, Calendar will show up, where you have to first choose the date, then it will jump to an hour. Here make sure you are on correct time by AM or PM on bottom right and left. After hour is selected you can select minutes too. All the time here is displayed in UTC. So you need to take case when you are creating the tournament start and end date. Once you are ok with time, click on **Save**. If it saved, time will be shown on page in UTC time too. 
+When choosing Start or End Date, Calendar will show up, where you have to first choose the date, then it will jump to an hour. Here make sure you are on the correct time by AM or PM on bottom right and left. After hour is selected you can select minutes too. All the time here is displayed in UTC. So you need to take care when you are creating the tournament start and end date. Once you are ok with time, click on **Save**. If it saved, time will be shown on page in UTC time too. 
 
 ![Edit - Date](https://i.imgur.com/bcIK8slm.png) ![Edit - Hour](https://i.imgur.com/UwSE1PKm.png) ![Edit - Time](https://i.imgur.com/Oh5EKbwm.png)
 
@@ -372,34 +354,34 @@ Game list is a list of all available games at the moment, to specify it - PUBG, 
 
 ![List of Games](https://i.imgur.com/PrtMLC5.png)
 
-Recurrence can be either weekly or daily and based on what you choose then tournaments will be generated as follows:
+Recurrence can be either weekly or daily and based on what you choose, then tournaments will be generated as follows:
 - daily - Tournaments are happening several times in the week, the name of the tournaments then is generated as `#WN DDD Series Name` - where WN is Week Number and DDD day of the week in at first three letters
 - weekly - Tournaments happen at most once a week. The name is then generated as follows `#WN Series Name` - where WN is a week number.
 
 ![List of Recurrence](https://i.imgur.com/sSAS6MO.png)
 
-Region is to choose a region in which tournament is held in. Each region has its own UTC Offset too, as an example Americas Region has the UTC offset of value -4 . This offset is really important to determine the tournament and then as well rounds in the tournament, in which counting day they are happening. Even if Americas would start past midnight UTC on Monday, so UTC time would be Tuesday, because of that offset they will still be displayed in Monday and counted on the date of Monday.
+Region is to choose a region in which tournament is held in. Each region has its own UTC Offset too, as an example Americas Region has the UTC offset of value -4 . This offset is really important to determine the tournament and rounds in the tournament, in which counting day they are happening. Even if Americas would start past midnight UTC on Monday, as UTC time would be Tuesday, they will still be displayed in Monday and counted on the date of Monday, because of the offset.
 
 ![List of Regions](https://i.imgur.com/PFeehQ2.png)
 
-At the end name has to be specified too. And once all is selected, then as an example this is how the series can be called. Only thing left to do is hitting the **Save** button and you will be redirected to series page. 
+At the end name has to be specified too. And once all is selected, then as an example this is how the series can be called. Only thing left to do is hitting the **Save** button and you will be redirected to the series page. 
 
 ![Series - Example](https://i.imgur.com/wMc15Z2.png)
 
 #### Admin - Create a tournament
-Here you can create a new tournament, which will be then added to other tournaments. All the fields will have to be filled except the Admin Page URL, which does not need to be filled, if the tournament is not yet on admin page, but it is known to happen and official for hosts to be created. Fields works the same as in Series creation, so only difference will be explained.
+Here you can create a new tournament, which will be then added to the other tournaments. All the fields will have to be filled except the Admin Page URL, which does not need to be filled, if the tournament is not yet on admin page, but it is known to happen and official for hosts to be created. Fields work the same as in the Series creation, so only difference will be explained.
 
 ![Create a tournament](https://i.imgur.com/GJR7MXf.png)
 
 - Name - This is the name of the tournament. 
-- Series - List of Series. They are ordered by creation, where latest one will be on the bottom. 
+- Series - List of the Series. They are ordered by creation, where latest one will be on the bottom. 
 - Start Date - Start date of the tournament in UTC time. By default it will show next full hour of the current date. You can click on it to edit it. 
-- End Date - End date of the ttournament in UTC time. By default it will be set to plus 8 hours from the start date. You can click on it to edit it, end date has to be later than the start date. 
+- End Date - End date of the tournament in UTC time. By default it will be set to plus 8 hours from the start date. You can click on it to edit it, end date has to be later than the start date. 
 - Game - List of available games. 
 - Region - List of available regions.
 - Counted by Rounds - This a parameter, which defines if each round of the tournament is counted by Tournament Round Local Start Date or every round will be counted by end time of the tournament. Some tournaments are considered as bigger projects and are paid after the project is finished. This only influences in which month it will count for Data. By default it will be selected, meaning each round will count by Tournament Round Local Start Date.
 
-If you select the series then Name, Game and Region will not be possible to edit, because those will be inherited from the series. 
+If you select the Series, then Name, Game and Region will not be possible to edit, because those will be inherited from the series. 
 
 ![Admin - Choosing Series](https://i.imgur.com/lAhibps.png)
 
@@ -408,15 +390,46 @@ So as an example of the tournament to be created can look like this in the pictu
 ![Admin - Tournaments example](https://i.imgur.com/cJ43NLL.png)
 
 #### Data
-In Data as an admin you have 2 more buttons on top right: **(Re)Calculate** and **Download Logs**. 
+As an admin, you have much more data to be displayed. As you can notice now, both Overview and Games summary displays all the users ordered in alphabetical order.
+
+![Data - Admin view](https://i.imgur.com/veGHCwm.png)
+
+Then you can see a completely new section called Stats, which are total stats of the selected month. Stats are divided into:
+  - Regions - Total stats per Regions.
+    - Region - Name of the Region.
+    - Games Hosted - Number of games hosted in specific regions from all the games.
+    - Total Value - Total amount per Region by games hosted. 
+
+  ![Stats Regions](https://i.imgur.com/gbJFpbh.png)
+  
+  - Games - Total Stats per Game.
+    - Game - Game name.
+    - Region | Games Hosted - Particular Regions and total number of Games Hosted per Region.
+    - Games Hosted - Total number of Games Hosted .
+    - Teamlead Time - Total Amount of Time per Game.
+    - Hosting Value - Total Amount of expenses needed for hosting per game.
+    - Teamlead Value - Total Amount of expenses needed for leading per game.
+    - Total Value - Counts both Hosting Value and Teamlead Value. So it is the total amount of expenses per Game needed.
+
+  ![Stats Games](https://i.imgur.com/459sTwG.png)
+  
+  - Total - Summing all games together.
+    - Games Hosted - All games hosted in the particular month.
+    - Hosting - Total amount of costs needed for hosting.
+    - Leading - Total amount of costs needed for leading.
+    - Total - Summing both hosting and leading.
+
+  ![Stats Total](https://i.imgur.com/IPUkhLW.png)
+
+In Data as an admin you have 2 buttons on the top right: **(Re)Calculate** and **Download Logs**. 
 
 ![Admin - Data buttons](https://i.imgur.com/bRPDqXF.png)
 
-Clicking on (Re)Calculate will open a window, where you can edit all the values per game and as well value for Teamleads. Value for Teamleads is the amount of expenses per one hour of work. And amount per Game is costs per 1 Round in specific game. Calculation does not happen automatically, so admin has to recalculate after each week when hosts did change or schedule per week is done. To confirm green button **Calculate** has to be pressed. Calculation can take up to few seconds. 
+Clicking on (Re)Calculate will open a window, where you can edit all the values per game and as well value for Teamleads. Value for Teamleads is the amount of expenses per one hour of work. And amount per Game are costs per 1 Round in specific game. Calculation does not happen automatically, so admin has to recalculate after each week when hosts did change or schedule per week is done. To confirm green button **Calculate** has to be pressed. Calculation can take few seconds. 
 
 ![Admin - Calculate](https://i.imgur.com/pNSDiak.png)
 
-After you do calculation, you can check the logs by downloading them and you can see step by step how calculation was done. You can see especially for teamleaders, how are collisions handled. Full explanation was already mentioned in Data part for Hosts, how the stuff is calculated. On the picture you can see small part of the log. 
+After you do calculation, you can check the logs by downloading them and you can see step by step, how calculation was done. You can see especially for teamleaders, how are collisions handled. Full explanation was already mentioned in Data part for Hosts, how the stuff is calculated. On the picture you can see small part of the log. 
 
 ![Admin - Logs](https://i.imgur.com/45kInI1.png)
 
@@ -425,7 +438,7 @@ In the series now, you will have option to Edit or delete the series. If you wil
 
 ![Series - buttons](https://i.imgur.com/64ZBZo5.png)
 
-Clicking on Edit Series will give you option to edit all the parameters for the series, when you had been creating them. Editin them will not change current series, but all the upcoming tournaments, which will be in that series. As a note, cannot be forgotten that Times are being edited in UTC time. 
+Clicking on **Edit Series** will give you option to edit all the parameters for the series, when you had been creating them. Editing them will not change current series, but all the upcoming tournaments, which will be in that series. As a note, you should not forget, that Times are being edited in UTC time. 
 
 ![Series - editing](https://i.imgur.com/RnXegWk.png)
 
@@ -435,45 +448,47 @@ Clicking on delete is only possible if the series have no tournaments in it. Oth
 ![Series - Cannot be deleted](https://i.imgur.com/UkqIa0H.png)
 
 #### Tournaments - Specific Tournament 
-In the specific tournaments now, you will have option to Edit or delete the tournament similar as in Series, but as well you will have one more button called **Add Round**
+In the specific tournaments now, you will have the option to Edit or delete the Tournament similar as in Series, but as well you will have one more button called **Add Round**.
 
 ![Tournaments - buttons](https://i.imgur.com/zp65GKa.png)
 
-Clicking on Edit will give you back to editinf the tournament. If the tournament is in series, then you can edit only parameters you could edit, when creating a tournament, but option to rename will be there now. If tournament is not in series, you can edit all the fields. Time is here displayed in UTC as in all editing stuff. 
+Clicking on Edit will return you back to editing the tournament. If the tournament is in the series, then you can edit only parameters you could edit, when creating a tournament and choosing a series, but option to rename will be there now. If the tournament is not in the series, you can edit all the fields. Time is here displayed in UTC as in all editing stuff. 
 
 ![Tournaments - Edit - Series](https://i.imgur.com/4HBC6Ntm.png) ![Tournaments - Edit - Non Series](https://i.imgur.com/F7fTfAIm.png)
 
-Deleting will now work any time and you will always get second prompt window before hitting delete button, because this action cannot be undone too. 
+Deleting will now work any time and you will always get a second prompt window before hitting delete button, because this action cannot be undone too. 
 
 ![Tournaments - Delete](https://i.imgur.com/e9h1pwz.png)
 
-If tournament has all the correct values then rounds needs to be added into the tournament. Clicking on Add Round button will show another window with these values:
-- Name - Name of the round.
-- Start Date: Start date of the round in UTC time. By dafault it will be start date of the tournament.
-- End Date: End date of the round in UTC time. By dafault it will be end date of the tournament.
-- Best Of: Amount of rounds played in specific round. Basically how many games a host will need to host. 
-- Preparation time: This is required time for TeamLeaders for the round to prepare the tournament before the start. If as an example there would be 30 as 30 minutes, that means that TeamLeader have to be here 30 mins before the start to prepare the tournament on GLL site and as well handle support before. This time is counted for computing the amount of expenses.
+If tournament has all the correct values then rounds needs to be added into the tournament. Clicking on an **Add Round** button will show another window with these values:
+- Name - Name of a round.
+- Start Date: Start date of the round in UTC time. By default it will be start date of the tournament.
+- End Date: End date of the round in UTC time. By default it will be end date of the tournament.
+- Best Of: Amount of rounds played in specific round, basically how many games a host will need to host. 
+- Preparation time: This is a required time for TeamLeaders for the round to prepare the tournament before the start. If as an example there would be 30 as 30 minutes, that means that TeamLeader have to be here 30 mins before the start of the tournament to prepare it on the GLL site and as well handle support before. This time is counted for computing the amount of expenses.
 
 ![Tournaments - Round Creation](https://i.imgur.com/uJsa0H7.png)
 
-If you click on Save button, round to the tournament will be added. If you will do new round, then rounds will get sorted by Start time of the rounds, even if you edit the round after, it will automatically sort them by start time. 
-By adding round to the tournament, Start date and End date of the tournament will adjust based on rounds automatically. So Start date of the tournament will be earliest start date of the Rounds and End date will be latest.
+If you click on **Save** button, round to the tournament will be added. If you will do new round, then rounds will get sorted by Start time of the rounds, even if you edit the round after, it will automatically sort them by start time. 
+By adding round to the tournament, Start date and End date of the tournament will adjust based on the rounds automatically. So Start date of the tournament will be earliest start date of the Rounds and End date will be latest.
 
-Once you crated rounds, you can see that above rounds there are 2 buttons - Pencil for editing and Trash can for deleting. 
+Once you create rounds, you can see that above rounds there are 2 buttons - Pencil for editing and Trash can for deleting. 
 
-![Rounds - buttons](https://i.imgur.com/ddl7cOY.png)
+![Rounds - buttons](https://i.imgur.com/RCWF19y.png)
 
-If you click on Pencil, you will get editing for round, where you can choose and edit all the properties again. 
+If you click on a Pencil, you will get editing for round, where you can choose and edit all the properties again. 
 
-![Rounds - editing](https://i.imgur.com/yPqjIm4.png)
+![Rounds - editing](https://i.imgur.com/gyZAjPr.png)
 
-Clicking on trash can will ask you, if you want to delete the Round from the database, this action cannot be undone.
+Clicking on a Trash can will ask you, if you want to delete the Round from the database, this action cannot be undone.
 
 ![Rounds - deleting](https://i.imgur.com/84QNYNk.png)
 
-As an admin you can edit for the users both hosts and leads in the tournament, if they are ready or not. This feature is not available for teamleaders, because they have to follow the same rules as hosts. So if it needs to be edited, it should be edited by an admin.
+As an admin you can edit for both hosts and team leaders in the tournament, if they are ready or not. This feature is not available for teamleaders, because they have to follow the same rules as hosts. So if it needs to be edited, it should be edited by an admin only.
 
 ![Rounds - Editing Ready](https://i.imgur.com/4XMXLBp.png)
 
 ### Masteradmin
-Masteradmin has not really that many changes. User with this role can delete other users or can promote them to an admin role on **Admin - Users** panel, where admin has no possibility to promote another user to admin role.
+Masteradmin has not really that many changes. User with this role can delete other users or can promote them to an admin/masteradmin role on **Admin - Users** panel, where admin has no possibility to promote another user to admin role.
+
+![Master admin options](https://i.imgur.com/iLZnESZ.png)
