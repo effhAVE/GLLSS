@@ -48,11 +48,6 @@ If you forget your password you can click on **forgot your password?** from the 
 
 If you fill it up, you will get a message that the password was changed and you can log in using a new password. 
 
-#### hAVE Page
-A self explanatory site about the developer of the applicattion with his information and a beautiful photo.
-
-![hAVE Page](https://i.imgur.com/rlL6jq1.png)
-
 ### Host
 Host is a person who is hosting games. From the schedule host knows on which game and when he needs to be here. To become a host, you have to be confirmed by one of the admins. If you had been confirmed, you will have to relog to the page to see the changes. As a host you will finally see a menu of items and we will go through all of them.
 
