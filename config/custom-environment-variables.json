@@ -1,4 +1,4 @@
 {
-  "jwtPrivateKey": "gll_jwtPrivateKey",
-  "db": "gll_db"
+  "jwtPrivateKey": "jwtPrivateKey",
+  "db": "DB"
 }
