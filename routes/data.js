@@ -501,11 +501,12 @@ router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) 
   }
 
   const sortedCalculation = sortKeysRecursive(calculation, {
-    compareFunction: (a, b) => a.toLowerCase() > b.toLowerCase()
+    compareFunction: (a, b) => a.toLowerCase().localeCompare(b.toLowerCase())
   });
 
   data.calculation = sortedCalculation;
   data.calcHash = data.generateCalcHash(calculation);
+  data.markModified("calculation");
   await data.save();
   const routeEndTime = new Date().getTime();
   logger.info(`Calculation hash: ${data.calcHash}`);
