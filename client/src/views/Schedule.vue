@@ -70,7 +70,7 @@ export default {
   data() {
     return {
       modal: false,
-      availableList: [],
+      availableList: {},
       selectedWeek: 0,
       weeks: [
         { text: "Current", value: 0 },
@@ -160,7 +160,12 @@ export default {
 </script>
 <style lang="scss">
 .availability-table table {
+  td {
+    padding: 0 4px;
+  }
+
   text-align: center;
+
   .fixed {
     position: absolute;
     left: auto;
@@ -171,9 +176,27 @@ export default {
     white-space: nowrap;
     overflow: hidden;
   }
-  td.has-border {
+
+  .has-border {
+    border: thin solid rgba(255, 255, 255, 0.13);
+  }
+
+  td.has-border-left:not(:first-of-type) {
     border-left: thin solid rgba(255, 255, 255, 0.13);
   }
+
+  .has-border-left-thick {
+    border-left-color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .has-border-thick {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .round-border {
+    border-top: thin solid rgba(255, 255, 255, 0.13);
+  }
+
   tr:last-of-type td {
     border-bottom: none !important;
   }

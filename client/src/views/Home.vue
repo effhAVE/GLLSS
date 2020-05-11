@@ -167,6 +167,11 @@
           <h3 class="title">Useful links</h3>
           <ul>
             <li>
+              <a href="https://github.com/effhAVE/GLLSS/blob/master/GUIDE.md"
+                >GLLSS Guide</a
+              >
+            </li>
+            <li>
               <a href="https://help.gll.gg/hc/en-us">GLL Support Site</a>
             </li>
             <li>

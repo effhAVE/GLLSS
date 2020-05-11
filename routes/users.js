@@ -93,7 +93,7 @@ router.get("/list", auth, validateAccess("teamleader"), async (req, res) => {
         $ne: "guest"
       }
     })
-    .select("nickname")
+    .select("nickname roles")
     .collation({
       locale: "en"
     })

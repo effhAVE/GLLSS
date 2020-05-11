@@ -93,6 +93,11 @@ router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
 router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, res) => {
   const tournament = await Tournament.findById(req.params.id).populate("rounds.hosts.host rounds.teamLeads.host rounds.available", "nickname roles");
   if (!tournament) return res.status(400).send("No tournament found.");
+  tournament.rounds.forEach(round => {
+    round.available.sort((a, b) =>
+      a.nickname.localeCompare(b.nickname)
+    );
+  });
   const isPast = moment(tournament.endDate).isBefore(new Date());
   res.send({
     tournament,

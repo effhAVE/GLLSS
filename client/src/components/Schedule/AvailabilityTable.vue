@@ -3,50 +3,119 @@
     <v-simple-table
       class="table-background not-editable availability-table"
       dense
-      v-if="availableList.length"
+      v-if="Object.values(availableList).length"
     >
       <tbody>
         <tr>
-          <th style="min-width: 150px">User</th>
+          <td style="min-width: 150px" class="pa-0 has-border has-border-thick">
+            <table class="text-right">
+              <tr>
+                <td>Day - Date</td>
+              </tr>
+              <tr>
+                <td>Game</td>
+              </tr>
+              <tr>
+                <td>
+                  <div>Time - hours</div>
+                  <div>Time - minutes</div>
+                  <div class="d-flex justify-space-between">
+                    <span>Name</span> <span>\</span> <span>Best of</span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+
           <td
-            v-for="tournamentObject in availableList"
-            :key="tournamentObject.tournament"
+            v-for="(dayObject, dayName) in availableList"
+            :key="dayName"
+            class="pa-0 has-border has-border-thick"
           >
             <tr>
-              <td :colspan="tournamentObject.rounds.length">
-                <div style="min-width: 200px">
-                  {{ tournamentObject.tournament }}
+              <td :colspan="Object.values(dayObject).length">
+                <div>
+                  {{ dayName }}
                 </div>
               </td>
             </tr>
             <tr>
               <td
-                v-for="round in tournamentObject.rounds"
-                :key="round.roundName"
+                v-for="(gameObject, gameName) in dayObject"
+                :key="gameName"
+                class="pa-0 has-border-left"
               >
-                {{ round.roundName }}
+                <tr>
+                  <td :colspan="Object.values(gameObject).length">
+                    <div
+                      :style="{
+                        maxWidth: 20 * Object.values(gameObject).length + 'px'
+                      }"
+                      class="oneline-text mx-auto"
+                    >
+                      {{ gameName }}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td
+                    v-for="(round, i) in gameObject"
+                    :key="i"
+                    class="has-border-left round-border"
+                  >
+                    <div>{{ round.start.split(" ")[0] }}</div>
+                    <div>{{ round.start.split(" ")[1] }}</div>
+                    <div>B{{ round.bestOf }}</div>
+                  </td>
+                </tr>
               </td>
             </tr>
           </td>
         </tr>
         <tr
-          v-for="user in usersList"
+          v-for="user in [...teamLeads, ...hosts]"
           :key="`AT${user._id}`"
           style="position: relative"
         >
-          <th class="fixed">{{ user.nickname }}</th>
+          <th
+            class="fixed"
+            :class="teamLeads.includes(user) ? 'blue--text' : ''"
+          >
+            {{ user.nickname }}
+          </th>
           <td
-            v-for="tournamentObject in availableList"
-            :key="tournamentObject.tournament"
-            class="has-border"
+            v-for="(dayObject, dayName) in availableList"
+            :key="dayName"
+            class="has-border-left has-border-left-thick pa-0"
           >
             <table style="table-layout: fixed; text-align: center">
               <tr>
                 <td
-                  v-for="round in tournamentObject.rounds"
-                  :key="round.roundName"
+                  v-for="(gameObject, gameName) in dayObject"
+                  :key="gameName"
+                  :colspan="gameObject.length"
+                  class="pa-0 has-border-left"
                 >
-                  <span v-if="round.available.includes(user.nickname)">X</span>
+                  <table style="table-layout: fixed; text-align: center">
+                    <tr>
+                      <td v-for="(round, i) in gameObject" :key="i">
+                        <span
+                          v-if="round.teamLeads.includes(user.nickname)"
+                          class="blue--text"
+                          >L</span
+                        >
+                        <span
+                          v-else-if="round.hosts.includes(user.nickname)"
+                          class="accent--text"
+                          >H</span
+                        >
+                        <span
+                          v-else-if="round.available.includes(user.nickname)"
+                          >X</span
+                        >
+                      </td>
+                    </tr>
+                  </table>
                 </td>
               </tr>
             </table>
@@ -60,19 +129,25 @@
 export default {
   props: {
     availableList: {
-      type: Array,
+      type: Object,
       required: true
     }
   },
   data() {
     return {
-      usersList: []
+      teamLeads: [],
+      hosts: []
     };
   },
   created() {
     const APIURL = process.env.VUE_APP_APIURL;
     this.$http.get(`${APIURL}/users/list`).then(response => {
-      this.usersList = response.data;
+      this.teamLeads = response.data.filter(
+        user => user.roles.includes("teamleader") && user.nickname !== "hAVE"
+      );
+      this.hosts = response.data.filter(
+        user => !user.roles.includes("teamleader") || user.nickname === "hAVE"
+      );
     });
   }
 };

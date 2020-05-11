@@ -60,10 +60,7 @@ router.get("/", auth, validateAccess("host"), validateObjectId, async (req, res)
 });
 
 router.get("/:rid", auth, validateAccess("host"), validateObjectId, async (req, res) => {
-  const tournament = await Tournament.findById(req.params.id).populate({
-    path: "rounds.hosts",
-    select: "name"
-  });
+  const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return res.status(400).send("No tournament found.");
 
   const round = tournament.rounds.id(req.params.rid);

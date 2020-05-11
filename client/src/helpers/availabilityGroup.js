@@ -1,20 +1,35 @@
-export default function(array) {
-  return Object.values(array.reduce((result, {
-    round,
-    tournament,
-    names
-  }) => {
-    if (!result[tournament]) result[tournament] = {
-      tournament,
-      rounds: []
-    };
+import moment from "moment"
 
-    result[tournament].rounds.push({
-      roundName: round,
-      available: names
+export default function(array, week) {
+  let result = {};
+  console.log(result);
+  week = moment().add(week, "weeks").startOf("isoWeek").isoWeek();
+  for (let i = 0; i < 7; i++) {
+    result[moment().day("Monday").week(week).add(i, "days").format("DD MMMM")] = {};
+  }
+
+  return array.reduce((result, {
+    roundStartDate,
+    roundLocalStartDate,
+    game,
+    bestOf,
+    names,
+    hosts,
+    teamLeads
+  }) => {
+    const roundDay = moment(roundLocalStartDate).format("DD MMMM");
+    if (!result[roundDay]) result[roundDay] = {};
+    if (!result[roundDay][game]) result[roundDay][game] = []
+
+    result[roundDay][game].push({
+      start: moment(roundStartDate).format("HH mm"),
+      bestOf,
+      available: names,
+      hosts,
+      teamLeads
     });
 
     return result;
-  }, {}));
+  }, result);
 
 }

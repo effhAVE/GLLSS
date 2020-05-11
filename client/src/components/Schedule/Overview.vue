@@ -103,19 +103,32 @@ export default {
         this.groupedRounds.forEach(gameObject => {
           for (const rounds of Object.values(gameObject.rounds)) {
             rounds.forEach(round => {
+              round.available.sort((a, b) =>
+                a.nickname.localeCompare(b.nickname)
+              );
+
               let names = round.available.map(host => host.nickname);
-              names = [...new Set(names)];
+              let teamLeads = round.teamLeads.map(
+                TLObject => TLObject.host.nickname
+              );
+              let hosts = round.hosts.map(
+                hostObject => hostObject.host.nickname
+              );
 
               this.availabilityList.push({
-                round: round.name,
-                tournament: round.tournamentName,
-                names
+                roundStartDate: round.startDate,
+                roundLocalStartDate: round.localStartDate,
+                hosts,
+                teamLeads,
+                names,
+                game: gameObject.game,
+                bestOf: round.bestOf
               });
             });
           }
         });
 
-        this.availabilityList = availabilityGroup(this.availabilityList);
+        this.availabilityList = availabilityGroup(this.availabilityList, week);
         this.$emit("scheduleList", this.availabilityList);
       });
     },
