@@ -120,6 +120,7 @@ router.post("/", async (req, res) => {
   } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
+  req.body.email = req.body.email.toLowerCase();
   let user = await User.findOne({
     $or: [{
       email: req.body.email
@@ -163,7 +164,7 @@ router.get("/verify-email", async (req, res) => {
 });
 
 router.post("/resend-verification", async (req, res) => {
-  const email = req.body.email;
+  const email = req.body.email.toLowerCase();
   if (!email) return res.status(400).send("No email provided.");
 
   const user = await User.findOne({

@@ -2,7 +2,6 @@ import moment from "moment"
 
 export default function(array, week) {
   let result = {};
-  console.log(result);
   week = moment().add(week, "weeks").startOf("isoWeek").isoWeek();
   for (let i = 0; i < 7; i++) {
     result[moment().day("Monday").week(week).add(i, "days").format("DD MMMM")] = {};

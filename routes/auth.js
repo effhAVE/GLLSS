@@ -21,7 +21,7 @@ router.post("/", async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   let user = await User.findOne({
-    email: req.body.email
+    email: req.body.email.toLowerCase()
   });
   if (!user) return res.status(400).send("Invalid email or password.");
 
@@ -72,7 +72,7 @@ router.post("/password-reset", async (req, res) => {
 });
 
 router.post("/forgot-password", async (req, res) => {
-  const email = req.body.email;
+  const email = req.body.email.toLowerCase();
   if (!email) {
     return res.status(400).send("No email provided!");
   }
