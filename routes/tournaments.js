@@ -85,8 +85,12 @@ router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
       .filter(round => round.hosts.some(hostObject => hostObject.host.equals(req.user._id)) || round.teamLeads.some(TLObject => TLObject.host.equals(req.user._id)));
   });
 
-  if (!pastHosted) {
-    user.tournamentsHosted.sort((a, b) => a.rounds[0].startDate - b.rounds[0].startDate);
+  if (!pastHosted && user.tournamentsHosted.length > 1) {
+    user.tournamentsHosted.sort((a, b) => {
+      if (!b.rounds[0]) console.log(b.name);
+      if (!a.rounds[0]) console.log(a.name);
+      return a.rounds[0].startDate - b.rounds[0].startDate
+    });
   }
 
   res.send(user.tournamentsHosted.slice(page * limitSize, page * limitSize + limitSize));
