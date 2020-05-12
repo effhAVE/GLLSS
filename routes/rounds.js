@@ -154,6 +154,9 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
     });
 
     excluded.forEach(async hostObject => {
+      for (const round of tournament.rounds) {
+        if (round.hosts.some(hostObj => hostObj.host.equals(hostObject._id)) || round.teamLeads.some(TLObject => TLObject.host.equals(hostObject._id))) return;
+      }
       await User.findByIdAndUpdate(hostObject, {
           "$pull": {
             "tournamentsHosted": tournament._id
@@ -229,6 +232,9 @@ router.put("/", auth, validateAccess("teamleader"), validateObjectId, async (req
       });
 
       excluded.forEach(async hostObject => {
+        for (const round of tournament.rounds) {
+          if (round.hosts.some(hostObj => hostObj.host.equals(hostObject._id)) || round.teamLeads.some(TLObject => TLObject.host.equals(hostObject._id))) return;
+        }
         await User.findByIdAndUpdate(hostObject, {
             "$pull": {
               "tournamentsHosted": tournament._id

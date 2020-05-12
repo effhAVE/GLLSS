@@ -58,7 +58,7 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
 
       excluded.forEach(async hostObject => {
         for (const round of tournament.rounds) {
-          if (round.hosts.some(hostObj => hostObj.host.equals(req.user._id))) return;
+          if (round.hosts.some(hostObj => hostObj.host.equals(hostObject._id)) || round.teamLeads.some(TLObject => TLObject.host.equals(hostObject._id))) return;
         }
         await User.findByIdAndUpdate(hostObject, {
             "$pull": {

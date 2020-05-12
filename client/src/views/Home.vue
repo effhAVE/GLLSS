@@ -34,7 +34,6 @@
             hide-default-footer
             disable-pagination
             disable-sort
-            :items-per-page="5"
           >
             <template v-slot:item="{ item }">
               <tr class="primary lighten-1">
@@ -46,8 +45,7 @@
                   >
                 </td>
                 <td>{{ item.game }}</td>
-                <td>{{ $moment(item.startDate).format("MMMM DD HH:mm") }}</td>
-                <td>{{ $moment(item.startDate).from(now) }}</td>
+                <td>{{ item.region }}</td>
               </tr>
               <tr
                 class="v-data-table__expanded v-data-table__expanded__content"
@@ -134,7 +132,7 @@
             hide-default-footer
             disable-pagination
             disable-sort
-            :items-per-page="5"
+            :items-per-page="limitPast"
             v-show="showPastTournaments"
           >
             <template v-slot:item.name="{ item }">
@@ -164,84 +162,7 @@
           </v-data-table>
         </v-col>
         <v-col cols="3">
-          <h3 class="title">Useful links</h3>
-          <ul>
-            <li>
-              <a href="https://github.com/effhAVE/GLLSS/blob/master/GUIDE.md"
-                >GLLSS Guide</a
-              >
-            </li>
-            <li>
-              <a href="https://help.gll.gg/hc/en-us">GLL Support Site</a>
-            </li>
-            <li>
-              <a href=" https://pubg.seatlon.eu/">PUBG Match/Player Search</a>
-            </li>
-            <li>
-              <a
-                href="https://docs.google.com/forms/d/e/1FAIpQLScdXNynI54HnMaT9i0x0DgAdG6JCZIGVI0b69suKA-7G7ig2A/viewform"
-                >Cheater Report Form</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://globalesports.wpengine.com/wp-content/uploads/2020/02/PUBG_Global_Rules-SUPER-v2.0.0.pdf"
-                >SUPER Settings 2.0.0</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://docs.google.com/document/d/1bQuPQxZusipVZH1FvcojBihE8DPR08sHqg2SHJGe4Es/edit"
-                >Nations Royale Presets</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://docs.google.com/spreadsheets/d/1yx3vwJVjyTexO5BTjEEndUDsk_jnBORqlmuCeX-QYTY/edit?usp=sharing"
-                >Apex Scrims Seeding Sheet</a
-              >
-            </li>
-            <li>
-              <a
-                href="https://docs.google.com/spreadsheets/d/1AqXDjsLoXGoVyD6p1RK4h82gZ0kErYCLm3SRFORNU24/edit#gid=798581813"
-                >Accounts in use</a
-              >
-            </li>
-            <li>
-              <a href="https://forms.gle/CSvPYkJb2dL8XeJ97"
-                >Application form for Casters</a
-              >
-            </li>
-          </ul>
-          <div v-if="user.roles.includes('teamleader')">
-            <h4 class="subtitle">Teamleaders:</h4>
-            <ul>
-              <li>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1k7wSxW9dDpgx46CSHYAxFc_dR1DEXovSEecU_3pkH2s/edit?usp=sharing"
-                  >Autochess Seeding Template - 256
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/17W_nAk9P6D_vQqQt_MoFKNUED6KsOYskYQtuYXr5au8/edit?usp=sharing"
-                  >Seeding Toby's Tryhard Thursday
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1fArbNdRzg-RcLdR2JJqmD3_1Z2p5pYxIT1FnvpuXy-M/edit?usp=sharing"
-                  >Team Lead Schedule
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1VGbRvQH0Gwsj3J4QrmAuvD70FnvT0UWN0Zv46YnXCEo/edit#gid=0"
-                  >List of Approved Casters
-                </a>
-              </li>
-            </ul>
-          </div>
+          <UsefulLinks :isTeamleader="user.roles.includes('teamleader')" />
         </v-col>
       </v-row>
     </v-card-text>
@@ -249,11 +170,16 @@
 </template>
 
 <script>
+import UsefulLinks from "../components/Home/UsefulLinks";
+
 export default {
   props: {
     user: {
       type: Object
     }
+  },
+  components: {
+    UsefulLinks
   },
   data() {
     return {
@@ -262,7 +188,8 @@ export default {
       pastHosted: [],
       allLoadedActive: false,
       allLoadedPast: false,
-      limit: 5,
+      limitActive: 5,
+      limitPast: 10,
       activeTournamentsPage: 0,
       pastTournamentsPage: 0,
       showPastTournaments: false,
@@ -273,8 +200,7 @@ export default {
           value: "name"
         },
         { text: "Game", value: "game", width: 200 },
-        { text: "Start date", value: "startDate" },
-        { text: "Starts", value: "startsIn" }
+        { text: "Region", value: "region", width: 200 }
       ],
       headersPast: [
         {
@@ -283,6 +209,7 @@ export default {
           value: "name"
         },
         { text: "Game", value: "game", align: "center", width: 200 },
+        { text: "Region", value: "region", width: 200 },
         { text: "End date", value: "endDate" }
       ]
     };
@@ -363,10 +290,11 @@ export default {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
         .get(
-          `${APIURL}/tournaments/hosted?limit=${this.limit}&page=${this.activeTournamentsPage}`
+          `${APIURL}/tournaments/hosted?limit=${this.limitActive}&page=${this.activeTournamentsPage}`
         )
         .then(response => {
-          if (response.data.length < this.limit) this.allLoadedActive = true;
+          if (response.data.length < this.limitActive)
+            this.allLoadedActive = true;
           this.activeHosted.push(...response.data);
         });
     },
@@ -378,10 +306,10 @@ export default {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
         .get(
-          `${APIURL}/tournaments/hosted?limit=${this.limit}&page=${this.pastTournamentsPage}&past=true`
+          `${APIURL}/tournaments/hosted?limit=${this.limitPast}&page=${this.pastTournamentsPage}&past=true`
         )
         .then(response => {
-          if (response.data.length < this.limit) this.allLoadedPast = true;
+          if (response.data.length < this.limitPast) this.allLoadedPast = true;
           this.pastHosted.push(...response.data);
         });
     },

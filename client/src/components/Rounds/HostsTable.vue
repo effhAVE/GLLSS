@@ -198,9 +198,9 @@ export default {
 
       round.available = round.available.filter(hostObj => hostObj !== newHost);
       round.available.push(oldHost);
+      if (!this.excludedHosts.some(hostObj => hostObj === oldHost))
+        this.$emit("excludedAdd", oldHost);
       if (newHost === "") {
-        if (!this.excludedHosts.some(hostObj => hostObj === oldHost))
-          this.$emit("excludedAdd", oldHost);
         return round.hosts.splice(arrayIndex, 1);
       }
 

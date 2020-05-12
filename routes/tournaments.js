@@ -75,11 +75,9 @@ router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
         "endDate": endDateQuery
       },
       options: {
-        limit: limitSize,
-        sort: sortBy,
-        skip: limitSize * page,
+        sort: sortBy
       },
-      select: "name startDate endDate game rounds",
+      select: "name region startDate endDate game rounds",
     });
 
   user.tournamentsHosted.forEach(tournament => {
@@ -87,7 +85,11 @@ router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
       .filter(round => round.hosts.some(hostObject => hostObject.host.equals(req.user._id)) || round.teamLeads.some(TLObject => TLObject.host.equals(req.user._id)));
   });
 
-  res.send(user.tournamentsHosted);
+  if (!pastHosted) {
+    user.tournamentsHosted.sort((a, b) => a.rounds[0].startDate - b.rounds[0].startDate);
+  }
+
+  res.send(user.tournamentsHosted.slice(page * limitSize, page * limitSize + limitSize));
 });
 
 router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, res) => {
