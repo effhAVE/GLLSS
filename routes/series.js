@@ -22,7 +22,7 @@ router.get("/list", auth, validateAccess("host"), async (req, res) => {
 
 router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, res) => {
   const series = await Series.findById(req.params.id);
-  if (!series) res.status(404).send("No series found.")
+  if (!series) return res.status(404).send("No series found.")
 
   res.send(series);
 });
