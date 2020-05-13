@@ -17,7 +17,8 @@
         <br />
         {{ round.startDate | moment("MMM Do HH:mm") }}
         <br />
-        Best of: {{ round.bestOf }} | Prep. time: {{ round.prepTime }}m
+        Best of: {{ round.bestOf }} <span class="accent--text">|</span> Prep.
+        time: {{ round.prepTime }} min.
       </v-card-subtitle>
     </div>
     <v-card-text class="pa-0">

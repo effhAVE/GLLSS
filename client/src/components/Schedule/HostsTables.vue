@@ -183,7 +183,7 @@
                       </v-icon>
                     </span>
                   </template>
-                  <span>Lost hosting</span>
+                  <span>Lost leading</span>
                 </v-tooltip>
                 <v-tooltip bottom v-else-if="item.ready" color="success">
                   <template v-slot:activator="{ on }">
@@ -369,6 +369,7 @@ export default {
         el => el.host._id === oldHost._id
       );
 
+      round.available = round.available.filter(hostObj => hostObj !== newHost);
       round.available.push(oldHost);
       if (!this.excludedHosts.some(hostObj => hostObj === oldHost))
         this.$emit("excludedAdd", oldHost);

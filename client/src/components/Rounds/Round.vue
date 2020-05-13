@@ -62,7 +62,7 @@
         :usersAvailable="usersAvailable"
         @changesMade="changesMade = true"
         @ready="onReady($event, 'host')"
-        @userUpdate="onUserUpdate"
+        @userUpdate="changesMade = true"
         @excludedAdd="onExcludedAdd"
         @excludedRemove="onExcludedRemove"
       />
@@ -73,7 +73,7 @@
         :usersAvailable="usersAvailable"
         @changesMade="changesMade = true"
         @ready="onReady($event, 'TL')"
-        @userUpdate="onUserUpdate"
+        @userUpdate="changesMade = true"
         @excludedAdd="onExcludedAdd"
         @excludedRemove="onExcludedRemove"
       />

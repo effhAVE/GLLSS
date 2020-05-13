@@ -26,7 +26,7 @@
         Scheduling
       </v-tab>
       <v-tab>
-        Balance
+        Hosts balance
       </v-tab>
     </v-tabs>
     <v-tabs-items v-model="tab" class="transparent">
@@ -175,6 +175,7 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    height: auto;
   }
 
   .has-border {

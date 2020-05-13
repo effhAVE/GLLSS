@@ -144,7 +144,7 @@ export default {
         .then(response => {
           this.tournament = response.data.tournament;
           const isPast = response.data.isPast;
-          if (isPast) {
+          if (isPast && this.user.roles.includes("teamleader")) {
             this.$http.get(`${APIURL}/users/list`).then(response => {
               this.usersAvailable = response.data;
             });

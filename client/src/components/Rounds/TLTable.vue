@@ -50,6 +50,7 @@
                 bottom
                 right
                 offset-x
+                v-model="item.menu"
                 :close-on-content-click="false"
                 v-if="user.roles.includes('teamleader')"
               >
@@ -90,8 +91,10 @@
                           text
                           class="mr-4"
                           color="accent"
-                          type="submit"
-                          @click="$emit('userUpdate', item)"
+                          @click="
+                            item.menu = false;
+                            $emit('userUpdate', item);
+                          "
                         >
                           Save
                         </v-btn>
@@ -103,7 +106,20 @@
             </div>
           </div>
         </template>
-        <v-list v-if="user.roles.includes('teamleader') && availableTLs.length">
+        <v-list
+          v-if="user.roles.includes('teamleader') && availableEdited.length"
+        >
+          <v-list-item
+            v-for="(host, i) in availableEdited"
+            :key="i"
+            @click="changeRoundHost(round, item.host, host)"
+          >
+            <v-list-item-title>{{ host.nickname }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+        <v-list
+          v-else-if="user.roles.includes('teamleader') && availableTLs.length"
+        >
           <v-list-item
             v-for="(host, i) in availableTLs"
             :key="i"

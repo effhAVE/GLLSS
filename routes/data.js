@@ -67,34 +67,94 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
   const currentWeekStart = moment().add(weekNumber, "weeks").startOf("isoWeek").toDate();
   const currentWeekEnd = moment().add(weekNumber, "weeks").endOf("isoWeek").toDate();
 
-  const balanceCalculation = {};
+  const balanceCalculation = {
+    total: {}
+  };
   const gameValues = await getRecentGameValues();
 
-  const previousWeekTournaments = await Tournament.find({
-    "endDate": {
-      $gte: previousWeekStart
+  const previousWeekAggregated = await Tournament.aggregate([{
+      $match: {
+        "endDate": {
+          $gte: previousWeekStart
+        },
+        "localStartDate": {
+          $lte: previousWeekEnd
+        },
+        countedByRounds: true
+      }
     },
-    "localStartDate": {
-      $lte: previousWeekEnd
+    {
+      $unwind: "$rounds"
     },
-    "rounds.localStartDate": {
-      $gte: previousWeekStart
+    {
+      $match: {
+        "rounds.localStartDate": {
+          $gte: previousWeekStart
+        }
+      }
     },
-    countedByRounds: true
-  }).select("-series").sort("localStartDate").populate("rounds.hosts.host rounds.teamLeads.host", "nickname");;
+    {
+      $group: {
+        _id: "$_id",
+        game: {
+          $first: "$game"
+        },
+        name: {
+          $first: "$name"
+        },
+        rounds: {
+          $push: "$rounds"
+        }
+      }
+    }
+  ]);
 
-  const currentWeekTournaments = await Tournament.find({
-    "endDate": {
-      $gte: currentWeekStart
+  const currentWeekAggregated = await Tournament.aggregate([{
+      $match: {
+        "endDate": {
+          $gte: currentWeekStart
+        },
+        "localStartDate": {
+          $lte: currentWeekEnd
+        },
+        countedByRounds: true
+      }
     },
-    "localStartDate": {
-      $lte: currentWeekEnd
+    {
+      $unwind: "$rounds"
     },
-    "rounds.localStartDate": {
-      $gte: currentWeekStart
+    {
+      $match: {
+        "rounds.localStartDate": {
+          $gte: currentWeekStart
+        }
+      }
     },
-    countedByRounds: true
-  }).select("-series").sort("localStartDate").populate("rounds.hosts.host rounds.teamLeads.host", "nickname");;
+    {
+      $group: {
+        _id: "$_id",
+        game: {
+          $first: "$game"
+        },
+        name: {
+          $first: "$name"
+        },
+        rounds: {
+          $push: "$rounds"
+        }
+      }
+    }
+  ]);
+
+  const previousWeekTournaments = await Tournament.populate(previousWeekAggregated, {
+    path: "rounds.hosts.host rounds.teamLeads.host rounds.available",
+    select: "nickname roles"
+  });
+
+  const currentWeekTournaments = await Tournament.populate(currentWeekAggregated, {
+    path: "rounds.hosts.host rounds.teamLeads.host rounds.available",
+    select: "nickname roles"
+  });
 
   previousWeekTournaments.forEach(tournament => {
     const game = tournament.game;
@@ -106,13 +166,22 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
       round.hosts.forEach(hostObject => {
         if (hostObject.lostHosting) {
           const nickname = hostObject.host.nickname;
+          if (!balanceCalculation.total[nickname]) {
+            balanceCalculation.total[nickname] = {
+              current: 0,
+              lost: gameValues[game] * (round.bestOf + hostObject.timeBalance)
+            };
+          } else {
+            balanceCalculation.total[nickname].lost += gameValues[game] * (round.bestOf + hostObject.timeBalance);
+          }
+
           if (!balanceCalculation[game][nickname]) {
             balanceCalculation[game][nickname] = {
               current: 0,
-              lost: gameValues[game] * round.bestOf
+              lost: gameValues[game] * (round.bestOf + hostObject.timeBalance)
             };
           } else {
-            balanceCalculation[game][nickname].lost += gameValues[game] * round.bestOf;
+            balanceCalculation[game][nickname].lost += gameValues[game] * (round.bestOf + hostObject.timeBalance);
           }
         }
       })
@@ -129,20 +198,33 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
       round.hosts.forEach(hostObject => {
         if (!hostObject.lostHosting) {
           const nickname = hostObject.host.nickname;
+          if (!balanceCalculation.total[nickname]) {
+            balanceCalculation.total[nickname] = {
+              lost: 0,
+              current: gameValues[game] * (round.bestOf + hostObject.timeBalance)
+            };
+          } else {
+            balanceCalculation.total[nickname].current += gameValues[game] * (round.bestOf + hostObject.timeBalance);
+          }
+
           if (!balanceCalculation[game][nickname]) {
             balanceCalculation[game][nickname] = {
               lost: 0,
-              current: gameValues[game] * round.bestOf
+              current: gameValues[game] * (round.bestOf + hostObject.timeBalance)
             };
           } else {
-            balanceCalculation[game][nickname].current += gameValues[game] * round.bestOf;
+            balanceCalculation[game][nickname].current += gameValues[game] * (round.bestOf + hostObject.timeBalance);
           }
         }
       })
     });
   });
 
-  return res.send(balanceCalculation);
+  const sortedCalculation = sortKeysRecursive(balanceCalculation, {
+    compareFunction: (a, b) => a.toLowerCase().localeCompare(b.toLowerCase())
+  });
+
+  return res.send(sortedCalculation);
 });
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {

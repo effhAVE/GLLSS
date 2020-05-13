@@ -34,9 +34,7 @@
           >
             <tr>
               <td :colspan="Object.values(dayObject).length">
-                <div>
-                  {{ dayName }}
-                </div>
+                <div>{{ $moment(dayName).format("dddd - DD MMMM") }}</div>
               </td>
             </tr>
             <tr>
@@ -78,7 +76,7 @@
           style="position: relative"
         >
           <th
-            class="fixed"
+            class="fixed primary"
             :class="teamLeads.includes(user) ? 'blue--text' : ''"
           >
             {{ user.nickname }}
