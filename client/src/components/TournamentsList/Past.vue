@@ -145,7 +145,7 @@ export default {
       return round.teamLeads.some(TLObj => TLObj.host === this.user._id);
     },
     isHostingTournament(rounds) {
-      return rounds.some(round => round.isHosting || rounds.isLeading);
+      return rounds.some(round => round.isHosting);
     },
     onAvailabilityChange(value, tournament, round) {
       this.$emit("availabilityChange", { value, tournament, round });
