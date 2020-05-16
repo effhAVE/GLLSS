@@ -54,30 +54,21 @@ router.get("/past", auth, validateAccess("host"), async (req, res) => {
   res.send(tournaments);
 });
 
-router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
-  const pastHosted = req.query.past;
+router.get("/hosted/past", auth, validateAccess("host"), async (req, res) => {
   const limitSize = +req.query.limit || 5;
-  const showPastRounds = req.query.showPast === "true" || false;
   const page = +req.query.page || 0;
   const pastFilter = req.query.pastFilter;
-  const endDateQuery = {};
-  let sortBy = "";
-  if (pastHosted) {
-    endDateQuery["$lt"] = new Date();
-    sortBy = "-endDate";
-  } else {
-    endDateQuery["$gte"] = new Date();
-    sortBy = "startDate";
-  }
 
   const user = await User.findById(req.user._id).select("tournamentsHosted -_id")
     .populate({
       path: "tournamentsHosted",
       match: {
-        "endDate": endDateQuery
+        "endDate": {
+          $lt: new Date()
+        }
       },
       options: {
-        sort: sortBy
+        sort: "-endDate"
       },
       select: "name region startDate endDate game rounds",
     });
@@ -85,7 +76,6 @@ router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
   user.tournamentsHosted.forEach(tournament => {
     tournament.rounds = tournament.rounds
       .filter(round => {
-        if (!showPastRounds && !pastHosted && moment(round.endDate).isSameOrBefore(new Date())) return false;
         const host = round.hosts.find(hostObject => hostObject.host.equals(req.user._id));
         const lead = round.teamLeads.find(TLObject => TLObject.host.equals(req.user._id));
         if (host) {
@@ -101,14 +91,44 @@ router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
   });
 
   user.tournamentsHosted = user.tournamentsHosted.filter(tournament => tournament.rounds.length);
+  res.send(user.tournamentsHosted.slice(page * limitSize, page * limitSize + limitSize));
+});
 
-  if (!pastHosted && user.tournamentsHosted.length > 1) {
-    user.tournamentsHosted.sort((a, b) => {
-      if (!b.rounds[0]) console.log(b.name);
-      if (!a.rounds[0]) console.log(a.name);
-      return a.rounds[0].startDate - b.rounds[0].startDate
+router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
+  const limitSize = +req.query.limit || 5;
+  const showPastRounds = req.query.showPast === "true" || false;
+  const page = +req.query.page || 0;
+
+  const user = await User.findById(req.user._id).select("tournamentsHosted -_id")
+    .populate({
+      path: "tournamentsHosted",
+      match: {
+        "endDate": {
+          $gte: new Date()
+        }
+      },
+      options: {
+        sort: "startDate"
+      },
+      select: "name region startDate endDate game rounds",
     });
-  }
+
+  user.tournamentsHosted.forEach(tournament => {
+    tournament.rounds = tournament.rounds
+      .filter(round => {
+        if (!showPastRounds && moment(round.endDate).isSameOrBefore(new Date())) return false;
+        const host = round.hosts.find(hostObject => hostObject.host.equals(req.user._id));
+        const lead = round.teamLeads.find(TLObject => TLObject.host.equals(req.user._id));
+        return host || lead;
+      });
+  });
+
+  user.tournamentsHosted = user.tournamentsHosted.filter(tournament => tournament.rounds.length);
+  user.tournamentsHosted.sort((a, b) => {
+    if (!b.rounds[0]) console.log(b.name);
+    if (!a.rounds[0]) console.log(a.name);
+    return a.rounds[0].startDate - b.rounds[0].startDate
+  });
 
   res.send(user.tournamentsHosted.slice(page * limitSize, page * limitSize + limitSize));
 });

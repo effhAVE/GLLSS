@@ -78,6 +78,7 @@
         :user="user"
         :usersAvailable="usersAvailable"
         :game="tournament.game"
+        :isPast="$moment(round.endDate).isSameOrBefore($moment($store.state.now))"
         ref="round"
         class="mt-12 mx-4"
         @roundChanged="changedRounds.push($event)"
@@ -122,8 +123,7 @@ export default {
         .get(`${APIURL}/tournaments/${id}`)
         .then(response => {
           this.tournament = response.data.tournament;
-          const isPast = response.data.isPast;
-          if (isPast && this.user.roles.includes("teamleader")) {
+          if (this.user.roles.includes("teamleader")) {
             this.$http.get(`${APIURL}/users/list`).then(response => {
               this.usersAvailable = response.data;
             });

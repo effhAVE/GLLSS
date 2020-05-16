@@ -79,7 +79,7 @@
             </div>
           </div>
         </template>
-        <v-list v-if="user.roles.includes('teamleader') && availableEdited.length">
+        <v-list v-if="user.roles.includes('teamleader') && isPast">
           <v-list-item v-for="(host, i) in availableEdited" :key="i" @click="changeRoundHost(round, item.host, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
@@ -103,12 +103,12 @@
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </template>
-        <v-list v-if="availableEdited.length">
+        <v-list v-if="isPast">
           <v-list-item v-for="(host, i) in availableEdited" :key="i" @click="addTLToRound(round, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
-        <v-list v-else-if="availableTLs.length && !availableEdited.length">
+        <v-list v-else-if="availableTLs.length && !isPast">
           <v-list-item v-for="(host, i) in availableTLs" :key="i" @click="addTLToRound(round, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
@@ -129,7 +129,8 @@ export default {
     round: Object,
     tableSettings: Object,
     user: Object,
-    usersAvailable: Array
+    usersAvailable: Array,
+    isPast: Boolean
   },
   data() {
     return {
@@ -160,8 +161,14 @@ export default {
       this.$emit("changesMade");
       const arrayIndex = round.teamLeads.findIndex(el => el.host._id === oldHost._id);
 
-      round.available = round.available.filter(hostObj => hostObj !== newHost);
-      round.available.push(oldHost);
+      if (this.isPast) {
+        this.availableEdited = this.availableEdited.filter(hostObj => hostObj !== newHost);
+        this.availableEdited.push(oldHost);
+      } else {
+        round.available = round.available.filter(hostObj => hostObj !== newHost);
+        round.available.push(oldHost);
+      }
+
       if (!this.excludedHosts.some(hostObj => hostObj === oldHost)) this.$emit("excludedAdd", oldHost);
       if (newHost === "") {
         return round.teamLeads.splice(arrayIndex, 1);

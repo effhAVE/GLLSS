@@ -3,15 +3,7 @@
     <v-row class="mb-4">
       <v-card-subtitle>Active tournaments</v-card-subtitle>
       <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        color="accent"
-        class="m0 pa-0"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
+      <v-text-field v-model="search" append-icon="mdi-magnify" color="accent" class="m0 pa-0" label="Search" single-line hide-details></v-text-field>
     </v-row>
     <v-data-table
       class="table-background"
@@ -28,12 +20,7 @@
       ref="tournamentsTable"
     >
       <template v-slot:header.data-table-expand>
-        <v-btn
-          color="accent"
-          class="black--text"
-          x-small
-          @click.stop="expandAll"
-        >
+        <v-btn color="accent" class="black--text" x-small @click.stop="expandAll">
           Expand all
         </v-btn>
       </template>
@@ -46,11 +33,7 @@
             @input="setTournamentAvailability($event, item)"
             :ripple="false"
           ></v-simple-checkbox>
-          <v-simple-checkbox
-            color="accent"
-            :value="isHostingTournament(item.rounds)"
-            :ripple="false"
-          ></v-simple-checkbox>
+          <v-simple-checkbox :color="tournamentColor(item.rounds)" :value="isHostingTournament(item.rounds)" :ripple="false"></v-simple-checkbox>
         </div>
       </template>
       <template v-slot:expanded-item="{ headers, item }" tag="div">
@@ -72,18 +55,14 @@
                   <td width="50">
                     <v-simple-checkbox
                       v-model="round.myAvailability"
-                      :disabled="round.isHosting"
+                      :disabled="round.isHosting || round.isLeading || isPast(round)"
                       color="accent"
                       :ripple="false"
                       @input="onAvailabilityChange($event, item, round)"
                     ></v-simple-checkbox>
                   </td>
                   <td width="50">
-                    <v-simple-checkbox
-                      color="accent"
-                      :ripple="false"
-                      :value="round.isHosting"
-                    ></v-simple-checkbox>
+                    <v-simple-checkbox :color="roundColor(round)" :ripple="false" :value="round.isHosting || round.isLeading"></v-simple-checkbox>
                   </td>
                   <td>{{ round.name }}</td>
                   <td>{{ round.bestOf }}</td>
@@ -96,9 +75,7 @@
         </td>
       </template>
       <template v-slot:item.name="{ item }">
-        <router-link :to="`tournaments/${item._id}`" class="white--text">{{
-          item.name
-        }}</router-link>
+        <router-link :to="`tournaments/${item._id}`" class="white--text">{{ item.name }}</router-link>
       </template>
       <template v-slot:item.startDate="{ item }">
         <span>{{ item.startDate | moment("MMMM DD, YYYY HH:mm") }}</span>
@@ -109,13 +86,7 @@
       <template v-slot:footer>
         <div class="v-data-footer">
           <v-spacer></v-spacer>
-          <v-btn
-            class="accent--text"
-            text
-            tile
-            @click="getNextTournamentPage"
-            :disabled="allLoaded"
-          >
+          <v-btn class="accent--text" text tile @click="getNextTournamentPage" :disabled="allLoaded">
             Load more
           </v-btn>
         </div>
@@ -167,27 +138,35 @@ export default {
   methods: {
     getTournaments() {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http
-        .get(`${APIURL}/tournaments/?limit=${this.limit}&page=${this.page}`)
-        .then(response => {
-          let tournaments = response.data;
-          if (tournaments.length < this.limit) this.allLoaded = true;
-          tournaments.forEach(tournament => {
-            tournament.rounds.forEach(round => {
-              round.isHosting = this.isHosting(round) || this.isLeading(round);
-              round.myAvailability = this.checkAvailability(round);
-            });
+      this.$http.get(`${APIURL}/tournaments/?limit=${this.limit}&page=${this.page}`).then(response => {
+        let tournaments = response.data;
+        if (tournaments.length < this.limit) this.allLoaded = true;
+        tournaments.forEach(tournament => {
+          tournament.rounds.forEach(round => {
+            round.isHosting = this.isHosting(round);
+            round.isLeading = this.isLeading(round);
+            round.myAvailability = this.checkAvailability(round);
           });
-
-          this.tournamentsList.push(...tournaments);
         });
+
+        this.tournamentsList.push(...tournaments);
+      });
     },
     getNextTournamentPage() {
       this.page++;
       this.getTournaments();
     },
+    isPast(round) {
+      return this.$moment(round.endDate).isSameOrBefore(this.$store.state.now);
+    },
     checkAvailability(round) {
       return round.available.includes(this.user._id);
+    },
+    tournamentColor(rounds) {
+      return rounds.some(round => round.isLeading) ? "blue" : "accent";
+    },
+    roundColor(round) {
+      return round.isLeading ? "blue" : "accent";
     },
     isHosting(round) {
       return round.hosts.some(hostObj => hostObj.host === this.user._id);
@@ -196,22 +175,21 @@ export default {
       return round.teamLeads.some(TLObj => TLObj.host === this.user._id);
     },
     isHostingTournament(rounds) {
-      return rounds.some(round => round.isHosting);
+      return rounds.some(round => round.isHosting || round.isLeading);
     },
     onAvailabilityChange(value, tournament, round) {
       this.$emit("availabilityChange", { value, tournament, round });
     },
     setTournamentAvailability(value, tournament) {
       for (const round of tournament.rounds) {
-        if (round.isHosting || round.myAvailability === value) continue;
+        if (round.isHosting || round.isLeading || round.myAvailability === value || this.isPast(round)) continue;
         round.myAvailability = value;
         this.$emit("availabilityChange", { value, tournament, round });
       }
     },
     setIcon(tournament) {
-      if (tournament.rounds.every(round => round.myAvailability === false))
-        return "";
-      else if (tournament.rounds.every(round => round.myAvailability === true))
+      if (tournament.rounds.every(round => (!this.isPast(round) && round.myAvailability === false) || this.isPast(round))) return "";
+      else if (tournament.rounds.every(round => (!this.isPast(round) && round.myAvailability === true) || this.isPast(round)))
         return "mdi-checkbox-marked";
       else return "mdi-minus-box";
     },
@@ -219,9 +197,7 @@ export default {
       return !!this.setIcon(tournament);
     },
     expand(row) {
-      this.expanded.includes(row)
-        ? (this.expanded = this.expanded.filter(expanded => expanded !== row))
-        : this.expanded.push(row);
+      this.expanded.includes(row) ? (this.expanded = this.expanded.filter(expanded => expanded !== row)) : this.expanded.push(row);
     },
     expandAll() {
       if (this.expanded.length === this.tournamentsList.length) {

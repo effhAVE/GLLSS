@@ -221,7 +221,7 @@ export default {
           value: ""
         },
         {
-          text: "Lost",
+          text: "Lost hosting/leading",
           value: "lost"
         },
         {
@@ -332,7 +332,7 @@ export default {
     getPastTournaments() {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .get(`${APIURL}/tournaments/hosted?limit=${this.limitPast}&page=${this.pastTournamentsPage}&past=true&pastFilter=${this.selectedPastFilter}`)
+        .get(`${APIURL}/tournaments/hosted/past?limit=${this.limitPast}&page=${this.pastTournamentsPage}&pastFilter=${this.selectedPastFilter}`)
         .then(response => {
           if (response.data.length < this.limitPast) this.allLoadedPast = true;
           this.pastHosted.push(...response.data);
@@ -343,7 +343,7 @@ export default {
       this.allLoadedPast = false;
       this.pastTournamentsPage = 0;
       this.$http
-        .get(`${APIURL}/tournaments/hosted?limit=${this.limitPast}&page=${this.pastTournamentsPage}&past=true&pastFilter=${this.selectedPastFilter}`)
+        .get(`${APIURL}/tournaments/hosted/past?limit=${this.limitPast}&page=${this.pastTournamentsPage}&pastFilter=${this.selectedPastFilter}`)
         .then(response => {
           if (response.data.length < this.limitPast) this.allLoadedPast = true;
           this.pastHosted = response.data;

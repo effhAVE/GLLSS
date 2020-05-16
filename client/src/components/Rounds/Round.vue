@@ -1,6 +1,6 @@
 <template>
   <v-card color="transparent" width="350px" raised>
-    <div class="secondary">
+    <div :class="isPast ? 'secondary darken-4' : 'secondary'">
       <v-card-title>
         {{ round.name }}
         <v-spacer></v-spacer>
@@ -54,6 +54,7 @@
         :tableSettings="tableSettings"
         :usersAvailable="usersAvailable"
         :game="game"
+        :isPast="isPast"
         @changesMade="changesMade = true"
         @ready="onReady($event, 'host')"
         @userUpdate="changesMade = true"
@@ -65,6 +66,7 @@
         :user="user"
         :tableSettings="tableSettings"
         :usersAvailable="usersAvailable"
+        :isPast="isPast"
         @changesMade="changesMade = true"
         @ready="onReady($event, 'TL')"
         @userUpdate="changesMade = true"
@@ -103,6 +105,10 @@ export default {
     },
     usersAvailable: {
       type: Array
+    },
+    isPast: {
+      type: Boolean,
+      default: false
     },
     user: Object
   },

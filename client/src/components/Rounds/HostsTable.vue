@@ -93,7 +93,7 @@
             </div>
           </div>
         </template>
-        <v-list v-if="user.roles.includes('teamleader') && availableEdited.length">
+        <v-list v-if="user.roles.includes('teamleader') && isPast">
           <v-list-item v-for="(host, i) in availableEdited" :key="i" @click="changeRoundHost(round, item.host, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
@@ -118,12 +118,12 @@
           </v-btn>
         </template>
 
-        <v-list v-if="availableEdited.length">
+        <v-list v-if="isPast">
           <v-list-item v-for="(host, i) in availableEdited" :key="i" @click="addHostToRound(round, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
-        <v-list v-else-if="round.available.length && !availableEdited.length">
+        <v-list v-else-if="round.available.length && !isPast">
           <v-list-item v-for="(host, i) in round.available" :key="i" @click="addHostToRound(round, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
@@ -144,7 +144,8 @@ export default {
     game: String,
     tableSettings: Object,
     user: Object,
-    usersAvailable: Array
+    usersAvailable: Array,
+    isPast: Boolean
   },
   data() {
     return {
@@ -170,8 +171,14 @@ export default {
       this.$emit("changesMade");
       const arrayIndex = round.hosts.findIndex(el => el.host._id === oldHost._id);
 
-      round.available = round.available.filter(hostObj => hostObj !== newHost);
-      round.available.push(oldHost);
+      if (this.isPast) {
+        this.availableEdited = this.availableEdited.filter(hostObj => hostObj !== newHost);
+        this.availableEdited.push(oldHost);
+      } else {
+        round.available = round.available.filter(hostObj => hostObj !== newHost);
+        round.available.push(oldHost);
+      }
+
       if (!this.excludedHosts.some(hostObj => hostObj === oldHost)) this.$emit("excludedAdd", oldHost);
       if (newHost === "") {
         return round.hosts.splice(arrayIndex, 1);
