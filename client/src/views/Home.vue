@@ -17,7 +17,10 @@
       </div>
       <v-row v-else>
         <v-col>
-          <v-switch v-model="showPastTournaments" label="Show past tournaments" color="accent"></v-switch>
+          <v-row>
+            <v-switch v-model="showPastTournaments" label="Show past tournaments" color="accent"></v-switch>
+            <v-switch v-model="showPastRounds" @change="getPastRounds" label="Show past rounds" color="accent" class="mx-8"></v-switch>
+          </v-row>
           <h3 class="subtitle accent--text">Upcoming tournaments</h3>
           <v-data-table
             class="table-background mb-4 not-editable headers--accent"
@@ -81,7 +84,12 @@
                           </div>
                         </td>
                         <td>
-                          <v-btn icon v-if="!isReady(round)" @click="onReady(item._id, round)" :disabled="readyDisabled(round)">
+                          <v-btn icon v-if="lostLeadingOrHosting(round)">
+                            <v-icon color="warning">
+                              mdi-account-off
+                            </v-icon>
+                          </v-btn>
+                          <v-btn icon v-else-if="!isReady(round)" @click="onReady(item._id, round)" :disabled="readyDisabled(round)">
                             <v-icon color="error">
                               mdi-account-off
                             </v-icon>
@@ -110,9 +118,22 @@
               </div>
             </template>
           </v-data-table>
-          <h3 class="subtitle" v-show="showPastTournaments">
-            Past tournaments
-          </h3>
+          <v-row v-show="showPastTournaments" class="ma-0 mt-12">
+            <h3 class="subtitle">
+              Past tournaments
+            </h3>
+            <v-spacer></v-spacer>
+            <v-select
+              :items="pastFilters"
+              v-model="selectedPastFilter"
+              @change="changePastFilters"
+              label="Filter"
+              outlined
+              dense
+              color="accent"
+            ></v-select>
+          </v-row>
+
           <v-data-table
             class="table-background not-editable"
             :items="pastHosted"
@@ -174,6 +195,7 @@ export default {
       activeTournamentsPage: 0,
       pastTournamentsPage: 0,
       showPastTournaments: false,
+      showPastRounds: false,
       headersActive: [
         {
           text: "Tournament name",
@@ -192,7 +214,22 @@ export default {
         { text: "Game", value: "game", align: "center", width: 200 },
         { text: "Region", value: "region", width: 200 },
         { text: "End date", value: "endDate" }
-      ]
+      ],
+      pastFilters: [
+        {
+          text: "All",
+          value: ""
+        },
+        {
+          text: "Lost",
+          value: "lost"
+        },
+        {
+          text: "Hosted",
+          value: "hosted"
+        }
+      ],
+      selectedPastFilter: ""
     };
   },
   computed: {
@@ -220,6 +257,18 @@ export default {
     },
     myHost(round) {
       return round.hosts.find(hostObject => hostObject.host === this.user._id);
+    },
+    myLead(round) {
+      return round.teamLeads.find(TLObject => TLObject.host === this.user._id);
+    },
+    lostLeadingOrHosting(round) {
+      const host = this.myHost(round);
+      const lead = this.myLead(round);
+      if (host) {
+        return host.lostHosting;
+      } else if (lead) {
+        return lead.lostLeading;
+      }
     },
     onReady(tournamentID, round) {
       const APIURL = process.env.VUE_APP_APIURL;
@@ -258,10 +307,23 @@ export default {
     },
     getActiveTournaments() {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/tournaments/hosted?limit=${this.limitActive}&page=${this.activeTournamentsPage}`).then(response => {
-        if (response.data.length < this.limitActive) this.allLoadedActive = true;
-        this.activeHosted.push(...response.data);
-      });
+      this.$http
+        .get(`${APIURL}/tournaments/hosted?limit=${this.limitActive}&page=${this.activeTournamentsPage}&showPast=${this.showPastRounds}`)
+        .then(response => {
+          if (response.data.length < this.limitActive) this.allLoadedActive = true;
+          this.activeHosted.push(...response.data);
+        });
+    },
+    getPastRounds() {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.activeTournamentsPage = 0;
+      this.allLoadedActive = false;
+      this.$http
+        .get(`${APIURL}/tournaments/hosted?limit=${this.limitActive}&page=${this.activeTournamentsPage}&showPast=${this.showPastRounds}`)
+        .then(response => {
+          if (response.data.length < this.limitActive) this.allLoadedActive = true;
+          this.activeHosted = response.data;
+        });
     },
     getNextActiveTournamentsPage() {
       this.activeTournamentsPage++;
@@ -269,10 +331,23 @@ export default {
     },
     getPastTournaments() {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/tournaments/hosted?limit=${this.limitPast}&page=${this.pastTournamentsPage}&past=true`).then(response => {
-        if (response.data.length < this.limitPast) this.allLoadedPast = true;
-        this.pastHosted.push(...response.data);
-      });
+      this.$http
+        .get(`${APIURL}/tournaments/hosted?limit=${this.limitPast}&page=${this.pastTournamentsPage}&past=true&pastFilter=${this.selectedPastFilter}`)
+        .then(response => {
+          if (response.data.length < this.limitPast) this.allLoadedPast = true;
+          this.pastHosted.push(...response.data);
+        });
+    },
+    changePastFilters() {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.allLoadedPast = false;
+      this.pastTournamentsPage = 0;
+      this.$http
+        .get(`${APIURL}/tournaments/hosted?limit=${this.limitPast}&page=${this.pastTournamentsPage}&past=true&pastFilter=${this.selectedPastFilter}`)
+        .then(response => {
+          if (response.data.length < this.limitPast) this.allLoadedPast = true;
+          this.pastHosted = response.data;
+        });
     },
     getNextPastTournamentsPage() {
       this.pastTournamentsPage++;

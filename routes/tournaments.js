@@ -57,7 +57,9 @@ router.get("/past", auth, validateAccess("host"), async (req, res) => {
 router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
   const pastHosted = req.query.past;
   const limitSize = +req.query.limit || 5;
+  const showPastRounds = req.query.showPast === "true" || false;
   const page = +req.query.page || 0;
+  const pastFilter = req.query.pastFilter;
   const endDateQuery = {};
   let sortBy = "";
   if (pastHosted) {
@@ -82,8 +84,23 @@ router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
 
   user.tournamentsHosted.forEach(tournament => {
     tournament.rounds = tournament.rounds
-      .filter(round => round.hosts.some(hostObject => hostObject.host.equals(req.user._id)) || round.teamLeads.some(TLObject => TLObject.host.equals(req.user._id)));
+      .filter(round => {
+        if (!showPastRounds && !pastHosted && moment(round.endDate).isSameOrBefore(new Date())) return false;
+        const host = round.hosts.find(hostObject => hostObject.host.equals(req.user._id));
+        const lead = round.teamLeads.find(TLObject => TLObject.host.equals(req.user._id));
+        if (host) {
+          if (pastFilter === "lost") return host.lostHosting;
+          if (pastFilter === "hosted") return !host.lostHosting;
+        } else if (lead) {
+          if (pastFilter === "lost") return lead.lostLeading;
+          if (pastFilter === "hosted") return !lead.lostLeading;
+        }
+
+        return host || lead;
+      });
   });
+
+  user.tournamentsHosted = user.tournamentsHosted.filter(tournament => tournament.rounds.length);
 
   if (!pastHosted && user.tournamentsHosted.length > 1) {
     user.tournamentsHosted.sort((a, b) => {

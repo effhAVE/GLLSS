@@ -300,7 +300,8 @@ export default {
       round.hosts.splice(arrayIndex, 1, {
         host: newHost,
         lostHosting: false,
-        ready: false
+        ready: false,
+        groupName: "Gindex"
       });
     },
     addHostToRound(round, hostAdded) {
@@ -309,7 +310,7 @@ export default {
         host: hostAdded,
         bestOf: round.bestOf
       });
-      round.hosts.push({ host: hostAdded, ready: false, lostHosting: false });
+      round.hosts.push({ host: hostAdded, ready: false, lostHosting: false, groupName: "Gindex" });
       round.available = round.available.filter(host => host !== hostAdded);
       this.$emit("excludedRemove", hostAdded);
     },
