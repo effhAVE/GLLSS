@@ -36,7 +36,7 @@
               <tbody>
                 <tr :key="round._id" v-for="round in item.rounds">
                   <td width="50">
-                    <v-simple-checkbox color="accent" :ripple="false" :value="round.isHosting"></v-simple-checkbox>
+                    <v-simple-checkbox :color="roundColor(round)" :ripple="false" :value="round.isHosting || round.isLeading"></v-simple-checkbox>
                   </td>
                   <td>{{ round.name }}</td>
                   <td>{{ round.bestOf }}</td>
@@ -128,6 +128,9 @@ export default {
     getNextTournamentPage() {
       this.page++;
       this.getTournaments();
+    },
+    roundColor(round) {
+      return round.isLeading ? "blue" : "accent";
     },
     tournamentColor(rounds) {
       return rounds.some(round => round.isLeading) ? "blue" : "accent";
