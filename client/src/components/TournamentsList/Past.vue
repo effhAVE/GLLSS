@@ -17,11 +17,7 @@
     >
       <template v-slot:item.rounds="{ item }">
         <div class="d-flex justify-space-between">
-          <v-simple-checkbox
-            color="accent"
-            :value="isHostingTournament(item.rounds)"
-            :ripple="false"
-          ></v-simple-checkbox>
+          <v-simple-checkbox :color="tournamentColor(item.rounds)" :value="isHostingTournament(item.rounds)" :ripple="false"></v-simple-checkbox>
         </div>
       </template>
       <template v-slot:expanded-item="{ headers, item }" tag="div">
@@ -40,11 +36,7 @@
               <tbody>
                 <tr :key="round._id" v-for="round in item.rounds">
                   <td width="50">
-                    <v-simple-checkbox
-                      color="accent"
-                      :ripple="false"
-                      :value="round.isHosting"
-                    ></v-simple-checkbox>
+                    <v-simple-checkbox color="accent" :ripple="false" :value="round.isHosting"></v-simple-checkbox>
                   </td>
                   <td>{{ round.name }}</td>
                   <td>{{ round.bestOf }}</td>
@@ -57,9 +49,7 @@
         </td>
       </template>
       <template v-slot:item.name="{ item }">
-        <router-link :to="`tournaments/${item._id}`" class="white--text">{{
-          item.name
-        }}</router-link>
+        <router-link :to="`tournaments/${item._id}`" class="white--text">{{ item.name }}</router-link>
       </template>
       <template v-slot:item.startDate="{ item }">
         <span>{{ item.startDate | moment("MMMM DD, YYYY HH:mm") }}</span>
@@ -70,13 +60,7 @@
       <template v-slot:footer>
         <div class="v-data-footer">
           <v-spacer></v-spacer>
-          <v-btn
-            class="accent--text"
-            text
-            tile
-            @click="getNextTournamentPage"
-            :disabled="allLoaded"
-          >
+          <v-btn class="accent--text" text tile @click="getNextTournamentPage" :disabled="allLoaded">
             Load more
           </v-btn>
         </div>
@@ -128,29 +112,34 @@ export default {
   methods: {
     getTournaments() {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http
-        .get(`${APIURL}/tournaments/past?limit=${this.limit}&page=${this.page}`)
-        .then(response => {
-          let tournaments = response.data;
-          if (tournaments.length < this.limit) this.allLoaded = true;
-          tournaments.forEach(tournament => {
-            tournament.rounds.forEach(round => {
-              round.isHosting = this.isHosting(round);
-            });
+      this.$http.get(`${APIURL}/tournaments/past?limit=${this.limit}&page=${this.page}`).then(response => {
+        let tournaments = response.data;
+        if (tournaments.length < this.limit) this.allLoaded = true;
+        tournaments.forEach(tournament => {
+          tournament.rounds.forEach(round => {
+            round.isHosting = this.isHosting(round);
+            round.isLeading = this.isLeading(round);
           });
-
-          this.tournamentsList.push(...tournaments);
         });
+
+        this.tournamentsList.push(...tournaments);
+      });
     },
     getNextTournamentPage() {
       this.page++;
       this.getTournaments();
+    },
+    tournamentColor(rounds) {
+      return rounds.some(round => round.isLeading) ? "blue" : "accent";
     },
     checkAvailability(round) {
       return round.available.includes(this.user._id);
     },
     isHosting(round) {
       return round.hosts.some(hostObj => hostObj.host === this.user._id);
+    },
+    isLeading(round) {
+      return round.teamLeads.some(TLObj => TLObj.host === this.user._id);
     },
     isHostingTournament(rounds) {
       return rounds.some(round => round.isHosting);
@@ -159,19 +148,15 @@ export default {
       this.$emit("availabilityChange", { value, tournament, round });
     },
     setIcon(tournament) {
-      if (tournament.rounds.every(round => round.myAvailability === false))
-        return "";
-      else if (tournament.rounds.every(round => round.myAvailability === true))
-        return "mdi-checkbox-marked";
+      if (tournament.rounds.every(round => round.myAvailability === false)) return "";
+      else if (tournament.rounds.every(round => round.myAvailability === true)) return "mdi-checkbox-marked";
       else return "mdi-minus-box";
     },
     checkTournamentAvailability(tournament) {
       return !!this.setIcon(tournament);
     },
     expand(row) {
-      this.expanded.includes(row)
-        ? (this.expanded = this.expanded.filter(expanded => expanded !== row))
-        : this.expanded.push(row);
+      this.expanded.includes(row) ? (this.expanded = this.expanded.filter(expanded => expanded !== row)) : this.expanded.push(row);
     }
   },
   mounted() {
