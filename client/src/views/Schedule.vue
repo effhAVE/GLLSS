@@ -3,22 +3,9 @@
     <v-card-title>
       Schedule
       <v-spacer></v-spacer>
-      <v-select
-        :items="weeks"
-        label="Select week"
-        color="accent"
-        v-model="selectedWeek"
-        class="flex-grow-0"
-      ></v-select>
+      <v-select :items="weeks" label="Select week" color="accent" v-model="selectedWeek" class="flex-grow-0"></v-select>
     </v-card-title>
-    <v-btn
-      color="accent black--text"
-      fixed
-      bottom
-      left
-      fab
-      @click="modal = !modal"
-    >
+    <v-btn color="accent black--text" fixed bottom left fab @click="modal = !modal">
       <v-icon>mdi-account-clock</v-icon>
     </v-btn>
     <v-tabs fixed-tabs v-model="tab" background-color="secondary">
@@ -30,13 +17,9 @@
       </v-tab>
     </v-tabs>
     <v-tabs-items v-model="tab" class="transparent">
-      <ScheduleTable
-        @scheduleList="onAvailableList"
-        @balanceChange="calculateChange"
-        :week="selectedWeek"
-      />
+      <ScheduleTable @scheduleList="onAvailableList" :week="selectedWeek" />
       <v-tab-item>
-        <BalanceTable :balance="balance[selectedWeek]" />
+        <BalanceTable @getBalance="getBalance(selectedWeek)" :balance="balance[selectedWeek]" />
       </v-tab-item>
     </v-tabs-items>
     <v-dialog v-model="modal" width="70%">
@@ -87,21 +70,14 @@ export default {
     };
   },
   methods: {
-    calculateChange(change) {
+    /* calculateChange(change) {
       const { type, oldHost, newHost, host, game, bestOf } = change;
       const value = this.gameValues[game] * bestOf;
-      if (
-        type === "hostChange" &&
-        this.balance[this.selectedWeek][game][oldHost]
-      ) {
-        this.balance[this.selectedWeek][game][
-          oldHost.nickname
-        ].current -= value;
+      if (type === "hostChange" && this.balance[this.selectedWeek][game][oldHost]) {
+        this.balance[this.selectedWeek][game][oldHost.nickname].current -= value;
 
         if (newHost) {
-          this.balance[this.selectedWeek][game][
-            newHost.nickname
-          ].current += value;
+          this.balance[this.selectedWeek][game][newHost.nickname].current += value;
         }
       } else if (type === "hostAdd") {
         if (!this.balance[this.selectedWeek][game][host.nickname]) {
@@ -113,7 +89,7 @@ export default {
           this.balance[this.selectedWeek][game][host.nickname].current += value;
         }
       }
-    },
+    }, */
     getBalance(week = 0) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
@@ -124,8 +100,7 @@ export default {
         .catch(error => {
           this.$store.commit("snackbarMessage", {
             type: "error",
-            message:
-              error.response.data || "Error while fetching balance values."
+            message: error.response.data || "Error while fetching balance values."
           });
         });
     },

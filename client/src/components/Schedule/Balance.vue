@@ -1,10 +1,10 @@
 <template>
   <v-sheet color="transparent" v-if="balance">
-    <v-tabs
-      v-model="balanceTab"
-      background-color="primary"
-      slider-color="accent"
-    >
+    <v-row class="ma-0">
+      <v-spacer></v-spacer>
+      <v-btn text color="accent" @click="$emit('getBalance')">Recalculate</v-btn>
+    </v-row>
+    <v-tabs v-model="balanceTab" background-color="primary" slider-color="accent">
       <v-tab v-for="(gameObject, game) in nonEmptyGames" :key="game">
         {{ game }}
       </v-tab>
@@ -12,9 +12,7 @@
     <v-tabs-items v-model="balanceTab" class="py-4">
       <v-tab-item v-for="(gameObject, game) in nonEmptyGames" :key="game">
         <v-card-text>
-          <v-simple-table
-            class="table-background table-simple not-editable mb-4"
-          >
+          <v-simple-table class="table-background table-simple not-editable mb-4">
             <template v-slot:default>
               <thead>
                 <th>

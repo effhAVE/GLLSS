@@ -164,8 +164,8 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
 
     tournament.rounds.forEach(round => {
       round.hosts.forEach(hostObject => {
+        const nickname = hostObject.host.nickname;
         if (hostObject.lostHosting) {
-          const nickname = hostObject.host.nickname;
           if (!balanceCalculation.total[nickname]) {
             balanceCalculation.total[nickname] = {
               current: 0,
@@ -182,6 +182,26 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
             };
           } else {
             balanceCalculation[game][nickname].lost += gameValues[game] * (round.bestOf + hostObject.timeBalance);
+          }
+        } else {
+          if (hostObject.timeBalance < 0) {
+            if (!balanceCalculation.total[nickname]) {
+              balanceCalculation.total[nickname] = {
+                current: 0,
+                lost: gameValues[game] * Math.abs(hostObject.timeBalance)
+              };
+            } else {
+              balanceCalculation.total[nickname].lost += gameValues[game] * Math.abs(hostObject.timeBalance);
+            }
+
+            if (!balanceCalculation[game][nickname]) {
+              balanceCalculation[game][nickname] = {
+                current: 0,
+                lost: gameValues[game] * Math.abs(hostObject.timeBalance)
+              };
+            } else {
+              balanceCalculation[game][nickname].lost += gameValues[game] * Math.abs(hostObject.timeBalance);
+            }
           }
         }
       })
