@@ -1,5 +1,5 @@
 <template>
-  <v-card color="transparent" width="22%" raised>
+  <v-card color="transparent" width="350px" raised>
     <div class="secondary">
       <v-card-title>
         {{ round.name }}
@@ -13,11 +13,7 @@
           <v-card class="primary">
             <v-card-text>
               <v-container>
-                <RoundForm
-                  :round="round"
-                  @cancel="editRoundModal = false"
-                  @submit="saveRound"
-                />
+                <RoundForm :round="round" @cancel="editRoundModal = false" @submit="saveRound" />
               </v-container>
             </v-card-text>
           </v-card>
@@ -30,10 +26,7 @@
           </template>
           <v-card>
             <v-card-title class="headline">Are you sure?</v-card-title>
-            <v-card-text
-              >You're about to delete {{ round.name }} from the database. This
-              action cannot be undone.</v-card-text
-            >
+            <v-card-text>You're about to delete {{ round.name }} from the database. This action cannot be undone.</v-card-text>
             <v-divider></v-divider>
 
             <v-card-actions>
@@ -60,6 +53,7 @@
         :user="user"
         :tableSettings="tableSettings"
         :usersAvailable="usersAvailable"
+        :game="game"
         @changesMade="changesMade = true"
         @ready="onReady($event, 'host')"
         @userUpdate="changesMade = true"
@@ -103,6 +97,10 @@ export default {
       type: String,
       required: true
     },
+    game: {
+      type: String,
+      required: true
+    },
     usersAvailable: {
       type: Array
     },
@@ -125,10 +123,7 @@ export default {
     onReady(host, source) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .post(
-          `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}/ready`,
-          { source }
-        )
+        .post(`${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}/ready`, { source })
         .then(response => {
           host.ready = true;
         })
@@ -152,10 +147,7 @@ export default {
       const APIURL = process.env.VUE_APP_APIURL;
 
       this.$http
-        .put(
-          `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`,
-          { round: round, excluded: this.excluded }
-        )
+        .put(`${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`, { round: round, excluded: this.excluded })
         .then(response => {
           this.$router.go();
           this.$store.commit("snackbarMessage", {
@@ -174,9 +166,7 @@ export default {
       this.deleteRoundModal = false;
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .delete(
-          `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`
-        )
+        .delete(`${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`)
         .then(response => {
           this.$router.go();
           this.$store.commit("snackbarMessage", {
@@ -200,10 +190,7 @@ export default {
     onUserUpdate(user) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .put(
-          `${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`,
-          { round: this.round, excluded: this.excluded }
-        )
+        .put(`${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`, { round: this.round, excluded: this.excluded })
         .then(response => {
           this.$store.commit("snackbarMessage", {
             type: "success",
@@ -232,7 +219,7 @@ export default {
 .table-shrinked {
   td {
     padding: 0;
-    div:not(.v-menu) {
+    div:not(.v-menu):not(.oneline-text) {
       height: inherit;
       display: flex;
       justify-content: center;

@@ -11,15 +11,23 @@
       <v-menu bottom left offset-y max-height="300px">
         <template v-slot:activator="{ on }">
           <div class="px-4" v-on="on">
-            <v-btn
-              icon
-              color="error"
-              @click.stop="changeRoundHost(round, item.host, '')"
-              v-if="user.roles.includes('teamleader')"
-            >
+            <v-btn icon color="error" @click.stop="changeRoundHost(round, item.host, '')" v-if="user.roles.includes('teamleader')">
               <v-icon>mdi-skull-crossbones</v-icon>
             </v-btn>
-            {{ item.host.nickname }}
+            <v-tooltip bottom color="secondary">
+              <template v-slot:activator="{ on }">
+                <v-avatar color="transparent" size="20" class="mr-1" v-on="on">
+                  <span class="accent--text title">G</span>
+                </v-avatar>
+              </template>
+              <span v-if="game !== 'Autochess'">{{ item.groupName.replace("index", round.hosts.indexOf(item) + 1) }}</span>
+              <span v-else>
+                {{ item.groupName.replace("index", `${round.hosts.indexOf(item) * 4 + 1}-${round.hosts.indexOf(item) * 4 + 4}`) }}
+              </span>
+            </v-tooltip>
+            <div class="oneline-text" style="max-width: 100px">
+              {{ item.host.nickname }}
+            </div>
             <div class="ml-auto">
               <v-btn
                 v-if="!item.ready && item.host._id === user._id"
@@ -30,11 +38,7 @@
               >
                 <v-icon color="success">mdi-check</v-icon>
               </v-btn>
-              <div
-                v-if="+item.timeBalance"
-                class="icon-size"
-                :class="item.timeBalance > 0 ? 'success--text' : 'error--text'"
-              >
+              <div v-if="+item.timeBalance" class="icon-size" :class="item.timeBalance > 0 ? 'success--text' : 'error--text'">
                 <span v-if="item.timeBalance > 0">+</span>{{ item.timeBalance }}
               </div>
               <v-icon v-if="item.lostHosting" color="warning">
@@ -46,14 +50,7 @@
               <v-icon v-else color="error">
                 mdi-account-remove
               </v-icon>
-              <v-menu
-                bottom
-                right
-                offset-x
-                v-model="item.menu"
-                :close-on-content-click="false"
-                v-if="user.roles.includes('teamleader')"
-              >
+              <v-menu bottom right offset-x v-model="item.menu" :close-on-content-click="false" v-if="user.roles.includes('teamleader')">
                 <template v-slot:activator="{ on }">
                   <v-btn icon v-on="on">
                     <v-icon>mdi-pencil</v-icon>
@@ -63,26 +60,16 @@
                   <div class="text-center">{{ item.host.nickname }}</div>
                   <v-form>
                     <v-list-item v-if="user.roles.includes('admin')">
-                      <v-checkbox
-                        v-model="item.ready"
-                        label="Ready"
-                        color="accent"
-                      ></v-checkbox>
+                      <v-checkbox v-model="item.ready" label="Ready" color="accent"></v-checkbox>
                     </v-list-item>
                     <v-list-item>
-                      <v-checkbox
-                        v-model="item.lostHosting"
-                        label="Lost hosting"
-                        color="accent"
-                      ></v-checkbox>
+                      <v-checkbox v-model="item.lostHosting" label="Lost hosting" color="accent"></v-checkbox>
                     </v-list-item>
                     <v-list-item>
-                      <v-text-field
-                        label="Round balance"
-                        v-model="item.timeBalance"
-                        type="number"
-                        color="accent"
-                      ></v-text-field>
+                      <v-text-field label="Round balance" v-model="item.timeBalance" type="number" color="accent"></v-text-field>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-text-field label="Group name" v-model="item.groupName" color="accent"></v-text-field>
                     </v-list-item>
                     <v-container>
                       <v-row>
@@ -106,27 +93,13 @@
             </div>
           </div>
         </template>
-        <v-list
-          v-if="user.roles.includes('teamleader') && availableEdited.length"
-        >
-          <v-list-item
-            v-for="(host, i) in availableEdited"
-            :key="i"
-            @click="changeRoundHost(round, item.host, host)"
-          >
+        <v-list v-if="user.roles.includes('teamleader') && availableEdited.length">
+          <v-list-item v-for="(host, i) in availableEdited" :key="i" @click="changeRoundHost(round, item.host, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
-        <v-list
-          v-else-if="
-            user.roles.includes('teamleader') && round.available.length
-          "
-        >
-          <v-list-item
-            v-for="(host, i) in round.available"
-            :key="i"
-            @click="changeRoundHost(round, item.host, host)"
-          >
+        <v-list v-else-if="user.roles.includes('teamleader') && round.available.length">
+          <v-list-item v-for="(host, i) in round.available" :key="i" @click="changeRoundHost(round, item.host, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -146,20 +119,12 @@
         </template>
 
         <v-list v-if="availableEdited.length">
-          <v-list-item
-            v-for="(host, i) in availableEdited"
-            :key="i"
-            @click="addHostToRound(round, host)"
-          >
+          <v-list-item v-for="(host, i) in availableEdited" :key="i" @click="addHostToRound(round, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
         <v-list v-else-if="round.available.length && !availableEdited.length">
-          <v-list-item
-            v-for="(host, i) in round.available"
-            :key="i"
-            @click="addHostToRound(round, host)"
-          >
+          <v-list-item v-for="(host, i) in round.available" :key="i" @click="addHostToRound(round, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -176,6 +141,7 @@
 export default {
   props: {
     round: Object,
+    game: String,
     tableSettings: Object,
     user: Object,
     usersAvailable: Array
@@ -196,26 +162,17 @@ export default {
   methods: {
     readyDisabled() {
       return (
-        this.$moment(this.round.startDate).diff(
-          this.$store.state.now,
-          "minutes"
-        ) > 60 ||
-        this.$moment(this.round.startDate).diff(
-          this.$store.state.now,
-          "minutes"
-        ) < 30
+        this.$moment(this.round.startDate).diff(this.$store.state.now, "minutes") > 60 ||
+        this.$moment(this.round.startDate).diff(this.$store.state.now, "minutes") < 30
       );
     },
     changeRoundHost(round, oldHost, newHost) {
       this.$emit("changesMade");
-      const arrayIndex = round.hosts.findIndex(
-        el => el.host._id === oldHost._id
-      );
+      const arrayIndex = round.hosts.findIndex(el => el.host._id === oldHost._id);
 
       round.available = round.available.filter(hostObj => hostObj !== newHost);
       round.available.push(oldHost);
-      if (!this.excludedHosts.some(hostObj => hostObj === oldHost))
-        this.$emit("excludedAdd", oldHost);
+      if (!this.excludedHosts.some(hostObj => hostObj === oldHost)) this.$emit("excludedAdd", oldHost);
       if (newHost === "") {
         return round.hosts.splice(arrayIndex, 1);
       }
@@ -230,20 +187,13 @@ export default {
       this.$emit("changesMade");
       round.hosts.push({ host: hostAdded, ready: false, lostHosting: false });
       round.available = round.available.filter(host => host !== hostAdded);
-      this.availableEdited = this.availableEdited.filter(
-        host => host !== hostAdded
-      );
+      this.availableEdited = this.availableEdited.filter(host => host !== hostAdded);
       this.$emit("excludedRemove", hostAdded);
     }
   },
   watch: {
     usersAvailable(newValue) {
-      this.availableEdited = this.usersAvailable.filter(
-        user =>
-          !this.round.hosts.some(
-            hostObject => hostObject.host.nickname === user.nickname
-          )
-      );
+      this.availableEdited = this.usersAvailable.filter(user => !this.round.hosts.some(hostObject => hostObject.host.nickname === user.nickname));
     }
   }
 };

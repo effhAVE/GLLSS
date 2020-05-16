@@ -10,35 +10,18 @@
       <template v-slot:item.host="{ item }">
         <div class="px-4">
           <div class="overline accent--text mr-2">
-            G
-            <span v-if="game !== 'Autochess'">{{
-              round.hosts.indexOf(item) + 1
-            }}</span>
+            <span v-if="game !== 'Autochess'">{{ item.groupName.replace("index", round.hosts.indexOf(item) + 1) }}</span>
             <span v-else>
-              {{ round.hosts.indexOf(item) * 4 + 1 }}-{{
-                round.hosts.indexOf(item) * 4 + 4
-              }}
+              {{ item.groupName.replace("index", `${round.hosts.indexOf(item) * 4 + 1}-${round.hosts.indexOf(item) * 4 + 4}`) }}
             </span>
           </div>
-          <span
-            :class="item.host.nickname === user.nickname ? 'accent--text' : ''"
-            >{{ item.host.nickname }}</span
-          >
+          <span :class="item.host.nickname === user.nickname ? 'accent--text' : ''">{{ item.host.nickname }}</span>
 
           <div class="ml-auto">
-            <div
-              v-if="+item.timeBalance"
-              class="icon-size"
-              :class="item.timeBalance > 0 ? 'success--text' : 'error--text'"
-            >
+            <div v-if="+item.timeBalance" class="icon-size" :class="item.timeBalance > 0 ? 'success--text' : 'error--text'">
               <span v-if="item.timeBalance > 0">+</span>{{ item.timeBalance }}
             </div>
-            <v-icon
-              color="accent"
-              small
-              v-if="item.host.nickname === user.nickname"
-              >mdi-account</v-icon
-            >
+            <v-icon color="accent" small v-if="item.host.nickname === user.nickname">mdi-account</v-icon>
           </div>
         </div>
       </template>
@@ -52,25 +35,13 @@
     >
       <template v-slot:item.teamLeads="{ item }">
         <div class="px-4">
-          <span
-            :class="item.host.nickname === user.nickname ? 'accent--text' : ''"
-            >{{ item.host.nickname }}</span
-          >
+          <span :class="item.host.nickname === user.nickname ? 'accent--text' : ''">{{ item.host.nickname }}</span>
 
           <div class="ml-auto">
-            <div
-              v-if="+item.timeBalance"
-              class="icon-size"
-              :class="item.timeBalance > 0 ? 'success--text' : 'error--text'"
-            >
+            <div v-if="+item.timeBalance" class="icon-size" :class="item.timeBalance > 0 ? 'success--text' : 'error--text'">
               <span v-if="item.timeBalance > 0">+</span>{{ item.timeBalance }}
             </div>
-            <v-icon
-              color="accent"
-              small
-              v-if="item.host.nickname === user.nickname"
-              >mdi-account</v-icon
-            >
+            <v-icon color="accent" small v-if="item.host.nickname === user.nickname">mdi-account</v-icon>
           </div>
         </div>
       </template>

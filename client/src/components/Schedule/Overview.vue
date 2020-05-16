@@ -1,13 +1,6 @@
 <template>
   <v-tab-item>
-    <v-snackbar
-      v-model="changedRounds.length"
-      color="secondary border--accent"
-      bottom
-      right
-      multi-line
-      :timeout="0"
-    >
+    <v-snackbar v-model="changedRounds.length" color="secondary border--accent" bottom right multi-line :timeout="0">
       Do you want to save the changes?
       <v-btn text color="accent" @click="saveChanges">
         Save
@@ -24,18 +17,15 @@
         <div v-for="gameObject in groupedRounds" :key="gameObject.game">
           <h3 class="title accent--text">{{ gameObject.game }}</h3>
           <div v-for="(rounds, day) in gameObject.rounds" :key="day">
-            <h4 class="subtitle">
-              {{ day | moment("LL") }} - {{ day | moment("dddd") }}
-            </h4>
+            <h4 class="subtitle">{{ day | moment("LL") }} - {{ day | moment("dddd") }}</h4>
             <div class="d-flex overflow-x-auto mb-8">
               <Round
                 v-for="round in rounds"
                 :key="round._id"
                 :round="round"
+                :game="gameObject.game"
                 @roundChanged="addChanged"
-                @balanceChange="
-                  $emit('balanceChange', { ...$event, game: gameObject.game })
-                "
+                @balanceChange="$emit('balanceChange', { ...$event, game: gameObject.game })"
               />
             </div>
           </div>
@@ -44,18 +34,14 @@
       <v-tab-item v-for="gameObject in groupedRounds" :key="gameObject.game">
         <h3 class="title accent--text">{{ gameObject.game }}</h3>
         <div v-for="(rounds, day) in gameObject.rounds" :key="day">
-          <h4 class="subtitle">
-            {{ day | moment("LL") }} - {{ day | moment("dddd") }}
-          </h4>
+          <h4 class="subtitle">{{ day | moment("LL") }} - {{ day | moment("dddd") }}</h4>
           <div class="d-flex overflow-x-auto mb-8">
             <Round
               v-for="round in rounds"
               :key="round._id"
               :round="round"
               @roundChanged="addChanged"
-              @balanceChange="
-                $emit('balanceChange', { ...$event, game: gameObject.game })
-              "
+              @balanceChange="$emit('balanceChange', { ...$event, game: gameObject.game })"
             />
           </div>
         </div>
@@ -83,14 +69,10 @@ export default {
   },
   methods: {
     addChanged(roundObject) {
-      const existingRound = this.changedRounds.some(
-        changedRound => changedRound.round._id === roundObject.round._id
-      );
+      const existingRound = this.changedRounds.some(changedRound => changedRound.round._id === roundObject.round._id);
 
       if (existingRound) {
-        this.changedRounds = this.changedRounds.filter(
-          changedRound => changedRound.round._id !== roundObject.round._id
-        );
+        this.changedRounds = this.changedRounds.filter(changedRound => changedRound.round._id !== roundObject.round._id);
       }
 
       this.changedRounds.push(roundObject);
@@ -103,17 +85,11 @@ export default {
         this.groupedRounds.forEach(gameObject => {
           for (const rounds of Object.values(gameObject.rounds)) {
             rounds.forEach(round => {
-              round.available.sort((a, b) =>
-                a.nickname.localeCompare(b.nickname)
-              );
+              round.available.sort((a, b) => a.nickname.localeCompare(b.nickname));
 
               let names = round.available.map(host => host.nickname);
-              let teamLeads = round.teamLeads.map(
-                TLObject => TLObject.host.nickname
-              );
-              let hosts = round.hosts.map(
-                hostObject => hostObject.host.nickname
-              );
+              let teamLeads = round.teamLeads.map(TLObject => TLObject.host.nickname);
+              let hosts = round.hosts.map(hostObject => hostObject.host.nickname);
 
               this.availabilityList.push({
                 roundStartDate: round.startDate,

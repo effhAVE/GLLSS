@@ -1,20 +1,11 @@
 <template>
-  <v-card
-    color="primary"
-    width="200px"
-    class="flex-shrink-0 mr-2 mb-2 fill-height has-border"
-    outlined
-  >
+  <v-card color="primary" width="200px" class="flex-shrink-0 mr-2 mb-2 fill-height has-border" outlined>
     <div class="primary darken-1" style="height: 80px">
       <v-card-subtitle class="oneline-text pa-2">
         <v-tooltip bottom color="secondary">
           <template v-slot:activator="{ on }">
             <span v-on="on">
-              <router-link
-                :to="`/tournaments/${round.tournamentID}`"
-                class="caption"
-                >{{ round.tournamentName }}</router-link
-              >
+              <router-link :to="`/tournaments/${round.tournamentID}`" class="caption">{{ round.tournamentName }}</router-link>
             </span>
           </template>
           <span>{{ round.tournamentName }}</span>

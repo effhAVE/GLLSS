@@ -11,25 +11,28 @@
         <v-menu bottom left offset-y max-height="300px">
           <template v-slot:activator="{ on }">
             <div class="px-4" v-on="on">
-              <v-btn
-                icon
-                color="error"
-                @click.stop="changeRoundHost(round, item.host, '')"
-                x-small
-              >
+              <v-btn icon color="error" @click.stop="changeRoundHost(round, item.host, '')" x-small>
                 <v-icon>mdi-skull-crossbones</v-icon>
               </v-btn>
-              {{ item.host.nickname }}
+              <v-tooltip bottom color="secondary">
+                <template v-slot:activator="{ on }">
+                  <v-avatar color="transparent" size="16" class="mx-1" v-on="on">
+                    <span class="accent--text">G</span>
+                  </v-avatar>
+                </template>
+                <span v-if="game !== 'Autochess'">{{ item.groupName.replace("index", round.hosts.indexOf(item) + 1) }}</span>
+                <span v-else>
+                  {{ item.groupName.replace("index", `${round.hosts.indexOf(item) * 4 + 1}-${round.hosts.indexOf(item) * 4 + 4}`) }}
+                </span>
+              </v-tooltip>
+
+              <div class="oneline-text" style="max-width: 100px">
+                {{ item.host.nickname }}
+              </div>
+
               <div class="ml-auto">
-                <div
-                  v-if="+item.timeBalance"
-                  class="icon-size"
-                  :class="
-                    item.timeBalance > 0 ? 'success--text' : 'error--text'
-                  "
-                >
-                  <span v-if="item.timeBalance > 0">+</span
-                  >{{ item.timeBalance }}
+                <div v-if="+item.timeBalance" class="icon-size" :class="item.timeBalance > 0 ? 'success--text' : 'error--text'">
+                  <span v-if="item.timeBalance > 0">+</span>{{ item.timeBalance }}
                 </div>
                 <v-tooltip bottom v-if="item.lostHosting" color="warning">
                   <template v-slot:activator="{ on }">
@@ -71,29 +74,18 @@
                     <div class="text-center">{{ item.host.nickname }}</div>
                     <v-form>
                       <v-list-item>
-                        <v-checkbox
-                          v-model="item.lostHosting"
-                          label="Lost hosting"
-                          color="accent"
-                        ></v-checkbox>
+                        <v-checkbox v-model="item.lostHosting" label="Lost hosting" color="accent"></v-checkbox>
                       </v-list-item>
                       <v-list-item>
-                        <v-text-field
-                          label="Round balance"
-                          v-model="item.timeBalance"
-                          type="number"
-                          color="accent"
-                        ></v-text-field>
+                        <v-text-field label="Round balance" v-model="item.timeBalance" type="number" color="accent"></v-text-field>
+                      </v-list-item>
+                      <v-list-item>
+                        <v-text-field label="Group name" v-model="item.groupName" color="accent"></v-text-field>
                       </v-list-item>
                       <v-container>
                         <v-row>
                           <v-spacer></v-spacer>
-                          <v-btn
-                            text
-                            class="mr-4"
-                            color="accent"
-                            @click.prevent="$emit('userUpdate', item)"
-                          >
+                          <v-btn text class="mr-4" color="accent" @click.prevent="$emit('userUpdate', item)">
                             Save
                           </v-btn>
                         </v-row>
@@ -105,11 +97,7 @@
             </div>
           </template>
           <v-list v-if="round.available.length">
-            <v-list-item
-              v-for="(host, i) in round.available"
-              :key="i"
-              @click="changeRoundHost(round, item.host, host)"
-            >
+            <v-list-item v-for="(host, i) in round.available" :key="i" @click="changeRoundHost(round, item.host, host)">
               <v-list-item-title>{{ host.nickname }}</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -128,11 +116,7 @@
             </v-btn>
           </template>
           <v-list v-if="round.available.length">
-            <v-list-item
-              v-for="(host, i) in round.available"
-              :key="i"
-              @click="addHostToRound(round, host)"
-            >
+            <v-list-item v-for="(host, i) in round.available" :key="i" @click="addHostToRound(round, host)">
               <v-list-item-title>{{ host.nickname }}</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -155,25 +139,17 @@
         <v-menu bottom left offset-y max-height="300px">
           <template v-slot:activator="{ on }">
             <div class="px-4" v-on="on">
-              <v-btn
-                icon
-                color="error"
-                @click.stop="changeRoundTL(round, item.host, '')"
-                x-small
-              >
+              <v-btn icon color="error" @click.stop="changeRoundTL(round, item.host, '')" x-small>
                 <v-icon>mdi-skull-crossbones</v-icon>
               </v-btn>
-              {{ item.host.nickname }}
+
+              <div class="oneline-text" style="max-width: 100px">
+                {{ item.host.nickname }}
+              </div>
+
               <div class="ml-auto">
-                <div
-                  v-if="+item.timeBalance"
-                  class="icon-size"
-                  :class="
-                    item.timeBalance > 0 ? 'success--text' : 'error--text'
-                  "
-                >
-                  <span v-if="item.timeBalance > 0">+</span
-                  >{{ item.timeBalance }}
+                <div v-if="+item.timeBalance" class="icon-size" :class="item.timeBalance > 0 ? 'success--text' : 'error--text'">
+                  <span v-if="item.timeBalance > 0">+</span>{{ item.timeBalance }}
                 </div>
                 <v-tooltip bottom v-if="item.lostLeading" color="warning">
                   <template v-slot:activator="{ on }">
@@ -215,29 +191,15 @@
                     <div class="text-center">{{ item.host.nickname }}</div>
                     <v-form>
                       <v-list-item>
-                        <v-checkbox
-                          v-model="item.lostLeading"
-                          label="Lost leading"
-                          color="accent"
-                        ></v-checkbox>
+                        <v-checkbox v-model="item.lostLeading" label="Lost leading" color="accent"></v-checkbox>
                       </v-list-item>
                       <v-list-item>
-                        <v-text-field
-                          label="Time balance"
-                          v-model="item.timeBalance"
-                          type="number"
-                          color="accent"
-                        ></v-text-field>
+                        <v-text-field label="Time balance" v-model="item.timeBalance" type="number" color="accent"></v-text-field>
                       </v-list-item>
                       <v-container>
                         <v-row>
                           <v-spacer></v-spacer>
-                          <v-btn
-                            text
-                            class="mr-4"
-                            color="accent"
-                            @click.prevent="$emit('userUpdate', item)"
-                          >
+                          <v-btn text class="mr-4" color="accent" @click.prevent="$emit('userUpdate', item)">
                             Save
                           </v-btn>
                         </v-row>
@@ -249,11 +211,7 @@
             </div>
           </template>
           <v-list v-if="availableTLs.length">
-            <v-list-item
-              v-for="(host, i) in availableTLs"
-              :key="i"
-              @click="changeRoundTL(round, item.host, host)"
-            >
+            <v-list-item v-for="(host, i) in availableTLs" :key="i" @click="changeRoundTL(round, item.host, host)">
               <v-list-item-title>{{ host.nickname }}</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -272,11 +230,7 @@
             </v-btn>
           </template>
           <v-list v-if="availableTLs.length">
-            <v-list-item
-              v-for="(host, i) in availableTLs"
-              :key="i"
-              @click="addTLToRound(round, host)"
-            >
+            <v-list-item v-for="(host, i) in availableTLs" :key="i" @click="addTLToRound(round, host)">
               <v-list-item-title>{{ host.nickname }}</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -293,7 +247,8 @@
 <script>
 export default {
   props: {
-    round: Object
+    round: Object,
+    game: String
   },
   data() {
     return {
@@ -322,9 +277,7 @@ export default {
   },
   computed: {
     availableTLs() {
-      return this.round.available.filter(host =>
-        host.roles.includes("teamleader")
-      );
+      return this.round.available.filter(host => host.roles.includes("teamleader"));
     }
   },
   methods: {
@@ -335,14 +288,11 @@ export default {
         newHost: newHost,
         bestOf: round.bestOf
       });
-      const arrayIndex = round.hosts.findIndex(
-        el => el.host._id === oldHost._id
-      );
+      const arrayIndex = round.hosts.findIndex(el => el.host._id === oldHost._id);
 
       round.available = round.available.filter(hostObj => hostObj !== newHost);
       round.available.push(oldHost);
-      if (!this.excludedHosts.some(hostObj => hostObj === oldHost))
-        this.$emit("excludedAdd", oldHost);
+      if (!this.excludedHosts.some(hostObj => hostObj === oldHost)) this.$emit("excludedAdd", oldHost);
       if (newHost === "") {
         return round.hosts.splice(arrayIndex, 1);
       }
@@ -365,14 +315,11 @@ export default {
     },
     changeRoundTL(round, oldHost, newHost) {
       this.$emit("changesMade");
-      const arrayIndex = round.teamLeads.findIndex(
-        el => el.host._id === oldHost._id
-      );
+      const arrayIndex = round.teamLeads.findIndex(el => el.host._id === oldHost._id);
 
       round.available = round.available.filter(hostObj => hostObj !== newHost);
       round.available.push(oldHost);
-      if (!this.excludedHosts.some(hostObj => hostObj === oldHost))
-        this.$emit("excludedAdd", oldHost);
+      if (!this.excludedHosts.some(hostObj => hostObj === oldHost)) this.$emit("excludedAdd", oldHost);
       if (newHost === "") {
         return round.teamLeads.splice(arrayIndex, 1);
       }

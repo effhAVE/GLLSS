@@ -57,6 +57,10 @@ const roundSchema = new mongoose.Schema({
       type: Boolean,
       default: false
     },
+    groupName: {
+      type: String,
+      default: "Gindex"
+    },
     _id: false
   }],
   teamLeads: [{

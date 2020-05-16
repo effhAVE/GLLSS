@@ -1,13 +1,6 @@
 <template>
   <v-card height="100%" color="transparent" v-if="tournament">
-    <v-snackbar
-      v-model="changedRounds.length"
-      color="secondary border--accent"
-      bottom
-      right
-      multi-line
-      :timeout="0"
-    >
+    <v-snackbar v-model="changedRounds.length" color="secondary border--accent" bottom right multi-line :timeout="0">
       Do you want to save the changes?
       <v-btn text color="accent" @click="saveRoundsChanges">
         Save
@@ -18,11 +11,7 @@
       <v-spacer></v-spacer>
       <v-dialog v-model="addRoundModal" persistent max-width="600px">
         <template v-slot:activator="{ on }">
-          <v-btn
-            class="success mr-4"
-            v-if="user.roles.includes('admin')"
-            v-on="on"
-          >
+          <v-btn class="success mr-4" v-if="user.roles.includes('admin')" v-on="on">
             Add round
           </v-btn>
         </template>
@@ -43,22 +32,14 @@
       </v-dialog>
       <v-dialog v-model="editModal" persistent max-width="600px">
         <template v-slot:activator="{ on }">
-          <v-btn
-            class="success mr-4"
-            v-if="user.roles.includes('admin')"
-            v-on="on"
-          >
+          <v-btn class="success mr-4" v-if="user.roles.includes('admin')" v-on="on">
             Edit tournament
           </v-btn>
         </template>
         <v-card class="primary">
           <v-card-text>
             <v-container>
-              <TournamentForm
-                :tournament="tournament"
-                @cancel="editModal = false"
-                @submit="editTournament"
-              />
+              <TournamentForm :tournament="tournament" @cancel="editModal = false" @submit="editTournament" />
             </v-container>
           </v-card-text>
         </v-card>
@@ -72,10 +53,7 @@
 
         <v-card>
           <v-card-title class="headline">Are you sure?</v-card-title>
-          <v-card-text
-            >You're about to delete {{ tournament.name }} from the database.
-            This action cannot be undone.</v-card-text
-          >
+          <v-card-text>You're about to delete {{ tournament.name }} from the database. This action cannot be undone.</v-card-text>
           <v-divider></v-divider>
 
           <v-card-actions>
@@ -99,6 +77,7 @@
         :key="round._id"
         :user="user"
         :usersAvailable="usersAvailable"
+        :game="tournament.game"
         ref="round"
         class="mt-12 mx-4"
         @roundChanged="changedRounds.push($event)"
@@ -159,10 +138,7 @@ export default {
     saveRoundsChanges() {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .put(
-          `${APIURL}/tournaments/${this.tournament._id}/rounds`,
-          this.changedRounds
-        )
+        .put(`${APIURL}/tournaments/${this.tournament._id}/rounds`, this.changedRounds)
         .then(() => {
           this.changedRounds.splice(0);
           this.$store.commit("snackbarMessage", {
