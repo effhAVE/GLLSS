@@ -18,14 +18,7 @@
         <v-card class="primary">
           <v-card-text>
             <v-container>
-              <RoundForm
-                :tournamentDates="{
-                  start: tournament.startDate,
-                  end: tournament.endDate
-                }"
-                @cancel="addRoundModal = false"
-                @submit="addNewRound($event)"
-              />
+              <RoundForm :tournamentDates="tournamentDates(tournament)" @cancel="addRoundModal = false" @submit="addNewRound($event)" />
             </v-container>
           </v-card-text>
         </v-card>
@@ -117,6 +110,13 @@ export default {
     };
   },
   methods: {
+    tournamentDates(tournament) {
+      const roundsLength = tournament.rounds.length;
+      return {
+        start: tournament.startDate,
+        end: tournament.endDate
+      };
+    },
     getTournament(id) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http

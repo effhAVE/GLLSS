@@ -16,7 +16,11 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
 });
 
 router.get("/list", auth, validateAccess("host"), async (req, res) => {
-  const series = await Series.find().select("name");
+  const series = await Series.find().select("name").sort({
+    game: 1,
+    recurrance: 1,
+    name: 1
+  });
   res.send(series);
 });
 
