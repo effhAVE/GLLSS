@@ -299,7 +299,9 @@ export default {
     checkFilteredAvailability() {
       const values = [];
       for (const tournament of this.tournamentsList) {
-        const value = tournament.rounds.every(round => (!this.isPast(round) && round.myAvailability) || round.isHosting || this.isPast(round));
+        const value = tournament.rounds.every(
+          round => (!this.isPast(round) && round.myAvailability) || round.isHosting || round.isLeading || this.isPast(round)
+        );
         values.push(value);
       }
 
