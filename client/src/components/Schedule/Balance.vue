@@ -12,7 +12,7 @@
     <v-tabs-items v-model="balanceTab" class="py-4">
       <v-tab-item v-for="(gameObject, game) in nonEmptyGames" :key="game">
         <v-card-text>
-          <v-simple-table class="table-background table-simple not-editable mb-4">
+          <v-simple-table class="table-background table-simple not-editable mb-4" dense>
             <template v-slot:default>
               <thead>
                 <th>

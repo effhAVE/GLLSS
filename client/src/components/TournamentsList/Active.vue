@@ -306,9 +306,8 @@ export default {
       return values.every(value => !!value);
     },
     setIcon(tournament) {
-      if (tournament.rounds.every(round => (!this.isPast(round) && round.myAvailability === false) || this.isPast(round))) return "";
-      else if (tournament.rounds.every(round => (!this.isPast(round) && round.myAvailability === true) || this.isPast(round)))
-        return "mdi-checkbox-marked";
+      if (tournament.rounds.every(round => (!this.isPast(round) && !round.myAvailability) || this.isPast(round))) return "";
+      else if (tournament.rounds.every(round => (!this.isPast(round) && round.myAvailability) || this.isPast(round))) return "mdi-checkbox-marked";
       else return "mdi-minus-box";
     },
     checkTournamentAvailability(tournament) {
