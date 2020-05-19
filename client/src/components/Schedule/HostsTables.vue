@@ -8,7 +8,7 @@
       no-data-text="No hosts set."
     >
       <template v-slot:item.host="{ item }">
-        <v-menu bottom left offset-y max-height="300px">
+        <v-menu bottom left offset-y max-height="300px" :disabled="isPast">
           <template v-slot:activator="{ on }">
             <div class="px-4" v-on="on">
               <v-btn icon color="error" @click.stop="changeRoundHost(round, item.host, '')" x-small>
@@ -111,7 +111,7 @@
       <template v-slot:body.append>
         <v-menu bottom left max-height="300px">
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" color="success" width="100%" x-small tile>
+            <v-btn v-on="on" color="success" width="100%" x-small tile :disabled="isPast">
               Add
             </v-btn>
           </template>
@@ -225,7 +225,7 @@
       <template v-slot:body.append>
         <v-menu bottom left max-height="300px">
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" color="success" width="100%" x-small tile>
+            <v-btn v-on="on" color="success" width="100%" x-small tile :disabled="isPast">
               Add
             </v-btn>
           </template>
@@ -248,7 +248,8 @@
 export default {
   props: {
     round: Object,
-    game: String
+    game: String,
+    isPast: Boolean
   },
   data() {
     return {

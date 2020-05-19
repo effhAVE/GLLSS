@@ -15,7 +15,7 @@
       >
         <template v-slot:activator="{ on }">
           <v-text-field
-            :value="$moment(selectedWeek).isoWeek()"
+            :value="$moment.utc(selectedWeek).isoWeek()"
             label="Selected week"
             prepend-icon="mdi-calendar"
             color="accent"
@@ -35,9 +35,7 @@
         >
           <v-spacer></v-spacer>
           <v-btn text color="accent" @click="weekMenu = false">Cancel</v-btn>
-          <v-btn text color="accent" @click="$refs.menu.save(selectedWeek)"
-            >OK</v-btn
-          >
+          <v-btn text color="accent" @click="$refs.menu.save(selectedWeek)">OK</v-btn>
         </v-date-picker>
       </v-menu>
     </v-card-title>
@@ -55,7 +53,8 @@ export default {
   },
   data() {
     return {
-      selectedWeek: this.$moment()
+      selectedWeek: this.$moment
+        .utc()
         .startOf("isoWeek")
         .format("YYYY-MM-DD"),
       weekMenu: false
@@ -63,9 +62,10 @@ export default {
   },
   computed: {
     relativeWeek() {
-      return this.$moment(this.selectedWeek)
+      return this.$moment
+        .utc(this.selectedWeek)
         .startOf("isoWeek")
-        .diff(this.$moment().startOf("isoWeek"), "weeks");
+        .diff(this.$moment.utc().startOf("isoWeek"), "weeks");
     }
   },
   methods: {

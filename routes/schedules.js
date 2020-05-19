@@ -82,8 +82,8 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
   const weekNumber = req.query.week || 0;
-  const rangeStart = moment().add(weekNumber, "weeks").startOf("isoWeek").toDate();
-  const rangeEnd = moment().add(weekNumber, "weeks").endOf("isoWeek").toDate();
+  const rangeStart = moment.utc().add(weekNumber, "weeks").startOf("isoWeek").toDate();
+  const rangeEnd = moment.utc().add(weekNumber, "weeks").endOf("isoWeek").toDate();
   const aggregated = await Tournament
     .aggregate([{
         $match: {
@@ -143,6 +143,11 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
           game: "$_id",
           rounds: 1
         }
+      },
+      {
+        $sort: {
+          game: 1
+        }
       }
     ]);
 
@@ -154,7 +159,7 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
   rounds.forEach(gameObject => {
     const roundsDays = {};
     gameObject.rounds.forEach(round => {
-      const date = moment(round.localStartDate).format("YYYY-MM-DD");
+      const date = moment.utc(round.localStartDate).format("YYYY-MM-DD");
       if (date in roundsDays) {
         roundsDays[date].push(round);
       } else {

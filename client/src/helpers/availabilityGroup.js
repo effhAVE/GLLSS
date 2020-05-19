@@ -16,10 +16,9 @@ export default function(array, week) {
     hosts,
     teamLeads
   }) => {
-    const roundDay = moment(roundLocalStartDate).format("DD-MMMM-YYYY");
+    const roundDay = moment.utc(roundLocalStartDate).format("DD-MMMM-YYYY");
     if (!result[roundDay]) result[roundDay] = {};
-    if (!result[roundDay][game]) result[roundDay][game] = []
-
+    if (!result[roundDay][game]) result[roundDay][game] = [];
     result[roundDay][game].push({
       start: moment(roundStartDate).format("HH mm"),
       bestOf,

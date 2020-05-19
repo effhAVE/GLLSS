@@ -1,24 +1,12 @@
 <template>
   <v-app>
-    <v-snackbar
-      v-model="snackbar.show"
-      :color="snackbar.type"
-      bottom
-      right
-      multi-line
-    >
+    <v-snackbar v-model="snackbar.show" :color="snackbar.type" bottom right multi-line>
       {{ snackbar.message }}
       <v-btn text @click="snackbar.show = false">
         Close
       </v-btn>
     </v-snackbar>
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-      clipped
-      color="primary lighten-1"
-      v-if="user"
-    >
+    <v-navigation-drawer v-model="drawer" app clipped color="primary lighten-1" v-if="user">
       <Navigation :user="user" />
     </v-navigation-drawer>
 
@@ -45,10 +33,7 @@
 
     <v-footer app color="primary darken-1">
       <v-spacer />
-      <span
-        >Created for GLL by <router-link to="/aboutme">hAVE</router-link> &copy;
-        2020</span
-      >
+      <span>Created for GLL by <router-link to="/aboutme">hAVE</router-link> &copy; 2020</span>
       <v-spacer />
     </v-footer>
   </v-app>

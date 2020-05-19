@@ -17,6 +17,7 @@
       <HostsTables
         :round="round"
         :game="game"
+        :isPast="isPast"
         @changesMade="onBalanceChange"
         @excludedAdd="onExcludedAdd"
         @excludedRemove="onExcludedRemove"
@@ -47,6 +48,11 @@ export default {
       changesMade: false,
       excluded: []
     };
+  },
+  computed: {
+    isPast() {
+      return this.$moment(this.round.endDate).isSameOrBefore(this.$store.state.now);
+    }
   },
   methods: {
     onBalanceChange(payload) {
