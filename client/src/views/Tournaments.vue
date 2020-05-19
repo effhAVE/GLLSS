@@ -1,16 +1,7 @@
 <template>
   <v-card height="100%" color="transparent">
-    <v-snackbar
-      color="secondary border--accent"
-      bottom
-      right
-      multi-line
-      :timeout="0"
-      :value="availableQueue.length"
-    >
-      You have {{ availableQueue.length }} availability change
-      <span v-if="availableQueue.length !== 1"> s </span>. Do you want to save
-      them?
+    <v-snackbar color="secondary border--accent" bottom right multi-line :timeout="0" :value="availableQueue.length">
+      You have {{ availableQueue.length }} availability change <span v-if="availableQueue.length !== 1"> s </span>. Do you want to save them?
       <v-btn text color="accent" @click="onAvailabilitySubmit">
         Save
       </v-btn>
@@ -18,16 +9,9 @@
     <v-card-title>
       Tournaments
     </v-card-title>
-    <v-switch
-      v-model="showPastTournaments"
-      label="Show past tournaments"
-      color="accent"
-    ></v-switch>
-    <ActiveTournaments
-      :user="user"
-      @availabilityChange="onAvailabilityChange"
-    />
-    <PastTournaments :user="user" v-show="showPastTournaments" />
+    <v-switch v-model="showPastTournaments" label="Show past tournaments" color="accent"></v-switch>
+    <ActiveTournaments :user="user" @availabilityChange="onAvailabilityChange" :gameFilters="gamesList" :regionFilters="regionsList" />
+    <PastTournaments :user="user" v-show="showPastTournaments" :gameFilters="gamesList" :regionFilters="regionsList" />
   </v-card>
 </template>
 
@@ -46,8 +30,20 @@ export default {
   data() {
     return {
       availableQueue: [],
-      showPastTournaments: false
+      showPastTournaments: false,
+      gamesList: [],
+      regionsList: []
     };
+  },
+  mounted() {
+    const APIURL = process.env.VUE_APP_APIURL;
+    this.$http.get(`${APIURL}/collections/games`).then(response => {
+      this.gamesList = response.data;
+    });
+
+    this.$http.get(`${APIURL}/collections/regions`).then(response => {
+      this.regionsList = response.data;
+    });
   },
   methods: {
     onAvailabilityChange({ value, tournament, round }) {
@@ -68,10 +64,7 @@ export default {
       const promises = [];
       this.availableQueue.forEach(el => {
         promises.push(
-          this.$http.put(
-            `${APIURL}/tournaments/${el.tournamentID}/rounds/${el.roundID}/availability`,
-            { value: el.value, id: this.user._id }
-          )
+          this.$http.put(`${APIURL}/tournaments/${el.tournamentID}/rounds/${el.roundID}/availability`, { value: el.value, id: this.user._id })
         );
       });
 
@@ -120,9 +113,7 @@ td {
   background-color: var(--v-secondary-base);
 }
 
-.theme--dark.v-data-table
-  tbody
-  .v-data-table__expanded__row:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
+.theme--dark.v-data-table tbody .v-data-table__expanded__row:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
   background-color: var(--v-secondary-lighten1);
 }
 

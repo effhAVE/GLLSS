@@ -3,12 +3,59 @@
     <v-row class="mb-4">
       <v-card-subtitle>Active tournaments</v-card-subtitle>
       <v-spacer></v-spacer>
-      <v-text-field v-model="search" append-icon="mdi-magnify" color="accent" class="m0 pa-0" label="Search" single-line hide-details></v-text-field>
+    </v-row>
+    <v-row class="mx-0">
+      <v-select
+        :items="gameFilters"
+        @change="changeFilters"
+        v-model="selectedGameFilters"
+        label="Games"
+        outlined
+        multiple
+        dense
+        color="accent"
+        item-color="accent"
+        class="filter-input"
+        clearable
+        :menu-props="{ bottom: true, offsetY: true }"
+      ></v-select>
+      <v-select
+        :items="regionFilters"
+        @change="changeFilters"
+        item-text="name"
+        item-value="name"
+        v-model="selectedRegionFilters"
+        multiple
+        label="Regions"
+        class="ml-4 filter-input"
+        outlined
+        dense
+        color="accent"
+        item-color="accent"
+        clearable
+        :menu-props="{ bottom: true, offsetY: true }"
+      >
+        <template v-slot:selection="{ item, index }">
+          <span v-if="index < 2">{{ item.name }}, </span>
+          <span v-if="index === 2" class="grey--text caption ml-1">(+{{ selectedRegionFilters.length - 2 }} others)</span>
+        </template>
+      </v-select>
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        color="accent"
+        class="mx-4 pa-0 filter-input"
+        label="Name"
+        single-line
+        hide-details
+        outlined
+        dense
+        @keyup="searchTimeout"
+      ></v-text-field>
     </v-row>
     <v-data-table
       class="table-background"
       :items="tournamentsList"
-      :search="search"
       :headers="headers"
       :expanded.sync="expanded"
       @click:row="expand"
@@ -19,13 +66,24 @@
       disable-pagination
       ref="tournamentsTable"
     >
+      <template v-slot:header.rounds>
+        <div class="d-flex align-center justify-space-between">
+          <v-simple-checkbox
+            color="accent"
+            :value="checkFilteredAvailability()"
+            :ripple="false"
+            @input="setFilteredAvailability($event)"
+          ></v-simple-checkbox>
+          <p class="ma-0">Available / Hosting</p>
+        </div>
+      </template>
       <template v-slot:header.data-table-expand>
         <v-btn color="accent" class="black--text" x-small @click.stop="expandAll">
           Expand all
         </v-btn>
       </template>
       <template v-slot:item.rounds="{ item }">
-        <div class="d-flex justify-space-between">
+        <div class="d-flex">
           <v-simple-checkbox
             color="accent"
             :on-icon="setIcon(item)"
@@ -33,7 +91,12 @@
             @input="setTournamentAvailability($event, item)"
             :ripple="false"
           ></v-simple-checkbox>
-          <v-simple-checkbox :color="tournamentColor(item.rounds)" :value="isHostingTournament(item.rounds)" :ripple="false"></v-simple-checkbox>
+          <v-simple-checkbox
+            :color="tournamentColor(item.rounds)"
+            :value="isHostingTournament(item.rounds)"
+            :ripple="false"
+            style="margin-left: 60px"
+          ></v-simple-checkbox>
         </div>
       </template>
       <template v-slot:expanded-item="{ headers, item }" tag="div">
@@ -98,7 +161,9 @@
 <script>
 export default {
   props: {
-    user: Object
+    user: Object,
+    gameFilters: Array,
+    regionFilters: Array
   },
   data() {
     return {
@@ -112,7 +177,7 @@ export default {
         {
           text: "Available / Hosting",
           value: "rounds",
-          width: 150,
+          width: 170,
           sortable: false
         },
         {
@@ -121,7 +186,7 @@ export default {
           sortable: false,
           value: "name"
         },
-        { text: "Game", value: "game", align: "center", width: 200 },
+        { text: "Game", value: "game", align: "start", width: 150 },
         {
           text: "Rounds",
           value: "rounds.length",
@@ -132,25 +197,64 @@ export default {
         { text: "Start date", value: "startDate" },
         { text: "End date", value: "endDate" },
         { text: "", value: "data-table-expand", width: 100 }
-      ]
+      ],
+      selectedGameFilters: [],
+      selectedRegionFilters: [],
+      searchTimer: null
     };
   },
   methods: {
+    searchTimeout() {
+      if (this.searchTimer) {
+        clearTimeout(this.searchTimer);
+        this.searchTimer = null;
+      }
+
+      this.searchTimer = setTimeout(() => {
+        this.changeFilters();
+      }, 500);
+    },
+    changeFilters() {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.allLoaded = false;
+      this.page = 0;
+      this.$http
+        .get(
+          `${APIURL}/tournaments/?limit=${this.limit}&page=${this.page}&search=${this.search}&games=${this.selectedGameFilters}&regions=${this.selectedRegionFilters}`
+        )
+        .then(response => {
+          let tournaments = response.data;
+          if (tournaments.length < this.limit) this.allLoaded = true;
+          tournaments.forEach(tournament => {
+            tournament.rounds.forEach(round => {
+              round.isHosting = this.isHosting(round);
+              round.isLeading = this.isLeading(round);
+              round.myAvailability = this.checkAvailability(round);
+            });
+          });
+
+          this.tournamentsList = tournaments;
+        });
+    },
     getTournaments() {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/tournaments/?limit=${this.limit}&page=${this.page}`).then(response => {
-        let tournaments = response.data;
-        if (tournaments.length < this.limit) this.allLoaded = true;
-        tournaments.forEach(tournament => {
-          tournament.rounds.forEach(round => {
-            round.isHosting = this.isHosting(round);
-            round.isLeading = this.isLeading(round);
-            round.myAvailability = this.checkAvailability(round);
+      this.$http
+        .get(
+          `${APIURL}/tournaments/?limit=${this.limit}&page=${this.page}&search=${this.search}&games=${this.selectedGameFilters}&regions=${this.selectedRegionFilters}`
+        )
+        .then(response => {
+          let tournaments = response.data;
+          if (tournaments.length < this.limit) this.allLoaded = true;
+          tournaments.forEach(tournament => {
+            tournament.rounds.forEach(round => {
+              round.isHosting = this.isHosting(round);
+              round.isLeading = this.isLeading(round);
+              round.myAvailability = this.checkAvailability(round);
+            });
           });
-        });
 
-        this.tournamentsList.push(...tournaments);
-      });
+          this.tournamentsList.push(...tournaments);
+        });
     },
     getNextTournamentPage() {
       this.page++;
@@ -187,6 +291,20 @@ export default {
         this.$emit("availabilityChange", { value, tournament, round });
       }
     },
+    setFilteredAvailability(value) {
+      for (const tournament of this.tournamentsList) {
+        this.setTournamentAvailability(value, tournament);
+      }
+    },
+    checkFilteredAvailability() {
+      const values = [];
+      for (const tournament of this.tournamentsList) {
+        const value = tournament.rounds.every(round => (!this.isPast(round) && round.myAvailability) || round.isHosting || this.isPast(round));
+        values.push(value);
+      }
+
+      return values.every(value => !!value);
+    },
     setIcon(tournament) {
       if (tournament.rounds.every(round => (!this.isPast(round) && round.myAvailability === false) || this.isPast(round))) return "";
       else if (tournament.rounds.every(round => (!this.isPast(round) && round.myAvailability === true) || this.isPast(round)))
@@ -215,3 +333,10 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.filter-input {
+  flex-basis: 0;
+  width: 50%;
+}
+</style>

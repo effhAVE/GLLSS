@@ -1,7 +1,57 @@
 <template>
   <div>
-    <v-row class="mt-4">
+    <v-row class="mt-12">
       <v-card-subtitle>Past tournaments</v-card-subtitle>
+      <v-spacer></v-spacer>
+    </v-row>
+    <v-row class="mx-0">
+      <v-select
+        :items="gameFilters"
+        @change="changeFilters"
+        v-model="selectedGameFilters"
+        label="Games"
+        outlined
+        multiple
+        dense
+        color="accent"
+        item-color="accent"
+        class="filter-input"
+        clearable
+        :menu-props="{ bottom: true, offsetY: true }"
+      ></v-select>
+      <v-select
+        :items="regionFilters"
+        @change="changeFilters"
+        item-text="name"
+        item-value="name"
+        v-model="selectedRegionFilters"
+        multiple
+        label="Regions"
+        class="ml-4 filter-input"
+        outlined
+        dense
+        color="accent"
+        item-color="accent"
+        clearable
+        :menu-props="{ bottom: true, offsetY: true }"
+      >
+        <template v-slot:selection="{ item, index }">
+          <span v-if="index < 2">{{ item.name }}, </span>
+          <span v-if="index === 2" class="grey--text caption ml-1">(+{{ selectedRegionFilters.length - 2 }} others)</span>
+        </template>
+      </v-select>
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        color="accent"
+        class="mx-4 pa-0 filter-input"
+        label="Name"
+        single-line
+        hide-details
+        outlined
+        dense
+        @keyup="searchTimeout"
+      ></v-text-field>
     </v-row>
     <v-data-table
       class="table-background"
@@ -72,7 +122,9 @@
 <script>
 export default {
   props: {
-    user: Object
+    user: Object,
+    gameFilters: Array,
+    regionFilters: Array
   },
   data() {
     return {
@@ -106,24 +158,63 @@ export default {
         { text: "Start date", value: "startDate" },
         { text: "End date", value: "endDate" },
         { text: "", value: "data-table-expand", width: 100 }
-      ]
+      ],
+      selectedGameFilters: [],
+      selectedRegionFilters: [],
+      searchTimer: null
     };
   },
   methods: {
+    searchTimeout() {
+      if (this.searchTimer) {
+        clearTimeout(this.searchTimer);
+        this.searchTimer = null;
+      }
+
+      this.searchTimer = setTimeout(() => {
+        this.changeFilters();
+      }, 500);
+    },
+    changeFilters() {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.allLoaded = false;
+      this.page = 0;
+      this.$http
+        .get(
+          `${APIURL}/tournaments/past?limit=${this.limit}&page=${this.page}&search=${this.search}&games=${this.selectedGameFilters}&regions=${this.selectedRegionFilters}`
+        )
+        .then(response => {
+          let tournaments = response.data;
+          if (tournaments.length < this.limit) this.allLoaded = true;
+          tournaments.forEach(tournament => {
+            tournament.rounds.forEach(round => {
+              round.isHosting = this.isHosting(round);
+              round.isLeading = this.isLeading(round);
+              round.myAvailability = this.checkAvailability(round);
+            });
+          });
+
+          this.tournamentsList = tournaments;
+        });
+    },
     getTournaments() {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/tournaments/past?limit=${this.limit}&page=${this.page}`).then(response => {
-        let tournaments = response.data;
-        if (tournaments.length < this.limit) this.allLoaded = true;
-        tournaments.forEach(tournament => {
-          tournament.rounds.forEach(round => {
-            round.isHosting = this.isHosting(round);
-            round.isLeading = this.isLeading(round);
+      this.$http
+        .get(
+          `${APIURL}/tournaments/past?limit=${this.limit}&page=${this.page}&search=${this.search}&games=${this.selectedGameFilters}&regions=${this.selectedRegionFilters}`
+        )
+        .then(response => {
+          let tournaments = response.data;
+          if (tournaments.length < this.limit) this.allLoaded = true;
+          tournaments.forEach(tournament => {
+            tournament.rounds.forEach(round => {
+              round.isHosting = this.isHosting(round);
+              round.isLeading = this.isLeading(round);
+            });
           });
-        });
 
-        this.tournamentsList.push(...tournaments);
-      });
+          this.tournamentsList.push(...tournaments);
+        });
     },
     getNextTournamentPage() {
       this.page++;

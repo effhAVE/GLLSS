@@ -21,10 +21,37 @@ const tournamentRegions = require("../collections/regions");
 router.get("/", auth, validateAccess("host"), async (req, res) => {
   const limitSize = +req.query.limit || 10;
   const page = +req.query.page || 0;
+  const searchQuery = req.query.search || "";
+  const gamesQuery = req.query.games.split(",") || [];
+  const regionsQuery = req.query.regions.split(",") || [];
+
+  let gameFilter = {
+    $exists: true
+  }
+
+  let regionFilter = {
+    $exists: true
+  }
+
+  if (gamesQuery[0]) {
+    gameFilter = {
+      $in: gamesQuery
+    }
+  }
+
+  if (regionsQuery[0]) {
+    regionFilter = {
+      $in: regionsQuery
+    }
+  }
+
   const tournaments = await Tournament.find({
       "endDate": {
         $gte: new Date()
-      }
+      },
+      name: new RegExp(searchQuery, "i"),
+      game: gameFilter,
+      region: regionFilter
     })
     .sort({
       startDate: 1,
@@ -39,10 +66,37 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
 router.get("/past", auth, validateAccess("host"), async (req, res) => {
   const limitSize = +req.query.limit || 10;
   const page = +req.query.page || 0;
+  const searchQuery = req.query.search || "";
+  const gamesQuery = req.query.games.split(",") || [];
+  const regionsQuery = req.query.regions.split(",") || [];
+
+  let gameFilter = {
+    $exists: true
+  }
+
+  let regionFilter = {
+    $exists: true
+  }
+
+  if (gamesQuery[0]) {
+    gameFilter = {
+      $in: gamesQuery
+    }
+  }
+
+  if (regionsQuery[0]) {
+    regionFilter = {
+      $in: regionsQuery
+    }
+  }
+
   const tournaments = await Tournament.find({
       "endDate": {
         $lt: new Date()
-      }
+      },
+      name: new RegExp(searchQuery, "i"),
+      game: gameFilter,
+      region: regionFilter
     })
     .sort({
       endDate: -1,
