@@ -7,6 +7,9 @@ const {
   validate
 } = require("../models/tournament");
 const {
+  Round
+} = require("../models/round");
+const {
   Series
 } = require("../models/series");
 const {
@@ -245,7 +248,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
   } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  let tournament = new Tournament(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region", "countedByRounds", "gllURL"]));
+  let tournament = new Tournament(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region", "countedByRounds", "gllURL", "rounds"]));
   let series;
   if (tournament.series) {
     series = await Series.findById(tournament.series);
@@ -261,6 +264,15 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
 
     tournament.game = series.game;
     tournament.region = series.region;
+  }
+
+  if (tournament.rounds.length) {
+    const dbRoundsArray = [];
+    for (const round of tournament.rounds) {
+      dbRoundsArray.push(new Round(_.pick(round, ["name", "startDate", "endDate", "bestOf", "prepTime"])));
+    }
+
+    tournament.rounds = dbRoundsArray;
   }
 
   try {

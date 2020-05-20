@@ -32,7 +32,21 @@
         <v-card class="primary">
           <v-card-text>
             <v-container>
-              <TournamentForm :tournament="tournament" @cancel="editModal = false" @submit="editTournament" />
+              <TournamentForm :tournament="tournament" @cancel="editModal = false" @submit="editTournament" :copy="false" />
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+      <v-dialog v-model="copyModal" persistent max-width="600px">
+        <template v-slot:activator="{ on }">
+          <v-btn class="accent darken-1 mr-4" v-if="user.roles.includes('admin')" v-on="on">
+            Copy tournament
+          </v-btn>
+        </template>
+        <v-card class="primary">
+          <v-card-text>
+            <v-container>
+              <TournamentForm :tournament="tournament" @cancel="copyModal = false" @submit="copyTournament" :copy="true" />
             </v-container>
           </v-card-text>
         </v-card>
@@ -105,6 +119,7 @@ export default {
       deleteModal: false,
       addRoundModal: false,
       editModal: false,
+      copyModal: false,
       usersAvailable: [],
       changedRounds: []
     };
@@ -207,6 +222,27 @@ export default {
         .catch(error => {
           this.$store.commit("snackbarMessage", {
             message: "Error while editing the tournament.",
+            type: "error"
+          });
+        });
+    },
+    copyTournament(tournament) {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.copyModal = false;
+      const { name, series, game, startDate, endDate, region, countedByRounds, gllURL, rounds } = tournament;
+      const newTournament = { name, series, game, startDate, endDate, region, countedByRounds, gllURL, rounds };
+      this.$http
+        .post(`${APIURL}/tournaments/`, newTournament)
+        .then(response => {
+          this.$store.commit("snackbarMessage", {
+            message: "Tournament successfully copied!",
+            type: "success"
+          });
+          this.$router.push(`/tournaments/${response.data._id}`);
+        })
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            message: "Error while copying the tournament.",
             type: "error"
           });
         });

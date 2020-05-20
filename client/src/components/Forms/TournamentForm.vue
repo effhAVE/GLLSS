@@ -48,9 +48,10 @@
       :rules="validations.seriesInherited"
     ></v-select>
     <v-checkbox v-model="draft.countedByRounds" label="Counted by rounds" prepend-icon="mdi-currency-usd" color="accent"></v-checkbox>
+    <v-checkbox v-if="copy" v-model="copyRounds" label="Copy rounds" prepend-icon="mdi-currency-usd" color="accent"></v-checkbox>
     <v-row>
       <v-spacer></v-spacer>
-      <v-btn color="accent black--text" class="mt-8" text @click="$emit('submit', draft)" :disabled="!valid">
+      <v-btn color="accent black--text" class="mt-8" text @click="onSubmit" :disabled="!valid">
         Save
       </v-btn>
       <v-btn color="accent black--text" class="mt-8" text @click="$emit('cancel')" v-if="tournament">
@@ -68,7 +69,8 @@ export default {
     DatetimePicker
   },
   props: {
-    tournament: Object
+    tournament: Object,
+    copy: Boolean
   },
   data() {
     return {
@@ -88,6 +90,7 @@ export default {
         region: "",
         countedByRounds: true
       },
+      copyRounds: true,
       validations: {
         name: validations.tournamentName,
         startDate: validations.startDate,
@@ -113,6 +116,25 @@ export default {
   methods: {
     validate() {
       this.$refs.form.validate();
+    },
+
+    onSubmit() {
+      if (this.copy) {
+        if (!this.copyRounds) this.draft.rounds = [];
+        this.draft.rounds.forEach(round => {
+          round.startDate = this.$moment
+            .utc(round.startDate)
+            .add(this.$moment.utc(this.draft.startDate).diff(this.$moment.utc(this.tournament.startDate), "minutes"), "minutes")
+            .format();
+
+          round.endDate = this.$moment
+            .utc(round.endDate)
+            .add(this.$moment.utc(this.draft.endDate).diff(this.$moment.utc(this.tournament.endDate), "minutes"), "minutes")
+            .format();
+        });
+      }
+
+      this.$emit("submit", this.draft);
     }
   },
   created() {
@@ -120,6 +142,10 @@ export default {
       this.draft = Object.assign({}, this.tournament);
       if (this.tournament.series) {
         this.belongsToSeries = true;
+      }
+
+      if (this.copy) {
+        this.draft.gllURL = "";
       }
 
       this.draft.endDate = this.$moment(this.tournament.endDate).toDate();
