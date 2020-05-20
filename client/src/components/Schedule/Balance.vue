@@ -12,32 +12,36 @@
     <v-tabs-items v-model="balanceTab" class="py-4">
       <v-tab-item v-for="(gameObject, game) in nonEmptyGames" :key="game">
         <v-card-text>
-          <v-simple-table class="table-background table-simple not-editable mb-4" dense>
-            <template v-slot:default>
-              <thead>
-                <th>
-                  User
-                </th>
-                <th>
-                  Current week value
-                </th>
-                <th>
-                  Lost hosting
-                </th>
-                <th>
-                  Difference
-                </th>
-              </thead>
-              <tbody>
-                <tr v-for="(host, hostName) in gameObject" :key="hostName">
-                  <th>{{ hostName }}</th>
-                  <td>{{ host.current }}</td>
-                  <td>{{ host.lost }}</td>
-                  <td>{{ host.current - host.lost }}</td>
-                </tr>
-              </tbody>
-            </template>
-          </v-simple-table>
+          <v-row>
+            <v-col cols="6" v-for="(hostsList, index) in gameObject" :key="index">
+              <v-simple-table class="table-background table-simple not-editable mb-4" dense>
+                <template v-slot:default>
+                  <thead>
+                    <th>
+                      User
+                    </th>
+                    <th>
+                      Current week value
+                    </th>
+                    <th>
+                      Lost hosting
+                    </th>
+                    <th>
+                      Difference
+                    </th>
+                  </thead>
+                  <tbody>
+                    <tr v-for="host in hostsList" :key="host.name">
+                      <th>{{ host.name }}</th>
+                      <td>{{ host.values.current }}</td>
+                      <td>{{ host.values.lost }}</td>
+                      <td>{{ host.values.current - host.values.lost }}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-tab-item>
     </v-tabs-items>
@@ -56,12 +60,13 @@ export default {
   computed: {
     nonEmptyGames() {
       const computedObject = {};
-      for (const [name, value] of Object.entries(this.balanceData)) {
-        if (Object.values(value).length) {
-          computedObject[name] = value;
+      for (const [name, hosts] of Object.entries(this.balanceData)) {
+        if (Object.values(hosts).length) {
+          const splitPoint = Math.ceil(Object.values(hosts).length / 2);
+          const hostsArray = Object.entries(hosts).map(([name, values]) => ({ name: name, values: values }));
+          computedObject[name] = [hostsArray.slice(0, splitPoint), hostsArray.slice(splitPoint)];
         }
       }
-
       return computedObject;
     }
   },

@@ -9,7 +9,7 @@
     >
       <template v-slot:item.host="{ item }">
         <div class="px-4">
-          <div class="overline accent--text mr-2">
+          <div class="overline text-none accent--text mr-2">
             <span v-if="game !== 'Autochess'">{{ item.groupName.replace("index", round.hosts.indexOf(item) + 1) }}</span>
             <span v-else>
               {{ item.groupName.replace("index", `${round.hosts.indexOf(item) * 4 + 1}-${round.hosts.indexOf(item) * 4 + 4}`) }}
