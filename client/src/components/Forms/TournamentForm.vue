@@ -25,26 +25,9 @@
         {{ item.name }}
       </template>
     </v-select>
-    <v-text-field
-      v-model="draft.gllURL"
-      color="accent"
-      label="Admin page URL"
-      prepend-icon="mdi-share"
-      :rules="validations.url"
-    ></v-text-field>
-    <DatetimePicker
-      :date="draft.startDate"
-      label="Start date"
-      @input="draft.startDate = $event"
-      :rules="validations.startDate"
-    />
-    <DatetimePicker
-      :date="draft.endDate"
-      label="End date"
-      @input="draft.endDate = $event"
-      icon="mdi-calendar-check"
-      :rules="validations.endDate"
-    />
+    <v-text-field v-model="draft.gllURL" color="accent" label="Admin page URL" prepend-icon="mdi-share" :rules="validations.url"></v-text-field>
+    <DatetimePicker :date="draft.startDate" label="Start date" @input="draft.startDate = $event" :rules="validations.startDate" />
+    <DatetimePicker :date="draft.endDate" label="End date" @input="draft.endDate = $event" icon="mdi-calendar-check" :rules="validations.endDate" />
     <v-select
       :items="gamesList"
       label="Game"
@@ -64,30 +47,13 @@
       v-model="draft.region"
       :rules="validations.seriesInherited"
     ></v-select>
-    <v-checkbox
-      v-model="draft.countedByRounds"
-      label="Counted by rounds"
-      prepend-icon="mdi-currency-usd"
-      color="accent"
-    ></v-checkbox>
+    <v-checkbox v-model="draft.countedByRounds" label="Counted by rounds" prepend-icon="mdi-currency-usd" color="accent"></v-checkbox>
     <v-row>
       <v-spacer></v-spacer>
-      <v-btn
-        color="accent black--text"
-        class="mt-8"
-        text
-        @click="$emit('submit', draft)"
-        :disabled="!valid"
-      >
+      <v-btn color="accent black--text" class="mt-8" text @click="$emit('submit', draft)" :disabled="!valid">
         Save
       </v-btn>
-      <v-btn
-        color="accent black--text"
-        class="mt-8"
-        text
-        @click="$emit('cancel')"
-        v-if="tournament"
-      >
+      <v-btn color="accent black--text" class="mt-8" text @click="$emit('cancel')" v-if="tournament">
         Cancel
       </v-btn>
     </v-row>
@@ -110,15 +76,13 @@ export default {
         name: "Unnamed tournament",
         gllURL: "",
         endDate: this.$moment()
-          .utc()
           .add(8, "hours")
           .startOf("hour")
-          .format("YYYY-MM-DD HH:mm"),
+          .toDate(),
         startDate: this.$moment()
-          .utc()
           .add(1, "hours")
           .startOf("hour")
-          .format("YYYY-MM-DD HH:mm"),
+          .toDate(),
         series: null,
         game: "",
         region: "",
@@ -129,17 +93,12 @@ export default {
         startDate: validations.startDate,
         endDate: [
           ...validations.endDate,
-          v =>
-            this.$moment(this.draft.startDate).isSameOrBefore(v, "minute") ||
-            "End date cannot be before start date"
+          v => this.$moment(this.draft.startDate).isSameOrBefore(v, "minute") || "End date cannot be before start date"
         ],
         seriesInherited: [
           v => {
             const inherits = !!this.draft.series || !!v;
-            return (
-              inherits ||
-              "This field cannot be empty when not a part of a series"
-            );
+            return inherits || "This field cannot be empty when not a part of a series";
           }
         ],
         url: validations.tournamentUrl
@@ -163,12 +122,8 @@ export default {
         this.belongsToSeries = true;
       }
 
-      this.draft.endDate = this.$moment
-        .utc(this.tournament.endDate)
-        .format("YYYY-MM-DD HH:mm");
-      this.draft.startDate = this.$moment
-        .utc(this.tournament.startDate)
-        .format("YYYY-MM-DD HH:mm");
+      this.draft.endDate = this.$moment(this.tournament.endDate).toDate();
+      this.draft.startDate = this.$moment(this.tournament.startDate).toDate();
     }
 
     const APIURL = process.env.VUE_APP_APIURL;

@@ -1,35 +1,9 @@
 <template>
   <v-form ref="form" style="min-width: 500px" v-model="valid">
-    <v-text-field
-      v-model="draft.name"
-      color="accent"
-      label="Name"
-      prepend-icon="mdi-pencil"
-      :rules="validations.name"
-      required
-    ></v-text-field>
-    <DatetimePicker
-      :date="draft.startDate"
-      label="Start date"
-      @input="draft.startDate = $event"
-      :rules="validations.startDate"
-    />
-    <DatetimePicker
-      :date="draft.endDate"
-      label="End date"
-      @input="draft.endDate = $event"
-      icon="mdi-calendar-check"
-      :rules="validations.endDate"
-    />
-    <v-text-field
-      v-model="draft.bestOf"
-      type="number"
-      color="accent"
-      label="Best of"
-      prepend-icon="mdi-pencil"
-      required
-      :rules="validations.bestOf"
-    >
+    <v-text-field v-model="draft.name" color="accent" label="Name" prepend-icon="mdi-pencil" :rules="validations.name" required></v-text-field>
+    <DatetimePicker :date="draft.startDate" label="Start date" @input="draft.startDate = $event" :rules="validations.startDate" />
+    <DatetimePicker :date="draft.endDate" label="End date" @input="draft.endDate = $event" icon="mdi-calendar-check" :rules="validations.endDate" />
+    <v-text-field v-model="draft.bestOf" type="number" color="accent" label="Best of" prepend-icon="mdi-pencil" required :rules="validations.bestOf">
     </v-text-field>
     <v-text-field
       v-model="draft.prepTime"
@@ -42,21 +16,10 @@
     ></v-text-field>
     <v-row>
       <v-spacer></v-spacer>
-      <v-btn
-        color="accent black--text"
-        class="mt-8"
-        text
-        @click="$emit('submit', draft)"
-        :disabled="!valid"
-      >
+      <v-btn color="accent black--text" class="mt-8" text @click="$emit('submit', draft)" :disabled="!valid">
         Save
       </v-btn>
-      <v-btn
-        color="accent black--text"
-        class="mt-8"
-        text
-        @click="$emit('cancel')"
-      >
+      <v-btn color="accent black--text" class="mt-8" text @click="$emit('cancel')">
         Cancel
       </v-btn>
     </v-row>
@@ -83,24 +46,15 @@ export default {
     return {
       draft: {
         name: "New round",
-        startDate: this.$moment()
-          .utc()
-          .format("YYYY-MM-DD HH:mm"),
-        endDate: this.$moment()
-          .utc()
-          .format("YYYY-MM-DD HH:mm"),
+        startDate: this.$moment().toDate(),
+        endDate: this.$moment().toDate(),
         bestOf: 3,
         prepTime: 0
       },
       validations: {
         name: validations.roundName,
         startDate: validations.startDate,
-        endDate: [
-          ...validations.endDate,
-          v =>
-            this.$moment(this.draft.startDate).isSameOrBefore(v) ||
-            "End date cannot be before start date"
-        ],
+        endDate: [...validations.endDate, v => this.$moment(this.draft.startDate).isSameOrBefore(v) || "End date cannot be before start date"],
         bestOf: validations.bestOf,
         prepTime: validations.prepTime
       },
@@ -110,19 +64,11 @@ export default {
   created() {
     if (this.round) {
       this.draft = Object.assign({}, this.round);
-      this.draft.startDate = this.$moment
-        .utc(this.round.startDate)
-        .format("YYYY-MM-DD HH:mm");
-      this.draft.endDate = this.$moment
-        .utc(this.round.endDate)
-        .format("YYYY-MM-DD HH:mm");
+      this.draft.startDate = this.$moment(this.round.startDate).toDate();
+      this.draft.endDate = this.$moment(this.round.endDate).toDate();
     } else {
-      this.draft.startDate = this.$moment
-        .utc(this.tournamentDates.start)
-        .format("YYYY-MM-DD HH:mm");
-      this.draft.endDate = this.$moment
-        .utc(this.tournamentDates.end)
-        .format("YYYY-MM-DD HH:mm");
+      this.draft.startDate = this.$moment(this.tournamentDates.start).toDate();
+      this.draft.endDate = this.$moment(this.tournamentDates.end).toDate();
     }
   }
 };

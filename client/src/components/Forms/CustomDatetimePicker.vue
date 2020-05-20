@@ -23,12 +23,7 @@
       <v-icon>mdi-clock</v-icon>
     </template>
     <template v-slot:actions>
-      <v-btn
-        color="grey lighten-1"
-        text
-        @click.native="$refs.picker.clearHandler"
-        >Clear</v-btn
-      >
+      <v-btn color="grey lighten-1" text @click.native="$refs.picker.clearHandler">Clear</v-btn>
       <v-btn color="accent" text @click="okHandler">Save</v-btn>
     </template>
   </v-datetime-picker>
@@ -56,7 +51,6 @@ export default {
   },
   methods: {
     onInput(value) {
-      value = this.$moment(value).format("YYYY-MM-DD HH:mm");
       this.$emit("input", value);
     },
     okHandler() {}
