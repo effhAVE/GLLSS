@@ -181,7 +181,9 @@ export default {
       this.page = 0;
       this.$http
         .get(
-          `${APIURL}/tournaments/past?limit=${this.limit}&page=${this.page}&search=${this.search}&games=${this.selectedGameFilters}&regions=${this.selectedRegionFilters}`
+          `${APIURL}/tournaments/past?limit=${this.limit}&page=${this.page}&search=${encodeURIComponent(this.search)}&games=${
+            this.selectedGameFilters
+          }&regions=${this.selectedRegionFilters}`
         )
         .then(response => {
           let tournaments = response.data;
@@ -201,7 +203,9 @@ export default {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
         .get(
-          `${APIURL}/tournaments/past?limit=${this.limit}&page=${this.page}&search=${this.search}&games=${this.selectedGameFilters}&regions=${this.selectedRegionFilters}`
+          `${APIURL}/tournaments/past?limit=${this.limit}&page=${this.page}&search=${encodeURIComponent(this.search)}&games=${
+            this.selectedGameFilters
+          }&regions=${this.selectedRegionFilters}`
         )
         .then(response => {
           let tournaments = response.data;
