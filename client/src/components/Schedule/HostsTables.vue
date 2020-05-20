@@ -136,7 +136,7 @@
       no-data-text="No team leads set."
     >
       <template v-slot:item.teamLeads="{ item }">
-        <v-menu bottom left offset-y max-height="300px">
+        <v-menu bottom left offset-y max-height="300px" :disabled="isPast">
           <template v-slot:activator="{ on }">
             <div class="px-4" v-on="on">
               <v-btn icon color="error" @click.stop="changeRoundTL(round, item.host, '')" x-small>

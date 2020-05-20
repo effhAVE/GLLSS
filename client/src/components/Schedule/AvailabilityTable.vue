@@ -22,34 +22,39 @@
           </td>
 
           <td v-for="(dayObject, dayName) in availableList" :key="dayName" class="pa-0 has-border has-border-thick">
-            <tr>
-              <td :colspan="Object.values(dayObject).length">
-                <div>{{ $moment(dayName, "DD-MMMM-YYYY").format("dddd - DD MMMM") }}</div>
-              </td>
-            </tr>
-            <tr>
-              <td v-for="(gameObject, gameName) in dayObject" :key="gameName" class="pa-0 has-border-left">
-                <tr>
-                  <td :colspan="Object.values(gameObject).length">
-                    <div
-                      :style="{
-                        maxWidth: 20 * Object.values(gameObject).length + 'px'
-                      }"
-                      class="oneline-text mx-auto"
-                    >
-                      {{ gameName }}
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td v-for="(round, i) in gameObject" :key="i" class="has-border-left round-border">
-                    <div>{{ round.start.split(" ")[0] }}</div>
-                    <div>{{ round.start.split(" ")[1] }}</div>
-                    <div>B{{ round.bestOf }}</div>
-                  </td>
-                </tr>
-              </td>
-            </tr>
+            <table>
+              <tr>
+                <td :colspan="Object.values(dayObject).length">
+                  <div>{{ $moment(dayName, "DD-MMMM-YYYY").format("ddd - DD.MM") }}</div>
+                </td>
+              </tr>
+
+              <tr>
+                <td v-for="(gameObject, gameName) in dayObject" :key="gameName" class="pa-0 has-border-left">
+                  <table>
+                    <tr>
+                      <td :colspan="Object.values(gameObject).length">
+                        <div
+                          :style="{
+                            maxWidth: `${(Object.values(gameObject).length * 60) / Object.values(dayObject).length}px`
+                          }"
+                          class="oneline-text mx-auto"
+                        >
+                          {{ gameName }}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td v-for="(round, i) in gameObject" :key="i" class="has-border-left round-border">
+                        <div>{{ round.start.split(" ")[0] }}</div>
+                        <div>{{ round.start.split(" ")[1] }}</div>
+                        <div>B{{ round.bestOf }}</div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
         <tr v-for="user in [...teamLeads, ...hosts]" :key="`AT${user._id}`" style="position: relative">
