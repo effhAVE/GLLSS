@@ -48,7 +48,7 @@
       :rules="validations.seriesInherited"
     ></v-select>
     <v-checkbox v-model="draft.countedByRounds" label="Counted by rounds" prepend-icon="mdi-currency-usd" color="accent"></v-checkbox>
-    <v-checkbox v-if="copy" v-model="copyRounds" label="Copy rounds" prepend-icon="mdi-currency-usd" color="accent"></v-checkbox>
+    <v-checkbox v-if="copy" v-model="copyRounds" label="Copy rounds" prepend-icon="mdi-view-grid-plus" color="accent"></v-checkbox>
     <v-row>
       <v-spacer></v-spacer>
       <v-btn color="accent black--text" class="mt-8" text @click="onSubmit" :disabled="!valid">

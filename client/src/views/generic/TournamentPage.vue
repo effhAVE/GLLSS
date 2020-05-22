@@ -18,7 +18,12 @@
         <v-card class="primary">
           <v-card-text>
             <v-container>
-              <RoundForm :tournamentDates="tournamentDates(tournament)" @cancel="addRoundModal = false" @submit="addNewRound($event)" />
+              <RoundForm
+                :tournamentDates="tournamentDates(tournament)"
+                :prevRound="tournament.rounds[tournament.rounds.length - 1]"
+                @cancel="addRoundModal = false"
+                @submit="addNewRound($event)"
+              />
             </v-container>
           </v-card-text>
         </v-card>

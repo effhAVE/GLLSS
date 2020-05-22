@@ -38,6 +38,9 @@ export default {
     tournamentDates: {
       type: Object
     },
+    prevRound: {
+      type: Object
+    },
     round: {
       type: Object
     }
@@ -69,6 +72,13 @@ export default {
     } else {
       this.draft.startDate = this.$moment(this.tournamentDates.start).toDate();
       this.draft.endDate = this.$moment(this.tournamentDates.end).toDate();
+
+      if (this.prevRound) {
+        this.draft.startDate = this.$moment(this.prevRound.startDate).toDate();
+        this.draft.endDate = this.$moment(this.prevRound.endDate).toDate();
+        this.draft.bestOf = this.prevRound.bestOf;
+        this.draft.prepTime = this.prevRound.prepTime;
+      }
     }
   }
 };
