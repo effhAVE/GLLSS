@@ -114,7 +114,29 @@ router.get("/past", auth, validateAccess("host"), async (req, res) => {
 router.get("/hosted/past", auth, validateAccess("host"), async (req, res) => {
   const limitSize = +req.query.limit || 5;
   const page = +req.query.page || 0;
-  const pastFilter = req.query.pastFilter;
+  const type = req.query.type;
+  const gamesQuery = req.query.games.split(",") || [];
+  const regionsQuery = req.query.regions.split(",") || [];
+
+  let gameFilter = {
+    $exists: true
+  }
+
+  let regionFilter = {
+    $exists: true
+  }
+
+  if (gamesQuery[0]) {
+    gameFilter = {
+      $in: gamesQuery
+    }
+  }
+
+  if (regionsQuery[0]) {
+    regionFilter = {
+      $in: regionsQuery
+    }
+  }
 
   const user = await User.findById(req.user._id).select("tournamentsHosted -_id")
     .populate({
@@ -122,7 +144,9 @@ router.get("/hosted/past", auth, validateAccess("host"), async (req, res) => {
       match: {
         "endDate": {
           $lt: new Date()
-        }
+        },
+        game: gameFilter,
+        region: regionFilter
       },
       options: {
         sort: "-endDate"
@@ -136,11 +160,11 @@ router.get("/hosted/past", auth, validateAccess("host"), async (req, res) => {
         const host = round.hosts.find(hostObject => hostObject.host.equals(req.user._id));
         const lead = round.teamLeads.find(TLObject => TLObject.host.equals(req.user._id));
         if (host) {
-          if (pastFilter === "lost") return host.lostHosting;
-          if (pastFilter === "hosted") return !host.lostHosting;
+          if (type === "lost") return host.lostHosting;
+          if (type === "hosted") return !host.lostHosting;
         } else if (lead) {
-          if (pastFilter === "lost") return lead.lostLeading;
-          if (pastFilter === "hosted") return !lead.lostLeading;
+          if (type === "lost") return lead.lostLeading;
+          if (type === "hosted") return !lead.lostLeading;
         }
 
         return host || lead;
