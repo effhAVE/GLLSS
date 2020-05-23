@@ -13,6 +13,7 @@ const router = express.Router();
 const fs = require("fs");
 const logDir = "dataLogs";
 const sortKeysRecursive = require('sort-keys-recursive');
+const balanceTournaments = require("../helpers/balanceTournaments");
 const gridfs = require('gridfs-stream');
 const schedule = require("node-schedule");
 const dataCalculation = require("../helpers/dataCalculation");
@@ -40,6 +41,297 @@ async function getRecentGameValues() {
   return data.calculation.gameValues;
 }
 
+router.get("/schedule/teamleads", auth, validateAccess("teamleader"), async (req, res) => {
+  const weekNumber = req.query.week || 0;
+  const previousWeekStart = moment().add(weekNumber - 1, "weeks").startOf("isoWeek").toDate();
+  const previousWeekEnd = moment().add(weekNumber - 1, "weeks").endOf("isoWeek").toDate();
+  const currentWeekStart = moment().add(weekNumber, "weeks").startOf("isoWeek").toDate();
+  const currentWeekEnd = moment().add(weekNumber, "weeks").endOf("isoWeek").toDate();
+
+  const balanceCalculation = {
+    total: {}
+  };
+
+  const {
+    previousWeekTournaments,
+    currentWeekTournaments
+  } = await balanceTournaments({
+    previousWeekStart,
+    previousWeekEnd,
+    currentWeekStart,
+    currentWeekEnd
+  });
+
+  let timeSlotsLost = {};
+  previousWeekTournaments.forEach(tournament => {
+    tournament.rounds.forEach(round => {
+      round.teamLeads.forEach(TLObject => {
+        if (!TLObject.host) return;
+        if (!timeSlotsLost[TLObject.host.nickname]) {
+          timeSlotsLost[TLObject.host.nickname] = {};
+        }
+
+        if (!timeSlotsLost[TLObject.host.nickname][tournament.game]) {
+          timeSlotsLost[TLObject.host.nickname][tournament.game] = [];
+        }
+
+        if (TLObject.lostLeading) {
+          timeSlotsLost[TLObject.host.nickname][tournament.game].push({
+            lostLeading: true,
+            startDate: moment(round.startDate).subtract(round.prepTime, "minutes").format(),
+            endDate: moment(round.endDate).add(TLObject.timeBalance, "minutes").format()
+          });
+        } else if (!TLObject.lostLeading && TLObject.timeBalance < 0) {
+          timeSlotsLost[TLObject.host.nickname][tournament.game].push({
+            lostLeading: true,
+            startDate: moment(round.endDate).add(TLObject.timeBalance, "minutes").format(),
+            endDate: moment(round.endDate).format()
+          });
+        }
+      });
+    });
+  });
+
+  const previousWeekCollisions = {};
+  for (let [id, games] of Object.entries(timeSlotsLost)) {
+    for (let [game, timeSlot] of Object.entries(games)) {
+      timeSlot.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+      const timeSlotsLength = timeSlot.length;
+      const mergedTimeSlots = [];
+      if (timeSlotsLength === 1) {
+        mergedTimeSlots.push(timeSlot[0]);
+      } else {
+        for (let i = 0; i < timeSlotsLength - 1; i++) {
+          if (timeSlot[i].skipped) {
+            timeSlot[i] = timeSlot[i - 1];
+          }
+
+          if (moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) && moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)) {
+            timeSlot[i + 1].skipped = true;
+          } else if (moment(timeSlot[i].endDate).isSameOrAfter(timeSlot[i + 1].startDate)) {
+            timeSlot[i + 1].startDate = moment.min(moment(timeSlot[i + 1].startDate), moment(timeSlot[i].startDate));
+            timeSlot[i + 1].endDate = moment.max(moment(timeSlot[i + 1].endDate), moment(timeSlot[i].endDate));
+          } else {
+            mergedTimeSlots.push(timeSlot[i]);
+          }
+
+          if (i + 1 === timeSlotsLength - 1) {
+            if (timeSlot[i + 1].skipped === true) {
+              mergedTimeSlots.push(timeSlot[i]);
+            } else {
+              mergedTimeSlots.push(timeSlot[i + 1]);
+            }
+          }
+        }
+      }
+
+      timeSlot.splice(0, timeSlot.length, ...mergedTimeSlots);
+      if (!previousWeekCollisions[id]) previousWeekCollisions[id] = {};
+      previousWeekCollisions[id][game] = mergedTimeSlots;
+    }
+  }
+
+  let previousWeekTLTimeSlots = {};
+  previousWeekTournaments.forEach(tournament => {
+    tournament.rounds.forEach(round => {
+      round.teamLeads.forEach(TLObject => {
+        if (!TLObject.host) return;
+        if (!previousWeekTLTimeSlots[TLObject.host.nickname]) {
+          previousWeekTLTimeSlots[TLObject.host.nickname] = {};
+        }
+
+        if (!previousWeekTLTimeSlots[TLObject.host.nickname][tournament.game]) {
+          previousWeekTLTimeSlots[TLObject.host.nickname][tournament.game] = [];
+        }
+
+        if (!TLObject.lostLeading) {
+          previousWeekTLTimeSlots[TLObject.host.nickname][tournament.game].push({
+            lostLeading: false,
+            startDate: moment(round.startDate).subtract(round.prepTime, "minutes").format(),
+            endDate: moment(round.endDate).add(TLObject.timeBalance, "minutes").format()
+          });
+        }
+      });
+    });
+  });
+
+  for (let [id, games] of Object.entries(previousWeekTLTimeSlots)) {
+    for (let [game, timeSlot] of Object.entries(games)) {
+      timeSlot.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+      const timeSlotsLength = timeSlot.length;
+      const mergedTimeSlots = [];
+      if (timeSlotsLength === 1) {
+        mergedTimeSlots.push(timeSlot[0]);
+      } else {
+        for (let i = 0; i < timeSlotsLength - 1; i++) {
+          if (timeSlot[i].skipped) {
+            timeSlot[i] = timeSlot[i - 1];
+          }
+
+          if (moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) && moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)) {
+            timeSlot[i + 1].skipped = true;
+          } else if (moment(timeSlot[i].endDate).isSameOrAfter(timeSlot[i + 1].startDate)) {
+            timeSlot[i + 1].startDate = moment.min(moment(timeSlot[i + 1].startDate), moment(timeSlot[i].startDate));
+            timeSlot[i + 1].endDate = moment.max(moment(timeSlot[i + 1].endDate), moment(timeSlot[i].endDate));
+          } else {
+            mergedTimeSlots.push(timeSlot[i]);
+          }
+
+          if (i + 1 === timeSlotsLength - 1) {
+            if (timeSlot[i + 1].skipped === true) {
+              mergedTimeSlots.push(timeSlot[i]);
+            } else {
+              mergedTimeSlots.push(timeSlot[i + 1]);
+            }
+          }
+        }
+      }
+
+      timeSlot.splice(0, timeSlot.length, ...mergedTimeSlots);
+      if (!previousWeekCollisions[id]) previousWeekCollisions[id] = {};
+      previousWeekCollisions[id][game].push(...mergedTimeSlots);
+    }
+  }
+
+
+  for (let [id, games] of Object.entries(previousWeekCollisions)) {
+    if (!balanceCalculation.total[id]) {
+      balanceCalculation.total[id] = {
+        current: 0,
+        lost: 0
+      };
+    }
+    for (let [game, timeSlot] of Object.entries(games)) {
+      if (!balanceCalculation[game]) {
+        balanceCalculation[game] = {};
+      }
+      if (!balanceCalculation[game][id]) {
+        balanceCalculation[game][id] = 0;
+      }
+
+      timeSlot.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+      for (const slot of previousWeekCollisions[id][game].filter(collision => collision.lostLeading)) {
+        for (const leading of previousWeekCollisions[id][game].filter(collision => !collision.lostLeading)) {
+          if (moment(leading.startDate).isSameOrBefore(slot.startDate)) {
+            if (!moment(leading.endDate).isSameOrBefore(slot.startDate)) {
+              if (moment(leading.endDate).isBefore(slot.endDate)) {
+                slot.startDate = leading.endDate;
+              } else {
+                previousWeekCollisions[id][game] = previousWeekCollisions[id][game].filter(el => el !== slot);
+              }
+            }
+          } else {
+            if (moment(leading.startDate).isBefore(slot.endDate)) {
+              if (moment(leading.endDate).isBefore(slot.endDate)) {
+                previousWeekCollisions[id][game].push({
+                  lostLeading: true,
+                  startDate: leading.endDate,
+                  endDate: slot.endDate
+                });
+              }
+
+              slot.endDate = leading.startDate;
+            }
+          }
+        }
+      }
+
+      const TLTime = previousWeekCollisions[id][game].reduce((total, timeSlot) => {
+        return timeSlot.lostLeading ? total += moment(timeSlot.endDate).diff(timeSlot.startDate, "minutes") : total;
+      }, 0);
+
+      const value = Math.ceil((TLTime / 60) * 100);
+      balanceCalculation.total[id].lost += value;
+    }
+  }
+
+
+
+
+
+  let TLTimeSlots = {};
+  currentWeekTournaments.forEach(tournament => {
+    tournament.rounds.forEach(round => {
+      round.teamLeads.forEach(TLObject => {
+        if (!TLObject.host) return;
+        if (!TLTimeSlots[TLObject.host.nickname]) {
+          TLTimeSlots[TLObject.host.nickname] = {};
+        }
+
+        if (!TLTimeSlots[TLObject.host.nickname][tournament.game]) {
+          TLTimeSlots[TLObject.host.nickname][tournament.game] = [];
+        }
+
+        if (!TLObject.lostLeading) {
+          TLTimeSlots[TLObject.host.nickname][tournament.game].push({
+            startDate: moment(round.startDate).subtract(round.prepTime, "minutes").format(),
+            endDate: moment(round.endDate).add(TLObject.timeBalance, "minutes").format()
+          });
+        }
+      });
+    });
+  });
+
+  for (let [id, games] of Object.entries(TLTimeSlots)) {
+    if (!balanceCalculation.total[id]) {
+      balanceCalculation.total[id] = {
+        current: 0,
+        lost: 0
+      };
+    }
+    for (let [game, timeSlot] of Object.entries(games)) {
+      if (!balanceCalculation[game]) {
+        balanceCalculation[game] = {};
+      }
+      if (!balanceCalculation[game][id]) {
+        balanceCalculation[game][id] = 0;
+      }
+
+      timeSlot.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+      const timeSlotsLength = timeSlot.length;
+      const mergedTimeSlots = [];
+      if (timeSlotsLength === 1) {
+        mergedTimeSlots.push(moment(timeSlot[0].endDate).diff(timeSlot[0].startDate, "minutes"));
+      } else {
+        for (let i = 0; i < timeSlotsLength - 1; i++) {
+          if (timeSlot[i].skipped) {
+            timeSlot[i] = timeSlot[i - 1];
+          }
+
+          if (moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) && moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)) {
+            timeSlot[i + 1].skipped = true;
+          } else if (moment(timeSlot[i].endDate).isSameOrAfter(timeSlot[i + 1].startDate)) {
+            timeSlot[i + 1].startDate = moment.min(moment(timeSlot[i + 1].startDate), moment(timeSlot[i].startDate));
+            timeSlot[i + 1].endDate = moment.max(moment(timeSlot[i + 1].endDate), moment(timeSlot[i].endDate));
+          } else {
+            mergedTimeSlots.push(moment(timeSlot[i].endDate).diff(timeSlot[i].startDate, "minutes"));
+          }
+
+          if (i + 1 === timeSlotsLength - 1) {
+            if (timeSlot[i + 1].skipped === true) {
+              mergedTimeSlots.push(moment(timeSlot[i].endDate).diff(timeSlot[i].startDate, "minutes"));
+            } else {
+              mergedTimeSlots.push(moment(timeSlot[i + 1].endDate).diff(timeSlot[i + 1].startDate, "minutes"));
+            }
+          }
+        }
+      }
+
+      timeSlot.splice(0, timeSlot.length, ...mergedTimeSlots);
+      const TLTime = TLTimeSlots[id][game].reduce((value, current) => value + current, 0);
+      const value = Math.ceil((TLTime / 60) * 100);
+      balanceCalculation[game][id] += value;
+      balanceCalculation.total[id].current += value;
+    }
+  }
+
+  const sortedCalculation = sortKeysRecursive(balanceCalculation, {
+    compareFunction: (a, b) => a.toLowerCase().localeCompare(b.toLowerCase())
+  });
+
+  return res.send(sortedCalculation);
+});
+
 router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => {
   const weekNumber = req.query.week || 0;
   const previousWeekStart = moment().add(weekNumber - 1, "weeks").startOf("isoWeek").toDate();
@@ -51,89 +343,14 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
     total: {}
   };
   const gameValues = await getRecentGameValues();
-
-  const previousWeekAggregated = await Tournament.aggregate([{
-      $match: {
-        "endDate": {
-          $gte: previousWeekStart
-        },
-        "localStartDate": {
-          $lte: previousWeekEnd
-        },
-        countedByRounds: true
-      }
-    },
-    {
-      $unwind: "$rounds"
-    },
-    {
-      $match: {
-        "rounds.localStartDate": {
-          $gte: previousWeekStart
-        }
-      }
-    },
-    {
-      $group: {
-        _id: "$_id",
-        game: {
-          $first: "$game"
-        },
-        name: {
-          $first: "$name"
-        },
-        rounds: {
-          $push: "$rounds"
-        }
-      }
-    }
-  ]);
-
-  const currentWeekAggregated = await Tournament.aggregate([{
-      $match: {
-        "endDate": {
-          $gte: currentWeekStart
-        },
-        "localStartDate": {
-          $lte: currentWeekEnd
-        },
-        countedByRounds: true
-      }
-    },
-    {
-      $unwind: "$rounds"
-    },
-    {
-      $match: {
-        "rounds.localStartDate": {
-          $gte: currentWeekStart
-        }
-      }
-    },
-    {
-      $group: {
-        _id: "$_id",
-        game: {
-          $first: "$game"
-        },
-        name: {
-          $first: "$name"
-        },
-        rounds: {
-          $push: "$rounds"
-        }
-      }
-    }
-  ]);
-
-  const previousWeekTournaments = await Tournament.populate(previousWeekAggregated, {
-    path: "rounds.hosts.host rounds.teamLeads.host rounds.available",
-    select: "nickname roles"
-  });
-
-  const currentWeekTournaments = await Tournament.populate(currentWeekAggregated, {
-    path: "rounds.hosts.host rounds.teamLeads.host rounds.available",
-    select: "nickname roles"
+  const {
+    previousWeekTournaments,
+    currentWeekTournaments
+  } = await balanceTournaments({
+    previousWeekStart,
+    previousWeekEnd,
+    currentWeekStart,
+    currentWeekEnd
   });
 
   previousWeekTournaments.forEach(tournament => {
@@ -184,7 +401,7 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
             }
           }
         }
-      })
+      });
     });
   });
 

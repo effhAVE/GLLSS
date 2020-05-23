@@ -1,5 +1,5 @@
 <template>
-  <v-sheet color="transparent" v-if="balance">
+  <v-sheet color="transparent">
     <v-row class="ma-0">
       <v-spacer></v-spacer>
       <v-btn text color="accent" @click="$emit('getBalance')">Recalculate</v-btn>
@@ -60,6 +60,7 @@ export default {
   computed: {
     nonEmptyGames() {
       const computedObject = {};
+      if (!this.balanceData) return {};
       for (const [name, hosts] of Object.entries(this.balanceData)) {
         if (Object.values(hosts).length) {
           const splitPoint = Math.ceil(Object.values(hosts).length / 2);
@@ -67,6 +68,7 @@ export default {
           computedObject[name] = [hostsArray.slice(0, splitPoint), hostsArray.slice(splitPoint)];
         }
       }
+
       return computedObject;
     }
   },

@@ -1,5 +1,5 @@
 <template>
-  <v-tab-item>
+  <div>
     <v-snackbar v-model="changedRounds.length" color="secondary border--accent" bottom right multi-line :timeout="0">
       Do you want to save the changes?
       <v-btn text color="accent" @click="saveChanges">
@@ -47,7 +47,7 @@
         </div>
       </v-tab-item>
     </v-tabs-items>
-  </v-tab-item>
+  </div>
 </template>
 <script>
 import Round from "./RoundSimplified";

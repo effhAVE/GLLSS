@@ -15,11 +15,19 @@
       <v-tab>
         Hosts balance
       </v-tab>
+      <v-tab>
+        Teamleads balance
+      </v-tab>
     </v-tabs>
     <v-tabs-items v-model="tab" class="transparent">
-      <ScheduleTable @scheduleList="onAvailableList" :week="selectedWeek" />
       <v-tab-item>
-        <BalanceTable @getBalance="getBalance(selectedWeek)" :balance="balance[selectedWeek]" />
+        <ScheduleTable @scheduleList="onAvailableList" :week="selectedWeek" />
+      </v-tab-item>
+      <v-tab-item>
+        <HostsBalance @getBalance="getHostsBalance(selectedWeek)" :balance="hostsBalance[selectedWeek]" />
+      </v-tab-item>
+      <v-tab-item>
+        <TLBalance @getBalance="getTLBalance(selectedWeek)" :balance="TLBalance[selectedWeek]" />
       </v-tab-item>
     </v-tabs-items>
     <v-dialog v-model="modal" width="70%">
@@ -42,12 +50,14 @@
 </template>
 <script>
 import ScheduleTable from "../components/Schedule/Overview";
-import BalanceTable from "../components/Schedule/Balance";
+import HostsBalance from "../components/Schedule/HostsBalance";
+import TLBalance from "../components/Schedule/TLBalance";
 import AvailabilityTable from "../components/Schedule/AvailabilityTable";
 export default {
   components: {
     ScheduleTable,
-    BalanceTable,
+    HostsBalance,
+    TLBalance,
     AvailabilityTable
   },
   data() {
@@ -61,7 +71,12 @@ export default {
         { text: "Next", value: 1 }
       ],
       tab: null,
-      balance: {
+      hostsBalance: {
+        "-1": null,
+        0: null,
+        1: null
+      },
+      TLBalance: {
         "-1": null,
         0: null,
         1: null
@@ -90,12 +105,26 @@ export default {
         }
       }
     }, */
-    getBalance(week = 0) {
+    getHostsBalance(week = 0) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
         .get(`${APIURL}/data/schedule/?week=${week}`)
         .then(response => {
-          this.balance[week] = response.data;
+          this.hostsBalance[week] = response.data;
+        })
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            type: "error",
+            message: error.response.data || "Error while fetching balance values."
+          });
+        });
+    },
+    getTLBalance(week = 0) {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.$http
+        .get(`${APIURL}/data/schedule/teamleads?week=${week}`)
+        .then(response => {
+          this.TLBalance[week] = response.data;
         })
         .catch(error => {
           this.$store.commit("snackbarMessage", {
@@ -107,9 +136,6 @@ export default {
     onAvailableList(list) {
       this.availableList = list;
     }
-  },
-  created() {
-    this.getBalance();
   },
   mounted() {
     const APIURL = process.env.VUE_APP_APIURL;
@@ -124,12 +150,6 @@ export default {
           message: "No game values found. Balance won't be working."
         });
       });
-  },
-  watch: {
-    selectedWeek(newValue) {
-      if (this.balance[newValue]) return;
-      this.getBalance(newValue);
-    }
   }
 };
 </script>
