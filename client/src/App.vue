@@ -14,7 +14,8 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title>GLL Staff Scheduler</v-toolbar-title>
       <v-spacer />
-      <span v-if="user" class="accent--text font-weight-bold mr-4">
+      <span>{{ $store.state.now | moment("HH:mm") }}</span>
+      <span v-if="user" class="accent--text font-weight-bold mx-4">
         {{ user.nickname }}
       </span>
       <v-btn text v-if="isLoggedIn" @click="logout">
@@ -71,10 +72,6 @@ export default {
         return error.response;
       }
     );
-
-    window.setInterval(() => {
-      this.$store.commit("updateDate");
-    }, 1000 * 60);
 
     this.$store.subscribe((mutation, state) => {
       if (mutation.type === "snackbarMessage") {

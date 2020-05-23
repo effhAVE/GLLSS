@@ -14,7 +14,7 @@ const cors = require("cors");
 module.exports = function(app) {
   app.use(express.json());
   app.use(cors({
-    exposedHeaders: ["x-auth-token"],
+    exposedHeaders: ["x-auth-token", "Date"],
   }));
   app.use("/api/users", users);
   app.use("/api/series", series);

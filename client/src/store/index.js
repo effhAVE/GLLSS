@@ -4,6 +4,7 @@ import axios from "axios";
 import greeting from "../helpers/greeting";
 import router from "../router"
 import VueJWT from 'vuejs-jwt'
+import moment from "moment"
 
 Vue.use(Vuex);
 Vue.use(VueJWT, {
@@ -18,6 +19,7 @@ export default new Vuex.Store({
     token: localStorage.getItem("token"),
     tokenExpiry: null,
     tokenTimer: null,
+    updateTimer: null,
     snackbar: {
       type: "",
       message: ""
@@ -25,7 +27,10 @@ export default new Vuex.Store({
   },
   mutations: {
     updateDate(state) {
-      state.now = new Date()
+      state.now = moment(state.now).add(1, "minutes").toDate();
+    },
+    setDate(state, date) {
+      state.now = moment(date).toDate();
     },
     AUTH_REQUEST(state) {
       state.status = "pending";
@@ -60,7 +65,8 @@ export default new Vuex.Store({
   actions: {
     login({
       commit,
-      dispatch
+      dispatch,
+      state
     }, user) {
       return new Promise((resolve, reject) => {
         commit("AUTH_REQUEST");
@@ -78,6 +84,12 @@ export default new Vuex.Store({
             const user = response.data.user;
             commit("tokenUpdate", token);
             localStorage.setItem("token", token);
+            window.clearInterval(state.updateTimer);
+            state.updateTimer = null;
+            commit("setDate", response.headers.date);
+            state.updateTimer = window.setInterval(() => {
+              commit("updateDate");
+            }, 1000 * 60);
             const timer = dispatch("renewTokenTask");
             commit("timerUpdate", timer);
             axios.defaults.headers.common["x-auth-token"] = token;
@@ -141,7 +153,9 @@ export default new Vuex.Store({
       dispatch,
       state
     }) {
-      const now = new Date().getTime() / 1000;
+      let now = state.now;
+      if (!now) now = new Date();
+      now = now.getTime() / 1000;
       const expiry = state.tokenExpiry;
       let refreshTimeout = expiry - now;
       if (expiry - now > 65) refreshTimeout -= 60;
@@ -152,13 +166,20 @@ export default new Vuex.Store({
 
     renewToken({
       commit,
-      dispatch
+      dispatch,
+      state
     }) {
       return new Promise((resolve, reject) => {
         commit("AUTH_REQUEST");
         axios.get(`${APIURL}/auth/renew`)
           .then(response => {
             const token = response.data;
+            window.clearInterval(state.updateTimer);
+            state.updateTimer = null;
+            commit("setDate", response.headers.date);
+            state.updateTimer = window.setInterval(() => {
+              commit("updateDate");
+            }, 1000 * 60);
             commit("tokenUpdate", token);
             localStorage.setItem("token", token);
             const timer = dispatch("renewTokenTask");
