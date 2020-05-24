@@ -7,7 +7,6 @@ const auth = require("../routes/auth");
 const collections = require("../routes/collections");
 const data = require("../routes/data");
 const schedules = require("../routes/schedules");
-const logs = require("../routes/logs");
 const error = require("../middleware/error");
 const cors = require("cors");
 
@@ -24,6 +23,5 @@ module.exports = function(app) {
   app.use("/api/collections", collections);
   app.use("/api/data", data);
   app.use("/api/schedules", schedules);
-  app.use("/api/logs", logs);
   app.use(error);
 }

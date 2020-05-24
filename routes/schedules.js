@@ -77,7 +77,7 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
     }
   }
 
-  res.send(true);
+  return res.send(true);
 });
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
@@ -170,7 +170,7 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
     gameObject.rounds = roundsDays;
   });
 
-  res.send(rounds);
+  return res.send(rounds);
 });
 
 module.exports = router;

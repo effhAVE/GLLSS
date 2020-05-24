@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
   });
 
   const token = user.generateAuthToken();
-  res.send({
+  return res.send({
     token: token,
     user: user
   });
@@ -41,8 +41,12 @@ router.post("/", async (req, res) => {
 
 router.get("/renew", auth, async (req, res) => {
   const user = await User.findById(req.user._id);
+  if (!user) {
+    return res.status(400).send("No user found.")
+  }
+
   const token = user.generateAuthToken();
-  res.send(token);
+  return res.send(token);
 });
 
 router.post("/password-reset", async (req, res) => {
@@ -55,7 +59,7 @@ router.post("/password-reset", async (req, res) => {
 
   const decoded = jwt.decode(token);
   const user = await User.findById(decoded.id);
-  if (!user) return res.status(404).send("No user found.");
+  if (!user) return res.status(400).send("No user found.");
   const secret = `${user.password.substring(4, 12)}-${user._id.getTimestamp()}`;
   jwt.verify(token, secret, async function(error, verified) {
     if (error) {
@@ -67,7 +71,7 @@ router.post("/password-reset", async (req, res) => {
     await user.save();
   });
 
-  res.send("Password changed!");
+  return res.send("Password changed!");
 
 });
 
@@ -80,6 +84,7 @@ router.post("/forgot-password", async (req, res) => {
   const user = await User.findOne({
     email: email
   });
+
   if (!user) return res.status(400).send("No such email in the database.");
 
   const secret = `${user.password.substring(4, 12)}-${user._id.getTimestamp()}`;

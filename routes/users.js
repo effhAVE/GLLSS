@@ -54,7 +54,7 @@ router.get("/", auth, validateAccess("admin"), async (req, res) => {
     })
     .select("-tournamentsHosted")
     .sort("_id");
-  res.send(users);
+  return res.send(users);
 });
 
 router.delete("/", auth, validateAccess("masteradmin"), async (req, res) => {
@@ -84,7 +84,7 @@ router.delete("/", auth, validateAccess("masteradmin"), async (req, res) => {
     }
   }
 
-  res.send(usersToDelete);
+  return res.send(usersToDelete);
 });
 
 router.get("/list", auth, validateAccess("teamleader"), async (req, res) => {
@@ -99,19 +99,21 @@ router.get("/list", auth, validateAccess("teamleader"), async (req, res) => {
     })
     .sort("nickname");
 
-  res.send(users);
+  return res.send(users);
 })
 
 router.get("/admins", auth, async (req, res) => {
   const admins = await User.find({
     roles: "admin"
   }).select("nickname");
-  res.send(admins);
+
+  return res.send(admins);
 });
 
 router.get("/me", auth, async (req, res) => {
   const user = await User.findById(req.user._id);
-  res.send(user);
+  if (!user) return res.send(400).send("No user found.");
+  return res.send(user);
 });
 
 router.post("/", async (req, res) => {
@@ -201,7 +203,7 @@ router.put("/:id/roles", auth, validateAccess("admin"), validateObjectId, async 
   }
 
   await user.save();
-  res.send(user);
+  return res.send(user);
 });
 
 router.post("/:id/confirm", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
@@ -212,7 +214,7 @@ router.post("/:id/confirm", auth, validateAccess("admin"), validateObjectId, asy
   user.roles.push("host");
   await user.save();
 
-  res.send(true);
+  return res.send(true);
 });
 
 router.get("/unconfirmed", auth, validateAccess("admin"), async (req, res) => {
@@ -220,7 +222,7 @@ router.get("/unconfirmed", auth, validateAccess("admin"), async (req, res) => {
     roles: "guest"
   }).select("nickname isVerified createdAt");
 
-  res.send(unconfirmedUsers);
+  return res.send(unconfirmedUsers);
 });
 
 module.exports = router;

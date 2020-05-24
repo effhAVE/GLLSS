@@ -56,7 +56,7 @@ router.get("/", auth, validateAccess("host"), validateObjectId, async (req, res)
   });
   if (!tournament) return res.status(400).send("No tournament found.");
 
-  res.send(tournament.rounds);
+  return res.send(tournament.rounds);
 });
 
 router.get("/:rid", auth, validateAccess("host"), validateObjectId, async (req, res) => {
@@ -65,7 +65,7 @@ router.get("/:rid", auth, validateAccess("host"), validateObjectId, async (req, 
 
   const round = tournament.rounds.id(req.params.rid);
   if (!round) return res.status(400).send("No round found.");
-  res.send(round);
+  return res.send(round);
 });
 
 router.delete("/:rid", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
@@ -98,7 +98,7 @@ router.delete("/:rid", auth, validateAccess("admin"), validateObjectId, async (r
   await round.remove();
   await tournament.save();
 
-  res.send(round);
+  return res.send(round);
 });
 
 router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async (req, res) => {
@@ -171,10 +171,10 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
     tournament.startDate = tournament.rounds[0].startDate;
     tournament.endDate = tournament.rounds[tournament.rounds.length - 1].endDate;
     await tournament.save();
-    res.send(round);
+    return res.send(round);
   } catch (ex) {
     console.error(ex);
-    res.status(500).send("Something failed.");
+    return res.status(500).send("Something failed.");
   }
 });
 
@@ -255,29 +255,37 @@ router.put("/", auth, validateAccess("teamleader"), validateObjectId, async (req
     }
   }
 
-  res.send(true);
+  return res.send(true);
 
 });
 
 router.put("/:rid/availability", auth, validateAccess("host"), validateObjectId, async (req, res) => {
+  const value = req.body.value;
+  const id = req.body.id;
+  if (typeof value === "undefined" || typeof id === "undefined") {
+    return res.status(400).send("Bad request");
+  }
+
   const tournament = await Tournament.findById(req.params.id).select("rounds");
   if (!tournament) return res.status(400).send("No tournament found.");
 
   const round = tournament.rounds.id(req.params.rid);
   if (!round) return res.status(400).send("No round found.");
-  if (req.body.value === true) {
-    round.available.push(req.body.id)
+  if (value === true) {
+    round.available.push(id)
   } else {
     round.available = round.available.filter(id => {
-      return !id.equals(req.body.id);
+      return !id.equals(id);
     });
   }
 
   await tournament.save();
-  res.send(round);
+  return res.send(round);
 });
 
 router.post("/:rid/ready", auth, validateAccess("host"), validateObjectId, async (req, res) => {
+  const source = req.body.source;
+  if (!source) return res.status(400).send("Bad request.");
   const tournament = await Tournament.findById(req.params.id).select("rounds");
   if (!tournament) return res.status(400).send("No tournament found.");
 
@@ -285,7 +293,7 @@ router.post("/:rid/ready", auth, validateAccess("host"), validateObjectId, async
   if (!round) return res.status(400).send("No round found.");
 
   let host;
-  if (req.body.source === "host") {
+  if (source === "host") {
     host = round.hosts.find(hostObj => hostObj.host.equals(req.user._id));
   } else {
     host = round.teamLeads.find(hostObj => hostObj.host.equals(req.user._id));

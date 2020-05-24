@@ -18,7 +18,7 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
       name: 1
     });
 
-  res.send(series);
+  return res.send(series);
 });
 
 router.get("/list", auth, validateAccess("host"), async (req, res) => {
@@ -27,14 +27,15 @@ router.get("/list", auth, validateAccess("host"), async (req, res) => {
     recurrance: 1,
     name: 1
   });
-  res.send(series);
+
+  return res.send(series);
 });
 
 router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, res) => {
   const series = await Series.findById(req.params.id);
   if (!series) return res.status(404).send("No series found.")
 
-  res.send(series);
+  return res.send(series);
 });
 
 router.get("/:id/tournaments", auth, validateObjectId, validateAccess("host"), async (req, res) => {
@@ -54,7 +55,7 @@ router.get("/:id/tournaments", auth, validateObjectId, validateAccess("host"), a
       }
     });
   if (!series) return res.status(404).send("No series found.")
-  res.send(series.tournaments);
+  return res.send(series.tournaments);
 });
 
 router.delete("/:id", auth, validateObjectId, validateAccess("admin"), async (req, res) => {
@@ -62,7 +63,7 @@ router.delete("/:id", auth, validateObjectId, validateAccess("admin"), async (re
   if (!series) return res.status(400).send("No series found.");
 
   await series.remove();
-  res.send(series);
+  return res.send(series);
 });
 
 router.post("/", auth, validateAccess("admin"), async (req, res) => {
@@ -73,7 +74,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
 
   const series = new Series(_.pick(req.body, ["name", "game", "startDate", "endDate", "recurrence", "region"]));
   await series.save();
-  res.send(series);
+  return res.send(series);
 });
 
 router.put("/:id", auth, validateObjectId, validateAccess("admin"), async (req, res) => {
@@ -87,7 +88,7 @@ router.put("/:id", auth, validateObjectId, validateAccess("admin"), async (req, 
 
   Object.assign(series, _.pick(req.body, ["name", "game", "startDate", "endDate", "recurrence", "region"]));
   await series.save();
-  res.send(series);
+  return res.send(series);
 });
 
 module.exports = router;

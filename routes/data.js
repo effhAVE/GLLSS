@@ -245,10 +245,6 @@ router.get("/schedule/teamleads", auth, validateAccess("teamleader"), async (req
     }
   }
 
-
-
-
-
   let TLTimeSlots = {};
   currentWeekTournaments.forEach(tournament => {
     tournament.rounds.forEach(round => {
@@ -446,12 +442,12 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
   const data = await Data.find({}).select("-calculation").sort("-date");
-  res.send(data);
+  return res.send(data);
 });
 
 router.get("/gamevalues", auth, validateAccess("host"), async (req, res) => {
   const values = await getRecentGameValues();
-  res.send(values);
+  return res.send(values);
 });
 
 router.post("/", auth, validateAccess("admin"), async (req, res) => {
@@ -460,7 +456,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
   });
   await monthData.save();
 
-  res.send(monthData);
+  return res.send(monthData);
 });
 
 router.get("/:date/my", auth, validateAccess("host"), async (req, res) => {
@@ -489,7 +485,7 @@ router.get("/:date/my", auth, validateAccess("host"), async (req, res) => {
   }
 
   data.calculation = myCalculation;
-  res.send(data);
+  return res.send(data);
 });
 
 router.get("/:date", auth, validateAccess("admin"), async (req, res) => {
@@ -499,7 +495,7 @@ router.get("/:date", auth, validateAccess("admin"), async (req, res) => {
 
   if (!data) return res.status(400).send("No such data period.");
 
-  res.send({
+  return res.send({
     data,
     currentHash: data.generateCalcHash(data.calculation)
   });
@@ -511,7 +507,7 @@ router.get("/:date/log", auth, validateAccess("admin"), async (req, res) => {
     filename: fileName
   }, function(err, file) {
     if (err || !file) {
-      res.send("File Not Found");
+      return res.send("File Not Found");
     } else {
       const readstream = gfs.createReadStream({
         filename: fileName
@@ -525,10 +521,10 @@ router.get("/:date/log", auth, validateAccess("admin"), async (req, res) => {
 router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) => {
   try {
     const data = await dataCalculation(req.params.date, req.body.gameValues, req.body.TLRatio);
-    res.send(data);
+    return res.send(data);
   } catch (err) {
     console.log(err);
-    res.status(400).send(err);
+    return res.status(400).send(err);
   }
 });
 

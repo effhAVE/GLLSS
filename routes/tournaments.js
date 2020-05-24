@@ -63,7 +63,7 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
     .limit(limitSize)
     .skip(limitSize * page);
 
-  res.send(tournaments);
+  return res.send(tournaments);
 });
 
 router.get("/past", auth, validateAccess("host"), async (req, res) => {
@@ -108,7 +108,7 @@ router.get("/past", auth, validateAccess("host"), async (req, res) => {
     .limit(limitSize)
     .skip(limitSize * page);
 
-  res.send(tournaments);
+  return res.send(tournaments);
 });
 
 router.get("/hosted/past", auth, validateAccess("host"), async (req, res) => {
@@ -172,7 +172,7 @@ router.get("/hosted/past", auth, validateAccess("host"), async (req, res) => {
   });
 
   user.tournamentsHosted = user.tournamentsHosted.filter(tournament => tournament.rounds.length);
-  res.send(user.tournamentsHosted.slice(page * limitSize, page * limitSize + limitSize));
+  return res.send(user.tournamentsHosted.slice(page * limitSize, page * limitSize + limitSize));
 });
 
 router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
@@ -211,7 +211,7 @@ router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
     return a.rounds[0].startDate - b.rounds[0].startDate
   });
 
-  res.send(user.tournamentsHosted.slice(page * limitSize, page * limitSize + limitSize));
+  return res.send(user.tournamentsHosted.slice(page * limitSize, page * limitSize + limitSize));
 });
 
 router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, res) => {
@@ -223,7 +223,7 @@ router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, r
     );
   });
   const isPast = moment(tournament.endDate).isBefore(new Date());
-  res.send({
+  return res.send({
     tournament,
     isPast
   });
@@ -239,7 +239,7 @@ router.put("/:id", auth, validateObjectId, validateAccess("admin"), async (req, 
 
   Object.assign(tournament, _.pick(req.body, ["name", "game", "startDate", "endDate", "region", "countedByRounds", "gllURL"]));
   await tournament.save();
-  res.send(tournament);
+  return res.send(tournament);
 });
 
 router.delete("/:id", auth, validateObjectId, validateAccess("admin"), async (req, res) => {
@@ -263,7 +263,7 @@ router.delete("/:id", auth, validateObjectId, validateAccess("admin"), async (re
   }, (error, data) => data);
 
   await tournament.remove();
-  res.send(tournament);
+  return res.send(tournament);
 });
 
 router.post("/", auth, validateAccess("admin"), async (req, res) => {
@@ -306,10 +306,10 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
       await series.save();
     }
 
-    res.send(tournament);
+    return res.send(tournament);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error while saving.");
+    return res.status(500).send("Error while saving.");
   }
 });
 
