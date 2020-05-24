@@ -9,24 +9,14 @@
       {{ dataObject.date | moment("MMMM YYYY") }} data
       <v-spacer></v-spacer>
       <div v-if="user.roles.includes('admin')">
-        <v-btn
-          color="accent"
-          class="black--text mr-4"
-          @click="calculateDialog = true"
-          >(Re)Calculate</v-btn
-        >
+        <v-btn color="accent" class="black--text mr-4" @click="calculateDialog = true">(Re)Calculate</v-btn>
         <v-btn color="accent" class="black--text" @click="downloadLog">
           <v-icon left dark>mdi-download</v-icon>
           Download logs
         </v-btn>
       </div>
     </v-card-title>
-    <v-tabs
-      fixed-tabs
-      v-model="tab"
-      background-color="secondary"
-      v-if="dataObject.calculation"
-    >
+    <v-tabs fixed-tabs v-model="tab" background-color="secondary" v-if="dataObject.calculation">
       <v-tab>
         Overview
       </v-tab>
@@ -40,124 +30,70 @@
     <v-alert outlined type="warning" color="accent" v-else>
       No calculation available at the moment.
     </v-alert>
-    <v-tabs-items v-model="tab" class="transparent">
+    <v-tabs-items v-model="tab" class="transparent" v-if="dataObject.calculation">
       <v-tab-item>
         <v-card flat color="transparent">
-          <v-simple-table
+          <v-data-table
             class="table-background table-simple not-editable text-center"
+            :headers="dataHeaders"
+            :items="convertDataToArray(dataObject.calculation.hosts.summary)"
+            no-data-text="No data"
+            item-key="_id"
+            hide-default-footer
+            disable-pagination
           >
-            <template v-slot:default>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Games hosted</th>
-                  <th>Host value</th>
-                  <th>Teamlead time</th>
-                  <th>Teamlead value</th>
-                  <th class="accent black--text">Total value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(host, hostName) in dataObject.calculation.hosts
-                    .summary"
-                  :key="hostName"
-                >
-                  <th v-if="hostName !== user.nickname">
-                    {{ hostName }}
-                  </th>
-                  <th v-else>
-                    <span class="accent--text font-weight-bold">
-                      <v-icon color="accent" small
-                        >mdi-account-arrow-left</v-icon
-                      >
-                      {{ hostName }}
-                      <v-icon></v-icon>
-                    </span>
-                  </th>
-                  <td>{{ host.games }}</td>
-                  <td>{{ host.hostValue }}</td>
-                  <td>{{ host.TLTime }}</td>
-                  <td>{{ host.TLValue }}</td>
-                  <td>{{ host.totalValue }}</td>
-                </tr>
-              </tbody>
+            <template v-slot:item.name="{ value }">
+              <strong class="username" v-if="value !== user.nickname">{{ value }}</strong>
+              <strong class="username" v-else>
+                <span class="accent--text font-weight-bold">
+                  <v-icon color="accent" small>mdi-account-arrow-left</v-icon>
+                  {{ value }}
+                </span>
+              </strong>
             </template>
-          </v-simple-table>
+          </v-data-table>
         </v-card>
       </v-tab-item>
       <v-tab-item>
-        <v-tabs
-          v-model="gamesTab"
-          background-color="primary"
-          slider-color="accent"
-        >
-          <v-tab v-for="(value, game) in gameSpecificValues" :key="game">
-            {{ game }}</v-tab
-          >
+        <v-tabs v-model="gamesTab" background-color="primary" slider-color="accent">
+          <v-tab v-for="(value, game) in gameSpecificValues" :key="game"> {{ game }}</v-tab>
         </v-tabs>
         <v-card flat color="transparent">
           <v-tabs-items v-model="gamesTab" class="transparent">
-            <v-tab-item
-              v-for="(gameValues, game) in gameSpecificValues"
-              :key="game"
-            >
-              <v-simple-table
+            <v-tab-item v-for="(gameValues, game) in gameSpecificValues" :key="game">
+              <v-data-table
                 class="table-background table-simple not-editable text-center"
+                :headers="dataHeaders"
+                :items="convertDataToArray(gameValues.total)"
+                no-data-text="No data"
+                item-key="_id"
+                hide-default-footer
+                disable-pagination
               >
-                <template v-slot:default>
-                  <thead>
-                    <tr>
-                      <th>User</th>
-                      <th>Games hosted</th>
-                      <th>Host value</th>
-                      <th>Teamlead time</th>
-                      <th>Teamlead value</th>
-                      <th class="accent black--text">Total value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="(host, hostName) in gameValues.total"
-                      :key="hostName"
-                    >
-                      <th v-if="hostName !== user.nickname">
-                        {{ hostName }}
-                      </th>
-                      <th v-else>
-                        <span class="accent--text font-weight-bold">
-                          <v-icon color="accent" small
-                            >mdi-account-arrow-left</v-icon
-                          >
-                          {{ hostName }}
-                          <v-icon></v-icon>
-                        </span>
-                      </th>
-                      <td>{{ host.games }}</td>
-                      <td>{{ host.hostValue }}</td>
-                      <td>{{ host.TLTime }}</td>
-                      <td>{{ host.TLValue }}</td>
-                      <td>{{ host.totalValue }}</td>
-                    </tr>
-                  </tbody>
-                  <tfoot>
+                <template v-slot:item.name="{ value }">
+                  <strong class="username" v-if="value !== user.nickname">{{ value }}</strong>
+                  <strong class="username" v-else>
+                    <span class="accent--text font-weight-bold">
+                      <v-icon color="accent" small>mdi-account-arrow-left</v-icon>
+                      {{ value }}
+                    </span>
+                  </strong>
+                </template>
+                <template v-slot:body.append>
+                  <tr>
                     <th>Game value</th>
                     <td colspan="5" align="center">
                       {{ gameValues.gameValue }}
                     </td>
-                  </tfoot></template
-                >
-              </v-simple-table>
+                  </tr>
+                </template>
+              </v-data-table>
             </v-tab-item>
           </v-tabs-items>
         </v-card>
       </v-tab-item>
       <v-tab-item>
-        <v-tabs
-          v-model="statsTab"
-          background-color="primary"
-          slider-color="accent"
-        >
+        <v-tabs v-model="statsTab" background-color="primary" slider-color="accent">
           <v-tab>Regions</v-tab>
           <v-tab>Games</v-tab>
           <v-tab>Total</v-tab>
@@ -165,9 +101,7 @@
         <v-tabs-items v-model="statsTab" class="transparent">
           <v-card flat color="transparent">
             <v-tab-item>
-              <v-simple-table
-                class="table-background table-simple not-editable text-center"
-              >
+              <v-simple-table class="table-background table-simple not-editable text-center">
                 <template v-slot:default>
                   <thead>
                     <tr>
@@ -177,10 +111,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr
-                      v-for="(values, region) in dataObject.calculation.regions"
-                      :key="region"
-                    >
+                    <tr v-for="(values, region) in dataObject.calculation.regions" :key="region">
                       <th>
                         {{ region }}
                       </th>
@@ -192,9 +123,7 @@
               </v-simple-table>
             </v-tab-item>
             <v-tab-item>
-              <v-simple-table
-                class="table-background table-simple not-editable text-center"
-              >
+              <v-simple-table class="table-background table-simple not-editable text-center">
                 <template v-slot:default>
                   <thead>
                     <tr>
@@ -208,22 +137,14 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr
-                      v-for="(values, game) in dataObject.calculation.games"
-                      :key="game"
-                    >
+                    <tr v-for="(values, game) in dataObject.calculation.games" :key="game">
                       <th>
                         {{ game }}
                       </th>
                       <td>
-                        <v-simple-table
-                          class="my-4 table-background table-simple text-center"
-                        >
+                        <v-simple-table class="my-4 table-background table-simple text-center">
                           <tbody>
-                            <tr
-                              v-for="(value, name) in values.regions"
-                              :key="name"
-                            >
+                            <tr v-for="(value, name) in values.regions" :key="name">
                               <th>
                                 {{ name }}
                               </th>
@@ -246,9 +167,7 @@
               </v-simple-table>
             </v-tab-item>
             <v-tab-item>
-              <v-simple-table
-                class="table-background table-simple not-editable text-center"
-              >
+              <v-simple-table class="table-background table-simple not-editable text-center">
                 <template v-slot:default>
                   <thead>
                     <tr>
@@ -308,10 +227,30 @@ export default {
       gamesTab: null,
       statsTab: null,
       calculateDialog: false,
-      gameSpecificValues: {}
+      gameSpecificValues: {},
+      dataHeaders: [
+        {
+          text: "User",
+          value: "name",
+          sortable: false
+        },
+        { text: "Games hosted", value: "games", align: "center" },
+        { text: "Host value", value: "hostValue", align: "center" },
+        { text: "Teamlead time", value: "TLTime", align: "center" },
+        { text: "Teamlead value", value: "TLValue", align: "center" },
+        { text: "Total value", value: "totalValue", align: "center", class: "accent darken-1 black--text" }
+      ]
     };
   },
   methods: {
+    convertDataToArray(dataObject) {
+      const array = [];
+      for (const [name, values] of Object.entries(dataObject)) {
+        array.push({ name: name, ...values });
+      }
+
+      return array;
+    },
     getData(date) {
       const APIURL = process.env.VUE_APP_APIURL;
       if (this.user.roles.includes("admin")) {
@@ -320,10 +259,7 @@ export default {
           .then(response => {
             this.dataObject = response.data.data;
             if (!this.dataObject.calculation) return;
-            const {
-              ["summary"]: _,
-              ...games
-            } = this.dataObject.calculation.hosts;
+            const { ["summary"]: _, ...games } = this.dataObject.calculation.hosts;
 
             this.gameSpecificValues = games;
           })
@@ -338,10 +274,7 @@ export default {
           .then(response => {
             this.dataObject = response.data;
             if (!this.dataObject.calculation) return;
-            const {
-              ["summary"]: _,
-              ...games
-            } = this.dataObject.calculation.hosts;
+            const { ["summary"]: _, ...games } = this.dataObject.calculation.hosts;
             this.gameSpecificValues = games;
           })
           .catch(error => {
@@ -410,5 +343,9 @@ export default {
 <style lang="scss">
 .theme--dark.v-tabs-items {
   background-color: transparent;
+}
+
+.username {
+  font-size: 0.75rem;
 }
 </style>
