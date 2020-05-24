@@ -13,6 +13,7 @@ const {
   User
 } = require("../models/user");
 const mongoose = require("mongoose");
+const moment = require("moment");
 const express = require("express");
 const router = express.Router({
   mergeParams: true
@@ -292,20 +293,29 @@ router.post("/:rid/ready", auth, validateAccess("host"), validateObjectId, async
   const round = tournament.rounds.id(req.params.rid);
   if (!round) return res.status(400).send("No round found.");
 
-  let host;
-  if (source === "host") {
-    host = round.hosts.find(hostObj => hostObj.host.equals(req.user._id));
-  } else {
-    host = round.teamLeads.find(hostObj => hostObj.host.equals(req.user._id));
+  const roundIndex = tournament.rounds.findIndex(tournamentRound => tournamentRound._id === round._id);
+  for (const [index, upcomingRound] of tournament.rounds.slice(roundIndex).entries()) {
+    let host;
+    if (source === "host") {
+      host = upcomingRound.hosts.find(hostObj => hostObj.host.equals(req.user._id));
+    } else {
+      host = upcomingRound.teamLeads.find(hostObj => hostObj.host.equals(req.user._id));
+    }
+
+    const nextRound = tournament.rounds[roundIndex + index + 1];
+    if (host) {
+      host.ready = true;
+    }
+
+    if (nextRound) {
+      if (!(moment(nextRound.startDate).diff(upcomingRound.endDate, "minutes") <= 60 && host)) {
+        break;
+      }
+    }
   }
 
-  if (host) {
-    host.ready = true;
-    await tournament.save();
-    return res.send(true);
-  }
-
-  return res.status(400).send("No host found.")
+  await tournament.save();
+  return res.send(true);
 });
 
 module.exports = router;
