@@ -11,11 +11,10 @@
       no-data-text="No tournaments"
       item-key="_id"
       hide-default-footer
+      disable-pagination
     >
       <template v-slot:item.name="{ item }">
-        <router-link :to="`/tournaments/${item._id}`" class="white--text">{{
-          item.name
-        }}</router-link>
+        <router-link :to="`/tournaments/${item._id}`" class="white--text">{{ item.name }}</router-link>
       </template>
       <template v-slot:item.startDate="{ item }">
         <span>{{ item.startDate | moment("MMMM DD, YYYY HH:mm") }}</span>
@@ -26,13 +25,7 @@
       <template v-slot:footer>
         <div class="v-data-footer">
           <v-spacer></v-spacer>
-          <v-btn
-            class="accent--text"
-            text
-            tile
-            @click="$emit('getNextPage')"
-            :disabled="allLoaded"
-          >
+          <v-btn class="accent--text" text tile @click="$emit('getNextPage')" :disabled="allLoaded">
             Load more
           </v-btn>
         </div>
@@ -71,9 +64,7 @@ export default {
   },
   methods: {
     redirect(tournament) {
-      return this.$router
-        .push(`/tournaments/${tournament._id}`)
-        .catch(err => {});
+      return this.$router.push(`/tournaments/${tournament._id}`).catch(err => {});
     }
   }
 };

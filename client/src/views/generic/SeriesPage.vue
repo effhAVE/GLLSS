@@ -5,46 +5,28 @@
       <v-spacer></v-spacer>
       <v-dialog v-model="editModal" persistent max-width="600px">
         <template v-slot:activator="{ on }">
-          <v-btn
-            class="success mr-4"
-            v-if="user.roles.includes('admin')"
-            v-on="on"
-          >
+          <v-btn class="success mr-4" v-if="user.roles.includes('admin')" v-on="on">
             Edit series
           </v-btn>
         </template>
         <v-card class="primary">
           <v-card-text>
             <v-container>
-              <SeriesForm
-                :series="series"
-                @cancel="editModal = false"
-                @submit="editSeries"
-              />
+              <SeriesForm :series="series" @cancel="editModal = false" @submit="editSeries" />
             </v-container>
           </v-card-text>
         </v-card>
       </v-dialog>
       <v-dialog v-model="deleteModal" max-width="500px" overlay-color="primary">
         <template v-slot:activator="{ on }">
-          <v-btn
-            class="error"
-            v-if="user.roles.includes('admin')"
-            v-on="on"
-            :disabled="!!series.tournaments.length"
-          >
-            {{
-              series.tournaments.length ? "Cannot be deleted" : "Delete series"
-            }}
+          <v-btn class="error" v-if="user.roles.includes('admin')" v-on="on" :disabled="!!series.tournaments.length">
+            {{ series.tournaments.length ? "Cannot be deleted" : "Delete series" }}
           </v-btn>
         </template>
 
         <v-card>
           <v-card-title class="headline">Are you sure?</v-card-title>
-          <v-card-text
-            >You're about to delete {{ series.name }} from the database. This
-            action cannot be undone.</v-card-text
-          >
+          <v-card-text>You're about to delete {{ series.name }} from the database. This action cannot be undone.</v-card-text>
           <v-divider></v-divider>
 
           <v-card-actions>
@@ -59,9 +41,7 @@
         </v-card>
       </v-dialog>
     </v-card-title>
-    <span
-      class="warning--text mb-4"
-      v-if="series.tournaments.length && user.roles.includes('admin')"
+    <span class="warning--text mb-4" v-if="series.tournaments.length && user.roles.includes('admin')"
       >Warning: Series cannot be deleted if they include tournaments.</span
     >
     <SeriesTable :series="series" />
@@ -78,12 +58,7 @@
         <span>Loading...</span>
       </template>
     </v-btn>
-    <TournamentsSimplifiedTable
-      v-else
-      :tournaments="tournaments"
-      :allLoaded="allLoaded"
-      @getNextPage="getNextTournamentPage"
-    />
+    <TournamentsSimplifiedTable v-else :tournaments="tournaments" :allLoaded="allLoaded" @getNextPage="getNextTournamentPage" />
   </v-card>
 </template>
 
@@ -113,7 +88,7 @@ export default {
       tournamentsLoaded: false,
       page: 0,
       limit: 10,
-      allLoadedd: false
+      allLoaded: false
     };
   },
   methods: {
@@ -134,9 +109,7 @@ export default {
       this.tournamentsLoading = true;
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .get(
-          `${APIURL}/series/${this.series._id}/tournaments?limit=${this.limit}&page=${this.page}`
-        )
+        .get(`${APIURL}/series/${this.series._id}/tournaments?limit=${this.limit}&page=${this.page}`)
         .then(response => {
           if (response.data.length < this.limit) this.allLoaded = true;
           this.tournaments.push(...response.data);

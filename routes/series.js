@@ -11,7 +11,13 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
-  const series = await Series.find();
+  const series = await Series
+    .find({})
+    .sort({
+      game: 1,
+      name: 1
+    });
+
   res.send(series);
 });
 
@@ -36,12 +42,18 @@ router.get("/:id/tournaments", auth, validateObjectId, validateAccess("host"), a
   const page = +req.query.page || 0;
   const series = await Series
     .findById(req.params.id)
-    .populate("tournaments", "name startDate endDate")
-    //.sort("-tournaments.endDate") not working with populated fields
-    .limit(limitSize)
-    .skip(limitSize * page);
-  if (!series) res.status(404).send("No series found.")
+    .populate({
+      path: "tournaments",
+      options: {
+        limit: limitSize,
+        sort: {
+          endDate: -1
+        },
+        skip: limitSize * page
 
+      }
+    });
+  if (!series) return res.status(404).send("No series found.")
   res.send(series.tournaments);
 });
 
