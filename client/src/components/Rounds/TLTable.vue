@@ -153,7 +153,7 @@ export default {
   methods: {
     readyDisabled() {
       return (
-        this.$moment(this.round.startDate).diff(this.$store.state.now, "minutes") > 60 ||
+        this.$moment(this.round.startDate).diff(this.$store.state.now, "minutes") > 90 ||
         this.$moment(this.round.startDate).diff(this.$store.state.now, "minutes") < 30
       );
     },

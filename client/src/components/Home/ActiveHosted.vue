@@ -29,6 +29,7 @@
                 <th>Best of</th>
                 <th>Role</th>
                 <th>Group</th>
+                <th>Prep time</th>
                 <th>Ready</th>
                 <th>Starts</th>
               </thead>
@@ -61,6 +62,9 @@
                         }}
                       </span>
                     </div>
+                  </td>
+                  <td>
+                    <span v-if="isLeading(round)">{{ round.prepTime }} minutes</span>
                   </td>
                   <td>
                     <v-btn icon v-if="lostLeadingOrHosting(round)">
@@ -132,7 +136,9 @@ export default {
   },
   methods: {
     readyDisabled(round) {
-      return this.$moment(round.startDate).diff(this.now, "minutes") > 60 || this.$moment(round.startDate).diff(this.now, "minutes") < 30;
+      let checkInStart = 60;
+      if (this.isLeading(round)) checkInStart += 30;
+      return this.$moment(round.startDate).diff(this.now, "minutes") > checkInStart || this.$moment(round.startDate).diff(this.now, "minutes") < 30;
     },
     isLeading(round) {
       return round.teamLeads.some(TLObject => TLObject.host === this.user._id);
