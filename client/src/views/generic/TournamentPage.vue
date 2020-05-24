@@ -94,6 +94,7 @@
         ref="round"
         class="mt-12 mx-4"
         @roundChanged="changedRounds.push($event)"
+        @pastAvailabilityEdited="usersAvailable = $event"
       />
     </div>
   </v-card>
@@ -157,10 +158,10 @@ export default {
     },
     saveRoundsChanges() {
       const APIURL = process.env.VUE_APP_APIURL;
+      this.changedRounds.splice(0);
       this.$http
         .put(`${APIURL}/tournaments/${this.tournament._id}/rounds`, this.changedRounds)
         .then(() => {
-          this.changedRounds.splice(0);
           this.$store.commit("snackbarMessage", {
             message: "Rounds updated!",
             type: "success"

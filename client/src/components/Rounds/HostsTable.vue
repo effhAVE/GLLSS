@@ -174,6 +174,7 @@ export default {
       if (this.isPast) {
         this.availableEdited = this.availableEdited.filter(hostObj => hostObj !== newHost);
         this.availableEdited.push(oldHost);
+        this.$emit("pastAvailabilityEdited", this.availableEdited);
       } else {
         round.available = round.available.filter(hostObj => hostObj !== newHost);
         round.available.push(oldHost);
@@ -196,12 +197,13 @@ export default {
       round.hosts.push({ host: hostAdded, ready: false, lostHosting: false, groupName: "Gindex" });
       round.available = round.available.filter(host => host !== hostAdded);
       this.availableEdited = this.availableEdited.filter(host => host !== hostAdded);
+      this.$emit("pastAvailabilityEdited", this.availableEdited);
       this.$emit("excludedRemove", hostAdded);
     }
   },
   watch: {
     usersAvailable(newValue) {
-      this.availableEdited = this.usersAvailable.filter(user => !this.round.hosts.some(hostObject => hostObject.host.nickname === user.nickname));
+      this.availableEdited = newValue;
     }
   }
 };

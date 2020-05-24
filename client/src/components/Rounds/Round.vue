@@ -52,9 +52,10 @@
         :round="round"
         :user="user"
         :tableSettings="tableSettings"
-        :usersAvailable="usersAvailable"
+        :usersAvailable="usersAvailableFiltered"
         :game="game"
         :isPast="isPast"
+        @pastAvailabilityEdited="$emit('pastAvailabilityEdited', $event)"
         @changesMade="changesMade = true"
         @ready="onReady($event, 'host')"
         @userUpdate="changesMade = true"
@@ -65,8 +66,9 @@
         :round="round"
         :user="user"
         :tableSettings="tableSettings"
-        :usersAvailable="usersAvailable"
+        :usersAvailable="usersAvailableFiltered"
         :isPast="isPast"
+        @pastAvailabilityEdited="$emit('pastAvailabilityEdited', $event)"
         @changesMade="changesMade = true"
         @ready="onReady($event, 'TL')"
         @userUpdate="changesMade = true"
@@ -124,6 +126,17 @@ export default {
       deleteRoundModal: false,
       changesMade: false
     };
+  },
+  computed: {
+    usersAvailableFiltered() {
+      return this.usersAvailable.filter(
+        user =>
+          !(
+            this.round.hosts.some(hostObject => hostObject.host._id === user._id) ||
+            this.round.teamLeads.some(TLObject => TLObject.host._id === user._id)
+          )
+      );
+    }
   },
   methods: {
     onReady(host, source) {

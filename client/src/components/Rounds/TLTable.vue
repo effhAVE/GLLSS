@@ -164,6 +164,7 @@ export default {
       if (this.isPast) {
         this.availableEdited = this.availableEdited.filter(hostObj => hostObj !== newHost);
         this.availableEdited.push(oldHost);
+        this.$emit("pastAvailabilityEdited", this.availableEdited);
       } else {
         round.available = round.available.filter(hostObj => hostObj !== newHost);
         round.available.push(oldHost);
@@ -189,6 +190,7 @@ export default {
       });
       round.available = round.available.filter(host => host !== hostAdded);
       this.availableEdited = this.availableEdited.filter(host => host !== hostAdded);
+      this.$emit("pastAvailabilityEdited", this.availableEdited);
       this.$emit("excludedRemove", hostAdded);
     }
   },
