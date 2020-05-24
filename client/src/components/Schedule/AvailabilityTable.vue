@@ -1,6 +1,6 @@
 <template>
   <v-card-text>
-    <v-simple-table class="table-background not-editable availability-table" dense v-if="Object.values(availableList).length">
+    <v-simple-table class="table-background not-editable availability-table" dense v-if="Object.values(list).length">
       <tbody>
         <tr>
           <td style="min-width: 150px" class="pa-0 has-border has-border-thick">
@@ -21,7 +21,7 @@
             </table>
           </td>
 
-          <td v-for="(dayObject, dayName) in availableList" :key="dayName" class="pa-0 has-border has-border-thick">
+          <td v-for="(dayObject, dayName) in list" :key="dayName" class="pa-0 has-border has-border-thick">
             <table>
               <tr>
                 <td :colspan="Object.values(dayObject).length">
@@ -57,28 +57,30 @@
             </table>
           </td>
         </tr>
-        <tr v-for="user in [...teamLeads, ...hosts]" :key="`AT${user._id}`" style="position: relative">
-          <th class="fixed primary" :class="teamLeads.includes(user) ? 'blue--text' : ''">
-            {{ user.nickname }}
-          </th>
-          <td v-for="(dayObject, dayName) in availableList" :key="dayName" class="has-border-left has-border-left-thick pa-0">
-            <table style="table-layout: fixed; text-align: center">
-              <tr>
-                <td v-for="(gameObject, gameName) in dayObject" :key="gameName" :colspan="gameObject.length" class="pa-0 has-border-left">
-                  <table style="table-layout: fixed; text-align: center">
-                    <tr>
-                      <td v-for="(round, i) in gameObject" :key="i">
-                        <span v-if="round.teamLeads.includes(user.nickname)" class="blue--text">L</span>
-                        <span v-else-if="round.hosts.includes(user.nickname)" class="accent--text">H</span>
-                        <span v-else-if="round.available.includes(user.nickname)">X</span>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
+        <template>
+          <tr v-for="user in filteredUsers" :key="`AT${user._id}`" style="position: relative">
+            <th class="fixed primary" :class="teamLeads.includes(user) ? 'blue--text' : ''">
+              {{ user.nickname }}
+            </th>
+            <td v-for="(dayObject, dayName) in list" :key="dayName" class="has-border-left has-border-left-thick pa-0">
+              <table style="table-layout: fixed; text-align: center">
+                <tr>
+                  <td v-for="(gameObject, gameName) in dayObject" :key="gameName" :colspan="gameObject.length" class="pa-0 has-border-left">
+                    <table style="table-layout: fixed; text-align: center">
+                      <tr>
+                        <td v-for="(round, i) in gameObject" :key="i">
+                          <span v-if="round.teamLeads.includes(user.nickname)" class="blue--text">L</span>
+                          <span v-else-if="round.hosts.includes(user.nickname)" class="accent--text">H</span>
+                          <span v-else-if="round.available.includes(user.nickname)">X</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </template>
       </tbody>
     </v-simple-table>
   </v-card-text>
@@ -89,13 +91,36 @@ export default {
     availableList: {
       type: Object,
       required: true
+    },
+    showTeamleads: {
+      type: Boolean,
+      default: true
+    },
+    showHosts: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
     return {
       teamLeads: [],
-      hosts: []
+      hosts: [],
+      list: this.availableList
     };
+  },
+  computed: {
+    filteredUsers() {
+      const users = [];
+      if (this.showTeamleads) {
+        users.push(...this.teamLeads);
+      }
+
+      if (this.showHosts) {
+        users.push(...this.hosts);
+      }
+
+      return users;
+    }
   },
   created() {
     const APIURL = process.env.VUE_APP_APIURL;
@@ -103,6 +128,14 @@ export default {
       this.teamLeads = response.data.filter(user => user.roles.includes("teamleader") && user.nickname !== "hAVE");
       this.hosts = response.data.filter(user => !user.roles.includes("teamleader") || user.nickname === "hAVE");
     });
+  },
+  watch: {
+    availableList: {
+      handler(list) {
+        this.list = list;
+      },
+      deep: true
+    }
   }
 };
 </script>

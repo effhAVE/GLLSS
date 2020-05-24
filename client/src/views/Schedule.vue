@@ -21,7 +21,7 @@
     </v-tabs>
     <v-tabs-items v-model="tab" class="transparent">
       <v-tab-item>
-        <ScheduleTable @scheduleList="onAvailableList" :week="selectedWeek" />
+        <ScheduleTable @scheduleList="onAvailableList" :week="selectedWeek" ref="scheduling" />
       </v-tab-item>
       <v-tab-item>
         <HostsBalance @getBalance="getHostsBalance(selectedWeek)" :balance="hostsBalance[selectedWeek]" />
@@ -35,11 +35,16 @@
         <v-card-title class="headline secondary" primary-title>
           Availability table
         </v-card-title>
-        <AvailabilityTable :availableList="availableList" />
+        <AvailabilityTable :availableList="availableList" :showTeamleads="showTeamleads" :showHosts="showHosts" />
         <v-divider></v-divider>
 
         <v-card-actions>
+          <v-checkbox v-model="showTeamleads" label="Show teamleads" color="accent"></v-checkbox>
+          <v-checkbox v-model="showHosts" label="Show hosts" color="accent" class="mx-4"></v-checkbox>
           <v-spacer></v-spacer>
+          <v-btn color="accent" text @click="$refs.scheduling.getRounds(selectedWeek)">
+            Refresh
+          </v-btn>
           <v-btn color="accent" text @click="modal = false">
             Close
           </v-btn>
@@ -62,6 +67,8 @@ export default {
   },
   data() {
     return {
+      showTeamleads: true,
+      showHosts: true,
       modal: false,
       availableList: {},
       selectedWeek: 0,

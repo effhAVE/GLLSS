@@ -158,9 +158,10 @@ export default {
     },
     saveRoundsChanges() {
       const APIURL = process.env.VUE_APP_APIURL;
+      const changes = Array.from(this.changedRounds);
       this.changedRounds.splice(0);
       this.$http
-        .put(`${APIURL}/tournaments/${this.tournament._id}/rounds`, this.changedRounds)
+        .put(`${APIURL}/tournaments/${this.tournament._id}/rounds`, changes)
         .then(() => {
           this.$store.commit("snackbarMessage", {
             message: "Rounds updated!",
