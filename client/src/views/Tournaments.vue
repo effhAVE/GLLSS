@@ -64,7 +64,7 @@ export default {
       const promises = [];
       this.availableQueue.forEach(el => {
         promises.push(
-          this.$http.put(`${APIURL}/tournaments/${el.tournamentID}/rounds/${el.roundID}/availability`, { value: el.value, id: this.user._id })
+          this.$http.put(`${APIURL}/tournaments/${el.tournamentID}/rounds/${el.roundID}/availability`, { value: el.value })
         );
       });
 

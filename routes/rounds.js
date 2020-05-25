@@ -262,8 +262,8 @@ router.put("/", auth, validateAccess("teamleader"), validateObjectId, async (req
 
 router.put("/:rid/availability", auth, validateAccess("host"), validateObjectId, async (req, res) => {
   const value = req.body.value;
-  const id = req.body.id;
-  if (typeof value === "undefined" || typeof id === "undefined") {
+  const id = req.user._id;
+  if (typeof value === "undefined" || typeof id === "undefined" || !mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).send("Bad request");
   }
 
@@ -275,8 +275,8 @@ router.put("/:rid/availability", auth, validateAccess("host"), validateObjectId,
   if (value === true) {
     round.available.push(id)
   } else {
-    round.available = round.available.filter(id => {
-      return !id.equals(id);
+    round.available = round.available.filter(user => {
+      return !user.equals(id);
     });
   }
 
