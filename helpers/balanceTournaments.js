@@ -26,6 +26,9 @@ module.exports = async function({
       $match: {
         "rounds.localStartDate": {
           $gte: previousWeekStart
+        },
+        "rounds.endDate": {
+          $lte: previousWeekEnd
         }
       }
     },
@@ -63,6 +66,9 @@ module.exports = async function({
       $match: {
         "rounds.localStartDate": {
           $gte: currentWeekStart
+        },
+        "rounds.endDate": {
+          $lte: currentWeekEnd
         }
       }
     },
