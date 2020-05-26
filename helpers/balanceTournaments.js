@@ -26,11 +26,11 @@ module.exports = async function({
       $match: {
         $and: [{
           "rounds.localStartDate": {
-            $lte: currentWeekEnd
+            $lte: previousWeekEnd
           }
         }, {
           "rounds.localStartDate": {
-            $gte: currentWeekStart
+            $gte: previousWeekStart
           }
         }]
       }
