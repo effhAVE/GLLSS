@@ -1,4 +1,5 @@
 module.exports = [
   "daily",
-  "weekly"
+  "weekly",
+  "none"
 ];

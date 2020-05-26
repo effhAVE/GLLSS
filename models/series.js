@@ -41,8 +41,7 @@ const seriesSchema = new mongoose.Schema({
   },
   region: {
     type: String,
-    enum: regionNames,
-    required: true
+    enum: Object.values(regionNames).concat([null])
   },
   tournaments: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -59,7 +58,7 @@ function validateSeries(series) {
     endDate: Joi.date().min(Joi.ref("startDate")).required(),
     recurrence: Joi.string().valid(...recurrences).required(),
     game: Joi.string().valid(...games).required(),
-    region: Joi.string().valid(...regionNames).required(),
+    region: Joi.string().allow(null).valid(...regionNames),
     tournaments: Joi.array()
   };
 

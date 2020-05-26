@@ -277,7 +277,11 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
   if (tournament.series) {
     series = await Series.findById(tournament.series);
     if (!series) return res.status(400).send("No series with the given ID.");
-    const regionObject = tournamentRegions.find(region => region.name === series.region);
+    if (series.region && series.recurrence !== "none") {
+      tournament.region = series.region;
+    }
+
+    const regionObject = tournamentRegions.find(region => region.name === tournament.region);
     const localStartDate = moment(tournament.startDate).add(regionObject.offset, "hours").format();
 
     if (series.recurrence === "daily") {
@@ -287,7 +291,6 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
     }
 
     tournament.game = series.game;
-    tournament.region = series.region;
   }
 
   if (tournament.rounds.length) {

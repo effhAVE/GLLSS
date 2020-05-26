@@ -3,10 +3,11 @@
     <v-text-field
       v-model="draft.name"
       color="accent"
-      :disabled="!!draft.series && !belongsToSeries"
+      :hint="!!draft.series && !belongsToSeries ? 'The name may be overwritten with the series\' name.' : ''"
       label="Name"
       prepend-icon="mdi-pencil"
       required
+      persistent-hint
       :rules="validations.name"
     ></v-text-field>
     <v-select
@@ -43,9 +44,10 @@
       item-text="name"
       prepend-icon="mdi-earth"
       color="accent"
-      :disabled="!!draft.series"
+      :hint="!!draft.series && !belongsToSeries ? 'The region may be overwritten with the series\' region.' : ''"
+      persistent-hint
       v-model="draft.region"
-      :rules="validations.seriesInherited"
+      :rules="validations.required"
     ></v-select>
     <v-checkbox v-model="draft.countedByRounds" label="Counted by rounds" prepend-icon="mdi-currency-usd" color="accent"></v-checkbox>
     <v-checkbox v-if="copy" v-model="copyRounds" label="Copy rounds" prepend-icon="mdi-view-grid-plus" color="accent"></v-checkbox>
@@ -104,7 +106,8 @@ export default {
             return inherits || "This field cannot be empty when not a part of a series";
           }
         ],
-        url: validations.tournamentUrl
+        url: validations.tournamentUrl,
+        required: validations.required
       },
       valid: true,
       belongsToSeries: false,

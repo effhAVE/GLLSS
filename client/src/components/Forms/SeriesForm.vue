@@ -4,15 +4,7 @@
     <DatetimePicker :date="draft.startDate" label="Start date" @input="draft.startDate = $event" :rules="validations.startDate" />
     <DatetimePicker :date="draft.endDate" label="End date" @input="draft.endDate = $event" icon="mdi-calendar-check" :rules="validations.endDate" />
     <v-select :items="gamesList" label="Game" prepend-icon="mdi-gamepad" color="accent" v-model="draft.game" :rules="validations.required"></v-select>
-    <v-select
-      :items="regionsList"
-      item-text="name"
-      label="Region"
-      prepend-icon="mdi-earth"
-      color="accent"
-      v-model="draft.region"
-      :rules="validations.required"
-    ></v-select>
+    <v-select :items="regionsList" item-text="name" label="Region" prepend-icon="mdi-earth" color="accent" v-model="draft.region"></v-select>
     <v-select
       :items="recurrencesList"
       label="Recurrence"
@@ -57,7 +49,7 @@ export default {
           .startOf("hour")
           .toDate(),
         game: "",
-        region: "",
+        region: null,
         recurrence: ""
       },
       validations: {
