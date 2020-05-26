@@ -24,12 +24,15 @@ module.exports = async function({
     },
     {
       $match: {
-        "rounds.localStartDate": {
-          $gte: previousWeekStart
-        },
-        "rounds.endDate": {
-          $lte: previousWeekEnd
-        }
+        $and: [{
+          "rounds.localStartDate": {
+            $lte: currentWeekEnd
+          }
+        }, {
+          "rounds.localStartDate": {
+            $gte: currentWeekStart
+          }
+        }]
       }
     },
     {
@@ -64,12 +67,15 @@ module.exports = async function({
     },
     {
       $match: {
-        "rounds.localStartDate": {
-          $gte: currentWeekStart
-        },
-        "rounds.endDate": {
-          $lte: currentWeekEnd
-        }
+        $and: [{
+          "rounds.localStartDate": {
+            $lte: currentWeekEnd
+          }
+        }, {
+          "rounds.localStartDate": {
+            $gte: currentWeekStart
+          }
+        }]
       }
     },
     {
