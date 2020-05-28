@@ -7,6 +7,7 @@ import ForgotPassword from '../views/ForgotPassword'
 import Register from '../views/Register.vue'
 import Calendar from '../views/Calendar.vue'
 import Schedule from '../views/Schedule.vue'
+import Accounts from '../views/Accounts.vue'
 import Data from '../views/Data.vue'
 import DataMonthPage from '../views/generic/DataMonthPage.vue'
 import Series from '../views/Series.vue'
@@ -20,6 +21,7 @@ import Users from '../views/admin/Users.vue'
 import Admin from '../views/admin/Admin.vue'
 import TournamentCreate from '../views/admin/TournamentCreate.vue'
 import SeriesCreate from '../views/admin/SeriesCreate.vue'
+import AccountCreate from '../views/admin/AccountCreate.vue'
 import store from "../store"
 
 Vue.use(VueRouter)
@@ -39,6 +41,15 @@ const routes = [{
     meta: {
       requiresAuth: true,
       requiredRole: "teamleader"
+    }
+  },
+  {
+    path: "/accounts",
+    name: "Accounts",
+    component: Accounts,
+    meta: {
+      requiresAuth: true,
+      requiredRole: "host"
     }
   },
   {
@@ -143,6 +154,10 @@ const routes = [{
       {
         path: "tournaments/create",
         component: TournamentCreate
+      },
+      {
+        path: "accounts/create",
+        component: AccountCreate
       },
       {
         path: "series/create",

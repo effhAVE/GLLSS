@@ -7,6 +7,9 @@ const {
 const {
   Gameaccount
 } = require("../models/gameaccount");
+const {
+  Preset
+} = require("../models/preset");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
@@ -34,7 +37,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
 });
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
-  const accounts = await Gameaccount.find({});
+  const accounts = await Gameaccount.find({}).populate("claimedBy");
   return res.send(accounts);
 });
 
@@ -64,7 +67,26 @@ router.put("/:id/lock", auth, validateAccess("teamleader"), validateObjectId, as
   const account = await Gameaccount.findById(req.params.id);
   if (!account) return res.status(400).send("No account found.");
   account.locked = !account.locked;
-  account.save();
+  account.claimedBy = null;
+  account.claimExpiration = null;
+  await account.save();
+  return res.send(account);
+});
+
+router.post("/:id/presets", auth, validateAccess("teamleader"), validateObjectId, async (req, res) => {
+  const account = await Gameaccount.findById(req.params.id);
+  if (!account) return res.status(400).send("No account found.");
+  const {
+    name
+  } = req.body;
+  if (!name) return res.status(400).send("No name provided");
+  const preset = new Preset({
+    name: name,
+    createdBy: req.user._id
+  });
+
+  account.presets.push(preset);
+  await account.save();
   return res.send(account);
 });
 
@@ -76,12 +98,14 @@ router.delete("/:id", auth, validateAccess("admin"), validateObjectId, async (re
 });
 
 router.put("/:id/claim", auth, validateAccess("host"), validateObjectId, async (req, res) => {
-  const cancelClaim = req.query.cancel;
-  const reqUser = req.user._id;
+  const cancelClaim = req.body.cancel;
+  const user = req.user._id;
+  const reqUser = req.body.user._id;
+  const sameUser = user === reqUser;
   const account = await Gameaccount.findById(req.params.id);
   if (!account) return res.status(400).send("No account found.");
-  if (account.claimedBy) {
-    if (!account.claimedBy.equals(reqUser)) return res.status(400).send("This account is already claimed!");
+  if (account.claimedBy && sameUser) {
+    if (!account.claimedBy.equals(user)) return res.status(400).send("This account is already claimed!");
   }
 
   const expirationDate = moment().add(8, "hours").toDate();
@@ -89,7 +113,7 @@ router.put("/:id/claim", auth, validateAccess("host"), validateObjectId, async (
     account.claimedBy = null;
     account.claimExpiration = null;
   } else {
-    account.claimedBy = reqUser;
+    account.claimedBy = sameUser ? user : reqUser;
     account.claimExpiration = expirationDate;
     schedule.scheduleJob(expirationDate, async () => {
       account.claimedBy = null;
@@ -98,8 +122,11 @@ router.put("/:id/claim", auth, validateAccess("host"), validateObjectId, async (
     });
   }
 
-  await account.save();
-  return res.send(account);
+  await account.save((err, account) => {
+    account.populate("claimedBy", (err, populated) => {
+      return res.send(populated);
+    });
+  });
 });
 
 module.exports = router;

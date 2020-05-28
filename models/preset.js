@@ -18,6 +18,6 @@ const presetSchema = new mongoose.Schema({
   }
 });
 
-const Preset = mongoose.model("Gameaccount", presetSchema);
+const Preset = mongoose.model("Preset", presetSchema);
 
 exports.Preset = Preset;

@@ -5,7 +5,8 @@ const {
   roles,
   games,
   regions,
-  recurrences
+  recurrences,
+  presets
 } = require("../collections");
 
 router.get("/roles", auth, async (req, res) => {
@@ -22,6 +23,10 @@ router.get("/regions", auth, async (req, res) => {
 
 router.get("/recurrences", auth, async (req, res) => {
   res.send(recurrences);
+});
+
+router.get("/presets", auth, async (req, res) => {
+  res.send(presets);
 });
 
 module.exports = router;
