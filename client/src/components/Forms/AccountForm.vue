@@ -4,7 +4,7 @@
     <v-text-field v-model="draft.password" color="accent" label="Password" prepend-icon="mdi-lock" required></v-text-field>
     <div v-if="account">
       <v-select
-        :items="presets"
+        :items="computedPresets"
         v-model="draft.presets"
         item-value="name"
         background-color="transparent"
@@ -34,7 +34,8 @@
 export default {
   props: {
     account: Object,
-    presets: Array
+    presets: Array,
+    user: Object
   },
   data() {
     return {
@@ -43,6 +44,20 @@ export default {
         password: ""
       }
     };
+  },
+  computed: {
+    computedPresets() {
+      if (!this.draft.presets || this.user.roles.includes("admin")) return this.presets;
+      return this.presets.map(preset => {
+        return {
+          text: preset,
+          disabled: this.draft.presets.some(draftPreset => {
+            const name = draftPreset.name || draftPreset;
+            return name === preset;
+          })
+        };
+      });
+    }
   },
   mounted() {
     if (this.account) {

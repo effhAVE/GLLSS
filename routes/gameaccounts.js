@@ -39,7 +39,10 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
 });
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
-  const accounts = await Gameaccount.find({}).populate("claimedBy, presets.createdBy");
+  const accounts = await Gameaccount.find({}).populate("claimedBy presets.createdBy").sort("password").collation({
+    locale: "en_US",
+    numericOrdering: true
+  });
   return res.send(accounts);
 });
 
@@ -57,6 +60,9 @@ router.put("/:id", auth, validateAccess("teamleader"), validateObjectId, async (
   if (error) return res.status(400).send(error.details[0].message);
   const account = await Gameaccount.findById(req.params.id);
   if (!account) return res.status(400).send("No account found.");
+  request.presets = request.presets.map(preset => {
+    return preset.name || preset;
+  });
   account.presets = account.presets.filter(accountPreset => request.presets.some(preset => accountPreset.name === preset));
   request.presets.filter(preset => !account.presets.some(accountPreset => accountPreset.name === preset)).forEach(preset => {
     account.presets.push(new Preset({
@@ -67,13 +73,8 @@ router.put("/:id", auth, validateAccess("teamleader"), validateObjectId, async (
 
   delete request.presets;
   Object.assign(account, request);
-  await account.save((err, account) => {
-    account.populate({
-      path: "presets.createdBy"
-    }, (err, populated) => {
-      return res.send(populated);
-    });
-  });
+  await account.save();
+  return res.send(account);
 });
 
 router.put("/:id/access", auth, validateAccess("host"), validateObjectId, async (req, res) => {
@@ -133,6 +134,7 @@ router.put("/:id/claim", auth, validateAccess("host"), validateObjectId, async (
   const sameUser = user === reqUser;
   const account = await Gameaccount.findById(req.params.id);
   if (!account) return res.status(400).send("No account found.");
+  if (account.locked) return res.status(400).send("Cannot claim a locked account!");
   if (account.claimedBy && sameUser) {
     if (!account.claimedBy.equals(user)) return res.status(400).send("This account is already claimed!");
   }

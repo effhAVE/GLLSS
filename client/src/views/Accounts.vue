@@ -12,6 +12,7 @@
       hide-default-footer
       disable-pagination
       disable-sort
+      dense
     >
       <template v-slot:item.haveAccess="{ item }">
         <v-simple-checkbox
@@ -24,11 +25,11 @@
       </template>
       <template v-slot:item.claimedBy="{ item }">
         <div class="d-flex align-center">
-          <span v-if="item.locked" class="error--text">LOCKED</span>
+          <span v-if="item.locked" class="error--text px-3"><strong>LOCKED</strong></span>
           <v-btn small text color="success" v-else-if="!item.claimedBy" @click="claimAccount(item, user, false)">Claim</v-btn>
           <v-btn small text color="warning" v-else-if="user._id === item.claimedBy._id" @click="claimAccount(item, user, true)">Unclaim</v-btn>
-          <span v-else class="pa-3 subtitle-2">{{ item.claimedBy.nickname }}</span>
-          <v-menu bottom offset-y max-height="300px" v-if="user.roles.includes('teamleader')">
+          <span v-else class="px-3 subtitle-2">{{ item.claimedBy.nickname }}</span>
+          <v-menu bottom offset-y max-height="300px" v-if="user.roles.includes('teamleader') && !item.locked">
             <template v-slot:activator="{ on }">
               <v-btn small icon v-on="on">
                 <v-icon small>
@@ -61,7 +62,7 @@
       </template>
       <template v-slot:item.actions="{ item }">
         <div class="d-flex">
-          <v-dialog v-model="item.menu" persistent max-width="600px">
+          <v-dialog v-model="item.menu" persistent max-width="600px" v-if="user.roles.includes('teamleader')">
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
                 <v-icon small>
@@ -75,6 +76,7 @@
                   <AccountForm
                     :account="item"
                     :presets="presets"
+                    :user="user"
                     @cancel="item.menu = false"
                     @submit="
                       editAccount($event);
@@ -157,7 +159,7 @@ export default {
         {
           text: "Claimed by",
           value: "claimedBy",
-          width: 125
+          width: 150
         },
         {
           text: "Claim expiration",
@@ -192,9 +194,11 @@ export default {
       this.presets = response.data;
     });
 
-    this.$http.get(`${APIURL}/users/list`).then(response => {
-      this.usersList = response.data.filter(user => user._id !== this.user._id);
-    });
+    if (this.user.roles.includes("teamleader")) {
+      this.$http.get(`${APIURL}/users/list`).then(response => {
+        this.usersList = response.data.filter(user => user._id !== this.user._id);
+      });
+    }
   },
   methods: {
     setAccess(account, value) {
