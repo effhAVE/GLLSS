@@ -104,6 +104,8 @@
       <v-list-item link to="/admin/data/create">
         <v-list-item-content>
           <v-list-item-title>Create a data month</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
       <v-list-item link to="/admin/accounts/create">
         <v-list-item-content>
           <v-list-item-title>Create an account</v-list-item-title>

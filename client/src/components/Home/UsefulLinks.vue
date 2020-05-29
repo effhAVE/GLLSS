@@ -24,9 +24,6 @@
         <a href="https://docs.google.com/spreadsheets/d/1yx3vwJVjyTexO5BTjEEndUDsk_jnBORqlmuCeX-QYTY/edit?usp=sharing">Apex Scrims Seeding Sheet</a>
       </li>
       <li>
-        <a href="https://docs.google.com/spreadsheets/d/1AqXDjsLoXGoVyD6p1RK4h82gZ0kErYCLm3SRFORNU24/edit#gid=798581813">Accounts in use</a>
-      </li>
-      <li>
         <a href="https://forms.gle/CSvPYkJb2dL8XeJ97">Application form for Casters</a>
       </li>
       <li>
