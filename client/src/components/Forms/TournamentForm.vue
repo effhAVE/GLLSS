@@ -12,7 +12,7 @@
     ></v-text-field>
     <v-select
       :items="seriesList"
-      :disabled="belongsToSeries"
+      :disabled="tournament"
       v-model="draft.series"
       label="Series"
       prepend-icon="mdi-view-list"
