@@ -51,7 +51,13 @@
         <span v-if="item.claimExpiration">{{ $moment(item.claimExpiration).from($store.state.now) }}</span>
       </template>
       <template v-slot:item.presets="{ item }">
-        {{ item.presets.join(", ") }}
+        <v-tooltip bottom color="secondary" v-for="preset in item.presets" :key="preset._id">
+          <template v-slot:activator="{ on }">
+            <span v-on="on">{{ preset.name }}, </span>
+          </template>
+          <p>Created by: {{ preset.createdBy.nickname }}</p>
+          <p>Creation time: {{ preset.createdAt | moment("YYYY-MM-DD HH:mm") }}</p>
+        </v-tooltip>
       </template>
       <template v-slot:item.actions="{ item }">
         <div class="d-flex">
@@ -66,7 +72,15 @@
             <v-card class="primary">
               <v-card-text>
                 <v-container>
-                  <AccountForm :account="item" :presets="presets" @cancel="item.menu = false" />
+                  <AccountForm
+                    :account="item"
+                    :presets="presets"
+                    @cancel="item.menu = false"
+                    @submit="
+                      editAccount($event);
+                      item.menu = false;
+                    "
+                  />
                 </v-container>
               </v-card-text>
             </v-card>
@@ -79,11 +93,31 @@
               mdi-lock-open
             </v-icon>
           </v-btn>
-          <v-btn icon color="error" v-if="user.roles.includes('admin')">
-            <v-icon small>
-              mdi-minus
-            </v-icon>
-          </v-btn>
+          <v-dialog v-model="deleteModal" max-width="500px" overlay-color="primary">
+            <template v-slot:activator="{ on }">
+              <v-btn icon color="error" v-if="user.roles.includes('admin')" v-on="on">
+                <v-icon small>
+                  mdi-minus
+                </v-icon>
+              </v-btn>
+            </template>
+
+            <v-card>
+              <v-card-title class="headline">Are you sure?</v-card-title>
+              <v-card-text>You're about to delete {{ item.login }} from the database. This action cannot be undone.</v-card-text>
+              <v-divider></v-divider>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="error" text @click="deleteAccount(item)">
+                  Yes
+                </v-btn>
+                <v-btn color="success" text @click="deleteModal = false">
+                  Cancel
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </div>
       </template>
     </v-data-table>
@@ -103,6 +137,7 @@ export default {
       accounts: [],
       presets: [],
       usersList: [],
+      deleteModal: false,
       headers: [
         {
           text: "Access",
@@ -175,6 +210,18 @@ export default {
         account.locked = locked;
         account.claimedBy = claimedBy;
         account.claimExpiration = claimExpiration;
+      });
+    },
+    editAccount(account) {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.$http.put(`${APIURL}/accounts/${account._id}/`, account).then(response => {
+        this.$router.go();
+      });
+    },
+    deleteAccount(account) {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.$http.delete(`${APIURL}/accounts/${account._id}/`).then(response => {
+        this.$router.go();
       });
     },
     claimAccount(account, user, isCancel) {

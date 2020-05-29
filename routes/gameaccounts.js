@@ -5,7 +5,8 @@ const {
   User
 } = require("../models/user");
 const {
-  Gameaccount
+  Gameaccount,
+  validate
 } = require("../models/gameaccount");
 const {
   Preset
@@ -15,6 +16,7 @@ const express = require("express");
 const router = express.Router();
 const schedule = require("node-schedule");
 const moment = require("moment");
+const _ = require("lodash");
 
 router.post("/", auth, validateAccess("admin"), async (req, res) => {
   const {
@@ -37,7 +39,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
 });
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
-  const accounts = await Gameaccount.find({}).populate("claimedBy");
+  const accounts = await Gameaccount.find({}).populate("claimedBy, presets.createdBy");
   return res.send(accounts);
 });
 
@@ -45,6 +47,33 @@ router.get("/:id", auth, validateAccess("host"), validateObjectId, async (req, r
   const account = await Gameaccount.findById(req.params.id);
   if (!account) return res.status(400).send("No account found.");
   return res.send(account);
+});
+
+router.put("/:id", auth, validateAccess("teamleader"), validateObjectId, async (req, res) => {
+  const request = _.pick(req.body, ["login", "password", "claimedBy", "presets", "claimExpiration", "locked", "notes", "haveAccess"]);
+  const {
+    error
+  } = validate(request);
+  if (error) return res.status(400).send(error.details[0].message);
+  const account = await Gameaccount.findById(req.params.id);
+  if (!account) return res.status(400).send("No account found.");
+  account.presets = account.presets.filter(accountPreset => request.presets.some(preset => accountPreset.name === preset));
+  request.presets.filter(preset => !account.presets.some(accountPreset => accountPreset.name === preset)).forEach(preset => {
+    account.presets.push(new Preset({
+      name: preset,
+      createdBy: req.user._id
+    }));
+  });
+
+  delete request.presets;
+  Object.assign(account, request);
+  await account.save((err, account) => {
+    account.populate({
+      path: "presets.createdBy"
+    }, (err, populated) => {
+      return res.send(populated);
+    });
+  });
 });
 
 router.put("/:id/access", auth, validateAccess("host"), validateObjectId, async (req, res) => {
