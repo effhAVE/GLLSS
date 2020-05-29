@@ -2,6 +2,8 @@
   <v-card height="100%" color="transparent">
     <v-card-title>
       PUBG Accounts
+      <v-spacer></v-spacer>
+      <v-btn text color="accent" @click="getAccounts">Refresh the accounts</v-btn>
     </v-card-title>
     <v-data-table
       class="table-background not-editable"
@@ -206,9 +208,7 @@ export default {
   },
   created() {
     const APIURL = process.env.VUE_APP_APIURL;
-    this.$http.get(`${APIURL}/accounts/`).then(response => {
-      this.accounts = response.data;
-    });
+    this.getAccounts();
 
     this.$http.get(`${APIURL}/collections/presets`).then(response => {
       this.presets = response.data;
@@ -221,6 +221,12 @@ export default {
     }
   },
   methods: {
+    getAccounts() {
+      const APIURL = process.env.VUE_APP_APIURL;
+      this.$http.get(`${APIURL}/accounts/`).then(response => {
+        this.accounts = response.data;
+      });
+    },
     setAccess(account, value) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http.put(`${APIURL}/accounts/${account._id}/access`, { value: value }).then(response => {
@@ -239,22 +245,50 @@ export default {
     },
     editAccount(account) {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.put(`${APIURL}/accounts/${account._id}/`, account).then(response => {
-        this.$router.go();
-      });
+      this.$http
+        .put(`${APIURL}/accounts/${account._id}/`, account)
+        .then(response => {
+          this.$router.go();
+          this.$store.commit("snackbarMessage", {
+            type: "success",
+            message: "Account edited successfully!"
+          });
+        })
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            type: "error",
+            message: "Error while editing."
+          });
+        });
     },
     deleteAccount(account) {
       const APIURL = process.env.VUE_APP_APIURL;
       this.$http.delete(`${APIURL}/accounts/${account._id}/`).then(response => {
         this.$router.go();
+        this.$store.commit("snackbarMessage", {
+          message: "Account deleted!",
+          type: "success"
+        });
       });
     },
     claimAccount(account, user, isCancel) {
       const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.put(`${APIURL}/accounts/${account._id}/claim`, { cancel: isCancel, user: user }).then(response => {
-        account.claimedBy = response.data.claimedBy;
-        account.claimExpiration = response.data.claimExpiration;
-      });
+      this.$http
+        .put(`${APIURL}/accounts/${account._id}/claim`, { cancel: isCancel, user: user })
+        .then(response => {
+          if (response.status >= 400) {
+            throw new Error(response.data);
+          } else {
+            account.claimedBy = response.data.claimedBy;
+            account.claimExpiration = response.data.claimExpiration;
+          }
+        })
+        .catch(error => {
+          this.$store.commit("snackbarMessage", {
+            type: "error",
+            message: error
+          });
+        });
     },
     addPreset(account) {
       const APIURL = process.env.VUE_APP_APIURL;

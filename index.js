@@ -26,6 +26,7 @@ app.use(history());
 require("./startup/db")();
 require("./startup/config")();
 require("./startup/validation")();
+require("./startup/accountsExpiration")();
 app.use("/", express.static("./client/dist"));
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => winston.info(`Listening on port ${port}...`));
