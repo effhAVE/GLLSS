@@ -87,15 +87,36 @@
               </v-card-text>
             </v-card>
           </v-dialog>
-          <v-btn icon :color="item.locked ? 'success' : 'error'" v-if="user.roles.includes('teamleader')" @click="lockAccount(item)">
-            <v-icon small v-if="!item.locked">
-              mdi-lock
-            </v-icon>
-            <v-icon small v-else>
-              mdi-lock-open
-            </v-icon>
-          </v-btn>
-          <v-dialog v-model="deleteModal" max-width="500px" overlay-color="primary">
+          <v-dialog v-model="item.lockModal" max-width="500px" overlay-color="primary" v-if="user.roles.includes('teamleader')">
+            <template v-slot:activator="{ on }">
+              <v-btn icon :color="item.locked ? 'success' : 'error'" v-on="on">
+                <v-icon small v-if="!item.locked">
+                  mdi-lock
+                </v-icon>
+                <v-icon small v-else>
+                  mdi-lock-open
+                </v-icon>
+              </v-btn>
+            </template>
+
+            <v-card>
+              <v-card-title class="headline">{{ item.locked ? "Unlock" : "Lock" }} the account</v-card-title>
+              <v-card-text>This action will unclaim the account for any user.</v-card-text>
+              <v-divider></v-divider>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="error" text @click="lockAccount(item)">
+                  Yes
+                </v-btn>
+                <v-btn color="success" text @click="item.lockModal = false">
+                  Cancel
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <v-dialog v-model="item.deleteModal" max-width="500px" overlay-color="primary">
             <template v-slot:activator="{ on }">
               <v-btn icon color="error" v-if="user.roles.includes('admin')" v-on="on">
                 <v-icon small>
@@ -114,7 +135,7 @@
                 <v-btn color="error" text @click="deleteAccount(item)">
                   Yes
                 </v-btn>
-                <v-btn color="success" text @click="deleteModal = false">
+                <v-btn color="success" text @click="item.deleteModal = false">
                   Cancel
                 </v-btn>
               </v-card-actions>
@@ -139,7 +160,6 @@ export default {
       accounts: [],
       presets: [],
       usersList: [],
-      deleteModal: false,
       headers: [
         {
           text: "Access",
@@ -209,6 +229,7 @@ export default {
     },
     lockAccount(account) {
       const APIURL = process.env.VUE_APP_APIURL;
+      account.lockModal = false;
       this.$http.put(`${APIURL}/accounts/${account._id}/lock`).then(response => {
         const { locked, claimedBy, claimExpiration } = response.data;
         account.locked = locked;
