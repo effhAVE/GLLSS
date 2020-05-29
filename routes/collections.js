@@ -7,7 +7,8 @@ const {
   roles,
   games,
   regions,
-  recurrences
+  recurrences,
+  presets
 } = require("../collections");
 
 router.get("/roles", auth, async (req, res) => {
@@ -61,6 +62,10 @@ router.get("/teamkills", auth, validateAccess("host"), async (req, res) => {
       }
     });
   });
+});
+
+router.get("/presets", auth, async (req, res) => {
+  res.send(presets);
 });
 
 module.exports = router;
