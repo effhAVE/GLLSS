@@ -8,8 +8,8 @@ module.exports = function() {
   mongoose.connection.once("connected", async function() {
     const accounts = await Gameaccount.find({});
     for (const account of accounts) {
-      if (account.expirationDate) {
-        schedule.scheduleJob(account.expirationDate, async () => {
+      if (account.claimExpiration) {
+        schedule.scheduleJob(account.claimExpiration, async () => {
           account.claimedBy = null;
           account.claimExpiration = null;
           await account.save();
