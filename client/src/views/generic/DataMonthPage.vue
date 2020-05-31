@@ -245,6 +245,7 @@ export default {
   methods: {
     convertDataToArray(dataObject) {
       const array = [];
+      if (!dataObject) return [];
       for (const [name, values] of Object.entries(dataObject)) {
         array.push({ name: name, ...values });
       }
