@@ -95,7 +95,7 @@ module.exports = async function(date, gameValues, TLRatio) {
   tournaments.forEach(tournament => {
     if (tournament.countedByRounds) {
       tournament.rounds = tournament.rounds.filter(round => {
-        const notCalculated = !moment(round.localStartDate).isSameOrAfter(rangeStart);
+        const notCalculated = !moment(round.localStartDate).isSameOrAfter(rangeStart) || !moment(round.localStartDate).isSameOrBefore(rangeEnd);
         if (notCalculated) {
           logger.notice(`Tournament: ${tournament.name} (id: ${tournament._id}). Round skipped: ${round.name} because it's not in the current month`);
         }

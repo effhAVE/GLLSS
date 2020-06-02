@@ -2,5 +2,6 @@ module.exports = [
   "Apex",
   "Autochess",
   "PUBG",
-  "PUBG Mobile"
+  "PUBG Mobile",
+  "Valorant"
 ];
