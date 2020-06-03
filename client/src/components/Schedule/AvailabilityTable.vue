@@ -123,8 +123,7 @@ export default {
     }
   },
   created() {
-    const APIURL = process.env.VUE_APP_APIURL;
-    this.$http.get(`${APIURL}/users/list`).then(response => {
+    this.$http.get(`${this.APIURL}/users/list`).then(response => {
       this.teamLeads = response.data.filter(user => user.roles.includes("teamleader") && user.nickname !== "hAVE");
       this.hosts = response.data.filter(user => !user.roles.includes("teamleader") || user.nickname === "hAVE");
     });

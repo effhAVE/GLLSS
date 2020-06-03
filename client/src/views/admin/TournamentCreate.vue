@@ -20,9 +20,8 @@ export default {
   },
   methods: {
     saveTournament(tournament) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .post(`${APIURL}/tournaments/`, tournament)
+        .post(`${this.APIURL}/tournaments/`, tournament)
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Tournament saved!",

@@ -37,8 +37,7 @@ export default {
   },
   methods: {
     getSeries() {
-      const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/series/`).then(response => {
+      this.$http.get(`${this.APIURL}/series/`).then(response => {
         this.seriesList = response.data;
       });
     },

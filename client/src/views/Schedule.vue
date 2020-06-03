@@ -113,9 +113,8 @@ export default {
       }
     }, */
     getHostsBalance(week = 0) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .get(`${APIURL}/data/schedule/?week=${week}`)
+        .get(`${this.APIURL}/data/schedule/?week=${week}`)
         .then(response => {
           this.hostsBalance[week] = response.data;
         })
@@ -127,9 +126,8 @@ export default {
         });
     },
     getTLBalance(week = 0) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .get(`${APIURL}/data/schedule/teamleads?week=${week}`)
+        .get(`${this.APIURL}/data/schedule/teamleads?week=${week}`)
         .then(response => {
           this.TLBalance[week] = response.data;
         })
@@ -145,9 +143,8 @@ export default {
     }
   },
   mounted() {
-    const APIURL = process.env.VUE_APP_APIURL;
     this.$http
-      .get(`${APIURL}/data/gamevalues`)
+      .get(`${this.APIURL}/data/gamevalues`)
       .then(response => {
         this.gameValues = response.data;
       })

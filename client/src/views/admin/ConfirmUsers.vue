@@ -3,14 +3,7 @@
     <v-card-title>
       Unconfirmed users
       <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-        color="accent"
-      ></v-text-field>
+      <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details color="accent"></v-text-field>
     </v-card-title>
     <v-data-table
       v-model="selected"
@@ -29,12 +22,7 @@
     </v-data-table>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn
-        class="accent black--text"
-        @click="confirm"
-        :disabled="!selected.length"
-        >Confirm selected</v-btn
-      >
+      <v-btn class="accent black--text" @click="confirm" :disabled="!selected.length">Confirm selected</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -61,12 +49,7 @@ export default {
     confirm() {
       const promises = [];
       this.selected.forEach(user => {
-        const APIURL = process.env.VUE_APP_APIURL;
-        promises.push(
-          this.$http
-            .post(`${APIURL}/users/${user._id}/confirm`)
-            .catch(error => error)
-        );
+        promises.push(this.$http.post(`${this.APIURL}/users/${user._id}/confirm`).catch(error => error));
       });
 
       Promise.all(promises)
@@ -86,9 +69,8 @@ export default {
     }
   },
   mounted() {
-    const APIURL = process.env.VUE_APP_APIURL;
     this.$http
-      .get(`${APIURL}/users/unconfirmed`)
+      .get(`${this.APIURL}/users/unconfirmed`)
       .then(response => {
         this.users = response.data;
       })

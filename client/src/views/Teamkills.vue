@@ -4,26 +4,14 @@
       Teamkills script
     </v-card-title>
     <v-card-text>
-      <v-text-field
-        v-model.trim="matchID"
-        color="accent"
-        label="Match ID"
-        required
-        @keydown.enter="getTeamkills"
-      >
-      </v-text-field>
+      <v-text-field v-model.trim="matchID" color="accent" label="Match ID" required @keydown.enter="getTeamkills"> </v-text-field>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="accent" text @click="matchID = ''">
         Clear
       </v-btn>
-      <v-btn
-        color="accent"
-        text
-        @click="getTeamkills"
-        :disabled="!matchID || recentlySent"
-      >
+      <v-btn color="accent" text @click="getTeamkills" :disabled="!matchID || recentlySent">
         Send
       </v-btn>
     </v-card-actions>
@@ -56,11 +44,11 @@ export default {
   methods: {
     getTeamkills() {
       this.fetching = true;
-      const APIURL = process.env.VUE_APP_APIURL;
+
       this.recentlySent = true;
       window.setTimeout(() => (this.recentlySent = false), 1000 * 5);
       this.$http
-        .get(`${APIURL}/collections/teamkills?match=${this.matchID}`)
+        .get(`${this.APIURL}/collections/teamkills?match=${this.matchID}`)
         .then(response => {
           if (response.status >= 400) throw new Error(response.data);
           this.teamkills = this.checkTeamkills(response.data);
@@ -79,9 +67,7 @@ export default {
         });
     },
     checkTeamkills(matchData) {
-      const players = matchData.included.filter(
-        el => el.type === "participant"
-      );
+      const players = matchData.included.filter(el => el.type === "participant");
       const playersWithTeamkills = players.filter(player => {
         const { teamKills, deathType } = player.attributes.stats;
         const suicideTK = deathType === "suicide" && teamKills > 1;
@@ -89,9 +75,7 @@ export default {
         return suicideTK || otherTK;
       });
 
-      const playersStats = playersWithTeamkills.map(
-        player => player.attributes.stats
-      );
+      const playersStats = playersWithTeamkills.map(player => player.attributes.stats);
       return playersStats;
     }
   }

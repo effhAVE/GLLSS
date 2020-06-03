@@ -27,9 +27,8 @@ export default {
   },
   methods: {
     resetPassword(password) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .post(`${APIURL}/auth/password-reset`, {
+        .post(`${this.APIURL}/auth/password-reset`, {
           password,
           token: this.token
         })

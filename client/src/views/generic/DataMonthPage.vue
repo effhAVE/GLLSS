@@ -253,10 +253,9 @@ export default {
       return array;
     },
     getData(date) {
-      const APIURL = process.env.VUE_APP_APIURL;
       if (this.user.roles.includes("admin")) {
         this.$http
-          .get(`${APIURL}/data/${date}`)
+          .get(`${this.APIURL}/data/${date}`)
           .then(response => {
             this.dataObject = response.data.data;
             if (!this.dataObject.calculation) return;
@@ -271,7 +270,7 @@ export default {
           });
       } else {
         this.$http
-          .get(`${APIURL}/data/${date}/my`)
+          .get(`${this.APIURL}/data/${date}/my`)
           .then(response => {
             this.dataObject = response.data;
             if (!this.dataObject.calculation) return;
@@ -286,9 +285,8 @@ export default {
       }
     },
     recalculate(values) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .post(`${APIURL}/data/${this.date}/calculate`, {
+        .post(`${this.APIURL}/data/${this.date}/calculate`, {
           gameValues: values.gameValues,
           TLRatio: values.TLRatio
         })
@@ -309,9 +307,8 @@ export default {
         });
     },
     downloadLog() {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http({
-        url: `${APIURL}/data/${this.date}/log`,
+        url: `${this.APIURL}/data/${this.date}/log`,
         method: "GET",
         responseType: "blob"
       }).then(response => {

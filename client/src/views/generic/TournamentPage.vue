@@ -139,13 +139,12 @@ export default {
       };
     },
     getTournament(id) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .get(`${APIURL}/tournaments/${id}`)
+        .get(`${this.APIURL}/tournaments/${id}`)
         .then(response => {
           this.tournament = response.data.tournament;
           if (this.user.roles.includes("teamleader")) {
-            this.$http.get(`${APIURL}/users/list`).then(response => {
+            this.$http.get(`${this.APIURL}/users/list`).then(response => {
               this.usersAvailable = response.data;
             });
           }
@@ -157,11 +156,10 @@ export default {
         });
     },
     saveRoundsChanges() {
-      const APIURL = process.env.VUE_APP_APIURL;
       const changes = Array.from(this.changedRounds);
       this.changedRounds.splice(0);
       this.$http
-        .put(`${APIURL}/tournaments/${this.tournament._id}/rounds`, changes)
+        .put(`${this.APIURL}/tournaments/${this.tournament._id}/rounds`, changes)
         .then(() => {
           this.$store.commit("snackbarMessage", {
             message: "Rounds updated!",
@@ -176,10 +174,9 @@ export default {
         );
     },
     addNewRound(round) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.addRoundModal = false;
       this.$http
-        .post(`${APIURL}/tournaments/${this.tournament._id}/rounds`, round)
+        .post(`${this.APIURL}/tournaments/${this.tournament._id}/rounds`, round)
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Round added!",
@@ -196,10 +193,9 @@ export default {
     },
 
     deleteTournament(id) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.deleteModal = false;
       this.$http
-        .delete(`${APIURL}/tournaments/${id}`)
+        .delete(`${this.APIURL}/tournaments/${id}`)
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Tournament successfully deleted!",
@@ -215,10 +211,9 @@ export default {
         });
     },
     editTournament(tournament) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.editModal = false;
       this.$http
-        .put(`${APIURL}/tournaments/${tournament._id}`, tournament)
+        .put(`${this.APIURL}/tournaments/${tournament._id}`, tournament)
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Tournament successfully edited!",
@@ -234,12 +229,11 @@ export default {
         });
     },
     copyTournament(tournament) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.copyModal = false;
       const { name, series, game, startDate, endDate, region, countedByRounds, gllURL, rounds } = tournament;
       const newTournament = { name, series, game, startDate, endDate, region, countedByRounds, gllURL, rounds };
       this.$http
-        .post(`${APIURL}/tournaments/`, newTournament)
+        .post(`${this.APIURL}/tournaments/`, newTournament)
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Tournament successfully copied!",

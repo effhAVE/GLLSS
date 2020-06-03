@@ -93,9 +93,8 @@ export default {
   },
   methods: {
     getSeries(id) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .get(`${APIURL}/series/${id}`)
+        .get(`${this.APIURL}/series/${id}`)
         .then(response => {
           this.series = response.data;
         })
@@ -107,9 +106,9 @@ export default {
     },
     getTournaments() {
       this.tournamentsLoading = true;
-      const APIURL = process.env.VUE_APP_APIURL;
+
       this.$http
-        .get(`${APIURL}/series/${this.series._id}/tournaments?limit=${this.limit}&page=${this.page}`)
+        .get(`${this.APIURL}/series/${this.series._id}/tournaments?limit=${this.limit}&page=${this.page}`)
         .then(response => {
           if (response.data.length < this.limit) this.allLoaded = true;
           this.tournaments.push(...response.data);
@@ -129,10 +128,9 @@ export default {
       this.getTournaments();
     },
     deleteSeries(id) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.deleteModal = false;
       this.$http
-        .delete(`${APIURL}/series/${id}`)
+        .delete(`${this.APIURL}/series/${id}`)
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Series successfully deleted!",
@@ -148,10 +146,9 @@ export default {
         });
     },
     editSeries(series) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.editModal = false;
       this.$http
-        .put(`${APIURL}/series/${series._id}`, series)
+        .put(`${this.APIURL}/series/${series._id}`, series)
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Series successfully edited!",

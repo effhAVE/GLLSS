@@ -15,19 +15,10 @@
           type="number"
           :rules="validation"
         ></v-text-field>
-        <v-text-field
-          v-model="TLRatio"
-          color="accent"
-          label="Teamleads value"
-          required
-          type="number"
-          :rules="TLRatioValidations"
-        >
-        </v-text-field>
+        <v-text-field v-model="TLRatio" color="accent" label="Teamleads value" required type="number" :rules="TLRatioValidations"> </v-text-field>
       </v-form>
       <span class="warning--text">
-        This operation is API intensive and may take up to a few seconds. Please
-        do not overuse it
+        This operation is API intensive and may take up to a few seconds. Please do not overuse it
       </span>
     </v-card-text>
     <v-divider></v-divider>
@@ -49,14 +40,8 @@ export default {
       gamesList: [],
       TLRatio: 100,
       valid: true,
-      validation: [
-        v => !!v || "All game values are required",
-        v => v > 0 || "Game value must be positive"
-      ],
-      TLRatioValidations: [
-        v => !!v || "Teamleads value is required",
-        v => v > 0 || "Teamleads value must be positive"
-      ]
+      validation: [v => !!v || "All game values are required", v => v > 0 || "Game value must be positive"],
+      TLRatioValidations: [v => !!v || "Teamleads value is required", v => v > 0 || "Teamleads value must be positive"]
     };
   },
   methods: {
@@ -70,8 +55,7 @@ export default {
     }
   },
   mounted() {
-    const APIURL = process.env.VUE_APP_APIURL;
-    this.$http.get(`${APIURL}/collections/games`).then(response => {
+    this.$http.get(`${this.APIURL}/collections/games`).then(response => {
       this.gamesList = response.data.map(game => {
         let value = 70;
         if (game === "Apex") value = 40;

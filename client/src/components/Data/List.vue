@@ -34,8 +34,7 @@ export default {
   },
   methods: {
     getData() {
-      const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/data/`).then(response => {
+      this.$http.get(`${this.APIURL}/data/`).then(response => {
         this.monthsList = response.data;
       });
     },

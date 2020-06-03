@@ -20,9 +20,8 @@ export default {
   },
   methods: {
     saveAccount(account) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .post(`${APIURL}/accounts/`, account)
+        .post(`${this.APIURL}/accounts/`, account)
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Account saved!",

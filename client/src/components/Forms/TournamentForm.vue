@@ -155,16 +155,15 @@ export default {
       this.draft.startDate = this.$moment(this.tournament.startDate).toDate();
     }
 
-    const APIURL = process.env.VUE_APP_APIURL;
-    this.$http.get(`${APIURL}/collections/games`).then(response => {
+    this.$http.get(`${this.APIURL}/collections/games`).then(response => {
       this.gamesList = response.data;
     });
 
-    this.$http.get(`${APIURL}/collections/regions`).then(response => {
+    this.$http.get(`${this.APIURL}/collections/regions`).then(response => {
       this.regionsList = response.data;
     });
 
-    this.$http.get(`${APIURL}/series/list`).then(response => {
+    this.$http.get(`${this.APIURL}/series/list`).then(response => {
       this.seriesList = response.data;
     });
   }

@@ -3,14 +3,7 @@
     <v-card-title>
       Users
       <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-        color="accent"
-      ></v-text-field>
+      <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details color="accent"></v-text-field>
     </v-card-title>
     <v-data-table
       v-model="selected"
@@ -28,10 +21,7 @@
           :ripple="false"
           @input="select"
           :value="isSelected"
-          :disabled="
-            item.nickname === user.nickname ||
-              item.roles.includes(`masteradmin`)
-          "
+          :disabled="item.nickname === user.nickname || item.roles.includes(`masteradmin`)"
         ></v-simple-checkbox>
       </template>
       <template v-slot:item.createdAt="{ item }">
@@ -54,12 +44,7 @@
     </v-data-table>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn
-        class="error"
-        @click="deleteUsers"
-        :disabled="!selected.length || !user.roles.includes('masteradmin')"
-        >Delete users</v-btn
-      >
+      <v-btn class="error" @click="deleteUsers" :disabled="!selected.length || !user.roles.includes('masteradmin')">Delete users</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -107,9 +92,8 @@ export default {
       return this.isSelectable(item.roles[0]);
     },
     saveRole(userID, value) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .put(`${APIURL}/users/${userID}/roles`, { role: value })
+        .put(`${this.APIURL}/users/${userID}/roles`, { role: value })
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Role saved!",
@@ -124,9 +108,8 @@ export default {
         );
     },
     deleteUsers() {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .delete(`${APIURL}/users/`, { data: this.selected })
+        .delete(`${this.APIURL}/users/`, { data: this.selected })
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Users successfully deleted.",
@@ -144,15 +127,12 @@ export default {
     }
   },
   mounted() {
-    const APIURL = process.env.VUE_APP_APIURL;
-    this.$http.get(`${APIURL}/collections/roles`).then(response => {
+    this.$http.get(`${this.APIURL}/collections/roles`).then(response => {
       this.roles = response.data;
-      this.disabledRoles = this.roles
-        .filter(role => this.isSelectable(role))
-        .filter(role => role !== "guest");
+      this.disabledRoles = this.roles.filter(role => this.isSelectable(role)).filter(role => role !== "guest");
     });
     this.$http
-      .get(`${APIURL}/users/`)
+      .get(`${this.APIURL}/users/`)
       .then(response => {
         this.users = response.data;
       })

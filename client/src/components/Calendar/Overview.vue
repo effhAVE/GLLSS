@@ -11,17 +11,9 @@
         <div v-for="gameObject in groupedRounds" :key="gameObject.game">
           <h3 class="title accent--text">{{ gameObject.game }}</h3>
           <div v-for="(rounds, day) in gameObject.rounds" :key="day">
-            <h4 class="subtitle">
-              {{ day | moment("LL") }} - {{ day | moment("dddd") }}
-            </h4>
+            <h4 class="subtitle">{{ day | moment("LL") }} - {{ day | moment("dddd") }}</h4>
             <div class="d-flex overflow-x-auto mb-2">
-              <Round
-                v-for="round in rounds"
-                :key="round._id"
-                :round="round"
-                :user="user"
-                :game="gameObject.game"
-              />
+              <Round v-for="round in rounds" :key="round._id" :round="round" :user="user" :game="gameObject.game" />
             </div>
           </div>
         </div>
@@ -29,17 +21,9 @@
       <v-tab-item v-for="gameObject in groupedRounds" :key="gameObject.game">
         <h3 class="title accent--text">{{ gameObject.game }}</h3>
         <div v-for="(rounds, day) in gameObject.rounds" :key="day">
-          <h4 class="subtitle">
-            {{ day | moment("LL") }} - {{ day | moment("dddd") }}
-          </h4>
+          <h4 class="subtitle">{{ day | moment("LL") }} - {{ day | moment("dddd") }}</h4>
           <div class="d-flex overflow-x-auto mb-2">
-            <Round
-              v-for="round in rounds"
-              :key="round._id"
-              :round="round"
-              :user="user"
-              :game="gameObject.game"
-            />
+            <Round v-for="round in rounds" :key="round._id" :round="round" :user="user" :game="gameObject.game" />
           </div>
         </div>
       </v-tab-item>
@@ -65,8 +49,7 @@ export default {
   },
   methods: {
     getRounds(week = 0) {
-      const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/schedules/?week=${week}`).then(response => {
+      this.$http.get(`${this.APIURL}/schedules/?week=${week}`).then(response => {
         this.groupedRounds = response.data;
       });
     }

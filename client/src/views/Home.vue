@@ -63,21 +63,19 @@ export default {
     }
   },
   mounted() {
-    const APIURL = process.env.VUE_APP_APIURL;
     if (this.user.roles.includes("guest")) {
-      this.$http.get(`${APIURL}/users/admins`).then(response => {
+      this.$http.get(`${this.APIURL}/users/admins`).then(response => {
         this.admins = response.data;
       });
     } else {
       this.$refs.activeHosted.getActiveTournaments();
       this.$refs.pastHosted.getPastTournaments();
 
-      const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/collections/games`).then(response => {
+      this.$http.get(`${this.APIURL}/collections/games`).then(response => {
         this.gamesList = response.data;
       });
 
-      this.$http.get(`${APIURL}/collections/regions`).then(response => {
+      this.$http.get(`${this.APIURL}/collections/regions`).then(response => {
         this.regionsList = response.data;
       });
     }

@@ -140,9 +140,8 @@ export default {
   },
   methods: {
     onReady(host, source) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .post(`${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}/ready`, { source })
+        .post(`${this.APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}/ready`, { source })
         .then(response => {
           host.ready = true;
         })
@@ -163,10 +162,9 @@ export default {
     saveRound(round) {
       this.editRoundModal = false;
       this.changesMade = false;
-      const APIURL = process.env.VUE_APP_APIURL;
 
       this.$http
-        .put(`${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`, { round: round, excluded: this.excluded })
+        .put(`${this.APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`, { round: round, excluded: this.excluded })
         .then(response => {
           this.$router.go();
           this.$store.commit("snackbarMessage", {
@@ -183,9 +181,9 @@ export default {
     },
     deleteRound() {
       this.deleteRoundModal = false;
-      const APIURL = process.env.VUE_APP_APIURL;
+
       this.$http
-        .delete(`${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`)
+        .delete(`${this.APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`)
         .then(response => {
           this.$router.go();
           this.$store.commit("snackbarMessage", {
@@ -207,9 +205,8 @@ export default {
       this.excluded = this.excluded.filter(hostObj => hostObj !== host);
     },
     onUserUpdate(user) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .put(`${APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`, { round: this.round, excluded: this.excluded })
+        .put(`${this.APIURL}/tournaments/${this.tournamentID}/rounds/${this.round._id}`, { round: this.round, excluded: this.excluded })
         .then(response => {
           this.$store.commit("snackbarMessage", {
             type: "success",

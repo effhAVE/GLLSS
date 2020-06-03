@@ -24,9 +24,8 @@ export default {
   },
   methods: {
     verifyEmail() {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .get(`${APIURL}/users/verify-email?token=${this.token}`)
+        .get(`${this.APIURL}/users/verify-email?token=${this.token}`)
         .then(response => {
           if (response.status >= 400) {
             throw Error(response.data);

@@ -36,12 +36,11 @@ export default {
     };
   },
   mounted() {
-    const APIURL = process.env.VUE_APP_APIURL;
-    this.$http.get(`${APIURL}/collections/games`).then(response => {
+    this.$http.get(`${this.APIURL}/collections/games`).then(response => {
       this.gamesList = response.data;
     });
 
-    this.$http.get(`${APIURL}/collections/regions`).then(response => {
+    this.$http.get(`${this.APIURL}/collections/regions`).then(response => {
       this.regionsList = response.data;
     });
   },
@@ -60,12 +59,9 @@ export default {
       });
     },
     onAvailabilitySubmit() {
-      const APIURL = process.env.VUE_APP_APIURL;
       const promises = [];
       this.availableQueue.forEach(el => {
-        promises.push(
-          this.$http.put(`${APIURL}/tournaments/${el.tournamentID}/rounds/${el.roundID}/availability`, { value: el.value })
-        );
+        promises.push(this.$http.put(`${this.APIURL}/tournaments/${el.tournamentID}/rounds/${el.roundID}/availability`, { value: el.value }));
       });
 
       this.availableQueue.splice(0);

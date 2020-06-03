@@ -78,9 +78,8 @@ export default {
       this.changedRounds.push(roundObject);
     },
     getRounds(week = 0) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.availabilityList = [];
-      this.$http.get(`${APIURL}/schedules/?week=${week}`).then(response => {
+      this.$http.get(`${this.APIURL}/schedules/?week=${week}`).then(response => {
         this.groupedRounds = response.data;
         this.groupedRounds.forEach(gameObject => {
           for (const rounds of Object.values(gameObject.rounds)) {
@@ -109,7 +108,6 @@ export default {
       });
     },
     saveChanges() {
-      const APIURL = process.env.VUE_APP_APIURL;
       let rounds = [];
       this.changedRounds.forEach(el => {
         const { teamLeads, hosts, available, tournamentID, _id } = el.round;
@@ -127,7 +125,7 @@ export default {
 
       this.changedRounds.splice(0);
       this.$http
-        .put(`${APIURL}/schedules`, rounds)
+        .put(`${this.APIURL}/schedules`, rounds)
         .then(() => {
           this.$store.commit("snackbarMessage", {
             message: "Rounds updated!",

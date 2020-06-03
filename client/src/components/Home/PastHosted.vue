@@ -124,10 +124,9 @@ export default {
   },
   methods: {
     getPastTournaments() {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
         .get(
-          `${APIURL}/tournaments/hosted/past?limit=${this.limit}&page=${this.page}&type=${this.selectedType}&games=${this.selectedGameFilters}&regions=${this.selectedRegionFilters}`
+          `${this.APIURL}/tournaments/hosted/past?limit=${this.limit}&page=${this.page}&type=${this.selectedType}&games=${this.selectedGameFilters}&regions=${this.selectedRegionFilters}`
         )
         .then(response => {
           if (response.data.length < this.limit) this.allLoaded = true;
@@ -135,12 +134,11 @@ export default {
         });
     },
     changeFilters() {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.allLoaded = false;
       this.page = 0;
       this.$http
         .get(
-          `${APIURL}/tournaments/hosted/past?limit=${this.limit}&page=${this.page}&type=${this.selectedType}&games=${this.selectedGameFilters}&regions=${this.selectedRegionFilters}`
+          `${this.APIURL}/tournaments/hosted/past?limit=${this.limit}&page=${this.page}&type=${this.selectedType}&games=${this.selectedGameFilters}&regions=${this.selectedRegionFilters}`
         )
         .then(response => {
           if (response.data.length < this.limit) this.allLoaded = true;

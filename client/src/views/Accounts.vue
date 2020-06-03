@@ -207,36 +207,32 @@ export default {
     };
   },
   created() {
-    const APIURL = process.env.VUE_APP_APIURL;
     this.getAccounts();
 
-    this.$http.get(`${APIURL}/collections/presets`).then(response => {
+    this.$http.get(`${this.APIURL}/collections/presets`).then(response => {
       this.presets = response.data;
     });
 
     if (this.user.roles.includes("teamleader")) {
-      this.$http.get(`${APIURL}/users/list`).then(response => {
+      this.$http.get(`${this.APIURL}/users/list`).then(response => {
         this.usersList = response.data.filter(user => user._id !== this.user._id);
       });
     }
   },
   methods: {
     getAccounts() {
-      const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/accounts/`).then(response => {
+      this.$http.get(`${this.APIURL}/accounts/`).then(response => {
         this.accounts = response.data;
       });
     },
     setAccess(account, value) {
-      const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.put(`${APIURL}/accounts/${account._id}/access`, { value: value }).then(response => {
+      this.$http.put(`${this.APIURL}/accounts/${account._id}/access`, { value: value }).then(response => {
         account.haveAccess = response.data.haveAccess;
       });
     },
     lockAccount(account) {
-      const APIURL = process.env.VUE_APP_APIURL;
       account.lockModal = false;
-      this.$http.put(`${APIURL}/accounts/${account._id}/lock`).then(response => {
+      this.$http.put(`${this.APIURL}/accounts/${account._id}/lock`).then(response => {
         const { locked, claimedBy, claimExpiration } = response.data;
         account.locked = locked;
         account.claimedBy = claimedBy;
@@ -244,9 +240,8 @@ export default {
       });
     },
     editAccount(account) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .put(`${APIURL}/accounts/${account._id}/`, account)
+        .put(`${this.APIURL}/accounts/${account._id}/`, account)
         .then(response => {
           this.$router.go();
           this.$store.commit("snackbarMessage", {
@@ -262,8 +257,7 @@ export default {
         });
     },
     deleteAccount(account) {
-      const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.delete(`${APIURL}/accounts/${account._id}/`).then(response => {
+      this.$http.delete(`${this.APIURL}/accounts/${account._id}/`).then(response => {
         this.$router.go();
         this.$store.commit("snackbarMessage", {
           message: "Account deleted!",
@@ -272,9 +266,8 @@ export default {
       });
     },
     claimAccount(account, user, isCancel) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .put(`${APIURL}/accounts/${account._id}/claim`, { cancel: isCancel, user: user })
+        .put(`${this.APIURL}/accounts/${account._id}/claim`, { cancel: isCancel, user: user })
         .then(response => {
           if (response.status >= 400) {
             throw new Error(response.data);
@@ -291,8 +284,7 @@ export default {
         });
     },
     addPreset(account) {
-      const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.post(`${APIURL}/accounts/${account._id}/presets`, { name: name }).then(response => {
+      this.$http.post(`${this.APIURL}/accounts/${account._id}/presets`, { name: name }).then(response => {
         account.presets = response.data.presets;
       });
     }

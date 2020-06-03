@@ -20,9 +20,8 @@ export default {
   },
   methods: {
     saveSeries(series) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .post(`${APIURL}/series/`, series)
+        .post(`${this.APIURL}/series/`, series)
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Series saved!",

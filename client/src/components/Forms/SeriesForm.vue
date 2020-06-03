@@ -74,16 +74,15 @@ export default {
       this.draft.startDate = this.$moment(this.draft.startDate).toDate();
     }
 
-    const APIURL = process.env.VUE_APP_APIURL;
-    this.$http.get(`${APIURL}/collections/games`).then(response => {
+    this.$http.get(`${this.APIURL}/collections/games`).then(response => {
       this.gamesList = response.data;
     });
 
-    this.$http.get(`${APIURL}/collections/regions`).then(response => {
+    this.$http.get(`${this.APIURL}/collections/regions`).then(response => {
       this.regionsList = response.data;
     });
 
-    this.$http.get(`${APIURL}/collections/recurrences`).then(response => {
+    this.$http.get(`${this.APIURL}/collections/recurrences`).then(response => {
       this.recurrencesList = response.data;
     });
   }

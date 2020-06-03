@@ -159,7 +159,6 @@ export default {
       }
     },
     onReady(tournamentID, round) {
-      const APIURL = process.env.VUE_APP_APIURL;
       const isLeading = this.isLeading(round);
       let host;
       let source;
@@ -172,7 +171,7 @@ export default {
       }
 
       this.$http
-        .post(`${APIURL}/tournaments/${tournamentID}/rounds/${round._id}/ready`, { source })
+        .post(`${this.APIURL}/tournaments/${tournamentID}/rounds/${round._id}/ready`, { source })
         .then(response => {
           host.ready = true;
         })
@@ -194,17 +193,15 @@ export default {
       }
     },
     getActiveTournaments() {
-      const APIURL = process.env.VUE_APP_APIURL;
-      this.$http.get(`${APIURL}/tournaments/hosted?limit=${this.limit}&page=${this.page}&showPast=${this.showPastRounds}`).then(response => {
+      this.$http.get(`${this.APIURL}/tournaments/hosted?limit=${this.limit}&page=${this.page}&showPast=${this.showPastRounds}`).then(response => {
         if (response.data.length < this.limit) this.allLoaded = true;
         this.activeHosted.push(...response.data);
       });
     },
     getPastRounds() {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.page = 0;
       this.allLoaded = false;
-      this.$http.get(`${APIURL}/tournaments/hosted?limit=${this.limit}&page=${this.page}&showPast=${this.showPastRounds}`).then(response => {
+      this.$http.get(`${this.APIURL}/tournaments/hosted?limit=${this.limit}&page=${this.page}&showPast=${this.showPastRounds}`).then(response => {
         if (response.data.length < this.limit) this.allLoaded = true;
         this.activeHosted = response.data;
       });

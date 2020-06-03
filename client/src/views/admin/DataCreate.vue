@@ -20,9 +20,8 @@ export default {
   },
   methods: {
     saveDataMonth(date) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .post(`${APIURL}/data/`, { date: date })
+        .post(`${this.APIURL}/data/`, { date: date })
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Data month saved!",

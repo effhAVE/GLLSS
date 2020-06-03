@@ -215,12 +215,11 @@ export default {
       }, 500);
     },
     changeFilters() {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.allLoaded = false;
       this.page = 0;
       this.$http
         .get(
-          `${APIURL}/tournaments/?limit=${this.limit}&page=${this.page}&search=${encodeURIComponent(this.search)}&games=${
+          `${this.APIURL}/tournaments/?limit=${this.limit}&page=${this.page}&search=${encodeURIComponent(this.search)}&games=${
             this.selectedGameFilters
           }&regions=${this.selectedRegionFilters}`
         )
@@ -239,10 +238,9 @@ export default {
         });
     },
     getTournaments() {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
         .get(
-          `${APIURL}/tournaments/?limit=${this.limit}&page=${this.page}&search=${encodeURIComponent(this.search)}&games=${
+          `${this.APIURL}/tournaments/?limit=${this.limit}&page=${this.page}&search=${encodeURIComponent(this.search)}&games=${
             this.selectedGameFilters
           }&regions=${this.selectedRegionFilters}`
         )

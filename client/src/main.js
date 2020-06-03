@@ -6,12 +6,23 @@ import vuetify from './plugins/vuetify';
 import axios from "axios";
 import VueJWT from 'vuejs-jwt';
 import DatetimePicker from 'vuetify-datetime-picker'
- 
+
 Vue.use(DatetimePicker);
-Vue.use(VueJWT, { keyName: "token" });
+Vue.use(VueJWT, {
+  keyName: "token"
+});
 Vue.use(require('vue-moment'));
 Vue.config.productionTip = false
 Vue.prototype.$http = axios;
+Vue.mixin({
+  data() {
+    return {
+      get APIURL() {
+        return process.env.VUE_APP_APIURL;
+      }
+    }
+  }
+})
 
 const token = localStorage.getItem("token");
 if (token) {

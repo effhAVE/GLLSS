@@ -44,9 +44,9 @@ export default {
   methods: {
     sendVerificationEmail(email) {
       this.emailVerificationModal = false;
-      const APIURL = process.env.VUE_APP_APIURL;
+
       this.$http
-        .post(`${APIURL}/users/resend-verification`, { email: email })
+        .post(`${this.APIURL}/users/resend-verification`, { email: email })
         .then(response => {
           if (response.status >= 400) {
             throw new Error(response.data);

@@ -22,9 +22,8 @@ export default {
   },
   methods: {
     sendResetEmail(email) {
-      const APIURL = process.env.VUE_APP_APIURL;
       this.$http
-        .post(`${APIURL}/auth/forgot-password`, { email: email })
+        .post(`${this.APIURL}/auth/forgot-password`, { email: email })
         .then(response => {
           if (response.status >= 400) throw new Error(response.data);
           this.$store.commit("snackbarMessage", {
