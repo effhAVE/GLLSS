@@ -1,45 +1,35 @@
 <template>
   <v-sheet color="transparent">
-    <v-row class="ma-0">
-      <v-spacer></v-spacer>
-      <v-btn text color="accent" @click="$emit('getBalance')">Recalculate</v-btn>
-    </v-row>
     <v-tabs v-model="balanceTab" background-color="primary" slider-color="accent">
       <v-tab v-for="(gameObject, game) in nonEmptyGames" :key="game">
         {{ game }}
       </v-tab>
+      <v-spacer></v-spacer>
+      <v-btn text color="accent" @click="$emit('getBalance')">Recalculate</v-btn>
     </v-tabs>
+    <v-row class="ma-0"> </v-row>
     <v-tabs-items v-model="balanceTab" class="py-4">
       <v-tab-item v-for="(gameObject, game) in nonEmptyGames" :key="game">
         <v-card-text>
           <v-row>
             <v-col cols="6" v-for="(hostsList, index) in gameObject" :key="index">
-              <v-simple-table class="table-background table-simple not-editable mb-4" dense>
-                <template v-slot:default>
-                  <thead>
-                    <th>
-                      User
-                    </th>
-                    <th>
-                      Current week value
-                    </th>
-                    <th>
-                      Lost hosting
-                    </th>
-                    <th>
-                      Difference
-                    </th>
-                  </thead>
-                  <tbody>
-                    <tr v-for="host in hostsList" :key="host.name">
-                      <th>{{ host.name }}</th>
-                      <td>{{ host.values.current }}</td>
-                      <td>{{ host.values.lost }}</td>
-                      <td>{{ host.values.current - host.values.lost }}</td>
-                    </tr>
-                  </tbody>
+              <v-data-table
+                class="table-background table-simple not-editable text-center"
+                :headers="headers"
+                :items="hostsList"
+                no-data-text="No data"
+                item-key="name"
+                hide-default-footer
+                disable-pagination
+                dense
+              >
+                <template v-slot:item.name="{ value }">
+                  <strong class="username">{{ value }}</strong>
                 </template>
-              </v-simple-table>
+                <template v-slot:item.values="{ item }">
+                  {{ item.values.current - item.values.lost }}
+                </template>
+              </v-data-table>
             </v-col>
           </v-row>
         </v-card-text>
@@ -54,7 +44,28 @@ export default {
   data() {
     return {
       balanceData: this.balance,
-      balanceTab: null
+      balanceTab: null,
+      headers: [
+        {
+          text: "User",
+          value: "name"
+        },
+        {
+          text: "Current week value",
+          value: "values.current"
+        },
+        {
+          text: "Lost hosting",
+          value: "values.lost"
+        },
+        {
+          text: "Difference",
+          value: "values",
+          sort(a, b) {
+            return a.current - a.lost - (b.current - b.lost);
+          }
+        }
+      ]
     };
   },
   computed: {
