@@ -1,7 +1,21 @@
 <template>
   <v-form ref="form" style="min-width: 500px">
-    <v-text-field v-model="draft.login" color="accent" label="Login" prepend-icon="mdi-account" required></v-text-field>
-    <v-text-field v-model="draft.password" color="accent" label="Password" prepend-icon="mdi-lock" required></v-text-field>
+    <v-text-field
+      v-model="draft.login"
+      color="accent"
+      label="Login"
+      prepend-icon="mdi-account"
+      required
+      :disabled="!user.roles.includes('admin')"
+    ></v-text-field>
+    <v-text-field
+      v-model="draft.password"
+      color="accent"
+      label="Password"
+      prepend-icon="mdi-lock"
+      required
+      :disabled="!user.roles.includes('admin')"
+    ></v-text-field>
     <div v-if="account">
       <v-select
         :items="computedPresets"
