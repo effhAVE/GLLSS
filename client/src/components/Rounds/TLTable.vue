@@ -19,7 +19,7 @@
             </div>
             <div class="ml-auto">
               <v-btn
-                v-if="!item.ready && item.host._id === user._id"
+                v-if="!item.ready && !item.lostLeading && item.host._id === user._id"
                 icon
                 class="ml-auto"
                 @click.stop="$emit('ready', item)"
