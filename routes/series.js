@@ -10,25 +10,33 @@ const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
 
+function seriesCustomSort(series) {
+  const seriesCopy = Array.from(series);
+  const sortMap = {
+    daily: 1,
+    weekly: 2,
+    none: 3
+  };
+
+  return seriesCopy.sort((a, b) =>
+    a.game === b.game ?
+    (a.recurrence === b.recurrence ? a.name.localeCompare(b.name) : sortMap[a.recurrence] - sortMap[b.recurrence]) :
+    a.game.localeCompare(b.game));
+}
+
 router.get("/", auth, validateAccess("host"), async (req, res) => {
   const series = await Series
-    .find({})
-    .sort({
-      game: 1,
-      name: 1
-    });
+    .find({});
 
-  return res.send(series);
+  const sortedSeries = seriesCustomSort(series);
+  return res.send(sortedSeries);
 });
 
 router.get("/list", auth, validateAccess("host"), async (req, res) => {
-  const series = await Series.find().select("name").sort({
-    game: 1,
-    recurrence: 1,
-    name: 1
-  });
+  const series = await Series.find().select("name game recurrence");
+  const sortedSeries = seriesCustomSort(series);
 
-  return res.send(series);
+  return res.send(sortedSeries);
 });
 
 router.get("/:id", auth, validateObjectId, validateAccess("host"), async (req, res) => {
