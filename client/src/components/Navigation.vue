@@ -48,6 +48,14 @@
         <v-list-item-title>Accounts</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
+    <v-list-item link to="/codes" v-if="user.roles.includes(`host`)">
+      <v-list-item-action>
+        <v-icon>mdi-account-key</v-icon>
+      </v-list-item-action>
+      <v-list-item-content>
+        <v-list-item-title>Codes</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
     <v-list-item link to="/data" v-if="user.roles.includes(`host`)">
       <v-list-item-action>
         <v-icon>mdi-database</v-icon>
@@ -109,6 +117,11 @@
       <v-list-item link to="/admin/accounts/create">
         <v-list-item-content>
           <v-list-item-title>Create an account</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item link to="/admin/codes/create">
+        <v-list-item-content>
+          <v-list-item-title>Create a code</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
     </v-list-group>

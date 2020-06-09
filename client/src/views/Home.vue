@@ -18,13 +18,26 @@
       <v-row v-else>
         <v-col>
           <v-row>
-            <v-switch v-model="showPastTournaments" label="Show past tournaments" color="accent"></v-switch>
-            <v-switch v-model="showPastRounds" label="Show past rounds" color="accent" class="mx-8"></v-switch>
+            <v-col>
+              <v-switch v-model="showPastTournaments" label="Show past tournaments" color="accent"></v-switch>
+            </v-col>
+            <v-col>
+              <v-switch v-model="showPastRounds" label="Show past rounds" color="accent"></v-switch>
+            </v-col>
+            <v-spacer></v-spacer>
           </v-row>
-          <ActiveHosted ref="activeHosted" :redirect="redirect" :showPastRounds="showPastRounds" :user="user" :now="now" />
-          <PastHosted v-show="showPastTournaments" ref="pastHosted" :redirect="redirect" :gameFilters="gamesList" :regionFilters="regionsList" />
+          <v-row>
+            <v-col>
+              <ActiveHosted ref="activeHosted" :redirect="redirect" :showPastRounds="showPastRounds" :user="user" :now="now" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <PastHosted v-show="showPastTournaments" ref="pastHosted" :redirect="redirect" :gameFilters="gamesList" :regionFilters="regionsList" />
+            </v-col>
+          </v-row>
         </v-col>
-        <v-col cols="3">
+        <v-col lg="3" cols="12">
           <UsefulLinks :isTeamleader="user.roles.includes('teamleader')" />
         </v-col>
       </v-row>

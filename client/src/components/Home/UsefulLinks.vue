@@ -29,9 +29,6 @@
       <li>
         <a href="https://apex.seatlon.eu/">Apex Match Token Checker</a>
       </li>
-      <li>
-        <a href="https://docs.google.com/spreadsheets/d/1rIovhh5aYKQakpwVO23BeYj6U7zX3_dZvZhsD0JVVhA/edit?usp=sharing">Apex Lobby Codes</a>
-      </li>
     </ul>
     <div v-if="isTeamleader">
       <h4 class="subtitle">Teamleaders:</h4>

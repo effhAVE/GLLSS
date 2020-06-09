@@ -11,6 +11,7 @@ import Schedule from '../views/Schedule.vue'
 import Teamkills from '../views/Teamkills.vue'
 import AboutMe from '../views/AboutMe.vue'
 import Accounts from '../views/Accounts.vue'
+import Codes from '../views/Codes.vue'
 import Data from '../views/Data.vue'
 import DataMonthPage from '../views/generic/DataMonthPage.vue'
 import Series from '../views/Series.vue'
@@ -26,6 +27,7 @@ import TournamentCreate from '../views/admin/TournamentCreate.vue'
 import SeriesCreate from '../views/admin/SeriesCreate.vue'
 import DataCreate from '../views/admin/DataCreate.vue'
 import AccountCreate from '../views/admin/AccountCreate.vue'
+import CodeCreate from '../views/admin/CodeCreate.vue'
 import store from "../store"
 
 Vue.use(VueRouter)
@@ -65,6 +67,15 @@ const routes = [{
     path: "/accounts",
     name: "Accounts",
     component: Accounts,
+    meta: {
+      requiresAuth: true,
+      requiredRole: "host"
+    }
+  },
+  {
+    path: "/codes",
+    name: "Codes",
+    component: Codes,
     meta: {
       requiresAuth: true,
       requiredRole: "host"
@@ -189,6 +200,10 @@ const routes = [{
       {
         path: "data/create",
         component: DataCreate
+      },
+      {
+        path: "codes/create",
+        component: CodeCreate
       }
     ]
   },
