@@ -149,30 +149,35 @@ router.get("/hosted/past", auth, validateAccess("host"), async (req, res) => {
         region: regionFilter
       },
       options: {
+        limit: limitSize,
+        skip: limitSize * page,
         sort: "-endDate"
       },
       select: "name region startDate endDate game rounds",
     });
 
-  user.tournamentsHosted.forEach(tournament => {
-    tournament.rounds = tournament.rounds
-      .filter(round => {
-        const host = round.hosts.find(hostObject => hostObject.host.equals(req.user._id));
-        const lead = round.teamLeads.find(TLObject => TLObject.host.equals(req.user._id));
-        if (host) {
-          if (type === "lost") return host.lostHosting;
-          if (type === "hosted") return !host.lostHosting;
-        } else if (lead) {
-          if (type === "lost") return lead.lostLeading;
-          if (type === "hosted") return !lead.lostLeading;
-        }
+  if (type) {
+    user.tournamentsHosted.forEach(tournament => {
+      tournament.rounds = tournament.rounds
+        .filter(round => {
+          const host = round.hosts.find(hostObject => hostObject.host.equals(req.user._id));
+          const lead = round.teamLeads.find(TLObject => TLObject.host.equals(req.user._id));
+          if (host) {
+            if (type === "lost") return host.lostHosting;
+            if (type === "hosted") return !host.lostHosting;
+          } else if (lead) {
+            if (type === "lost") return lead.lostLeading;
+            if (type === "hosted") return !lead.lostLeading;
+          }
 
-        return host || lead;
-      });
-  });
+          return host || lead;
+        });
+    });
 
-  user.tournamentsHosted = user.tournamentsHosted.filter(tournament => tournament.rounds.length);
-  return res.send(user.tournamentsHosted.slice(page * limitSize, page * limitSize + limitSize));
+    user.tournamentsHosted = user.tournamentsHosted.filter(tournament => tournament.rounds.length);
+  }
+
+  return res.send(user.tournamentsHosted);
 });
 
 router.get("/hosted", auth, validateAccess("host"), async (req, res) => {
