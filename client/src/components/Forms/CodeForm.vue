@@ -10,15 +10,7 @@
     </div>
     <v-row>
       <v-spacer></v-spacer>
-      <v-btn
-        color="accent black--text"
-        class="mt-8"
-        text
-        @click="
-          $emit('submit', draft);
-          splitField = '';
-        "
-      >
+      <v-btn color="accent black--text" class="mt-8" text @click="onEmit">
         Save
       </v-btn>
       <v-btn color="accent black--text" class="mt-8" text @click="$emit('cancel')" v-if="code">
@@ -45,6 +37,12 @@ export default {
       }
     };
   },
+  methods: {
+    onEmit() {
+      this.$emit("submit", this.draft);
+      this.splitField = "";
+    }
+  },
   mounted() {
     if (this.code) {
       this.draft = Object.assign({}, this.code);
@@ -57,12 +55,12 @@ export default {
   },
   watch: {
     splitField(newValue) {
-      const valuesArray = newValue.split("     ");
-      if (valuesArray.length === 4) {
-        this.draft.expiration = valuesArray[0];
-        this.draft.statsToken = valuesArray[1].split("-")[1];
-        this.draft.adminToken = valuesArray[2];
-        this.draft.playerToken = valuesArray[3];
+      const valuesArray = newValue.split(/\s+/);
+      if (valuesArray.length === 5) {
+        this.draft.expiration = `${valuesArray[0]} ${valuesArray[1]}`;
+        this.draft.statsToken = valuesArray[2].split("-")[1];
+        this.draft.adminToken = valuesArray[3];
+        this.draft.playerToken = valuesArray[4];
       }
     }
   }
