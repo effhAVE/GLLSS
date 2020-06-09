@@ -41,7 +41,8 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
 
 router.get("/:id/admintoken", auth, validateAccess("host"), async (req, res) => {
   const code = await Accountcode.findById(req.params.id).select("assignedUser1 assignedUser2 adminToken");
-  if (code.assignedUser1.equals(req.user._id) || code.assignedUser2.equals(req.user._id) || req.user.roles.includes("admin")) {
+  if (!code) return res.status(400).send("No code found.");
+  if (code.assignedUser1 && code.assignedUser1.equals(req.user._id) || code.assignedUser2 && code.assignedUser2.equals(req.user._id) || req.user.roles.includes("admin")) {
     return res.send(code.adminToken);
   } else {
     return res.status(400).send("No access to the admin token");
