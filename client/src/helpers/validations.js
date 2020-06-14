@@ -59,5 +59,8 @@ export default {
   ],
   tournamentUrl: [
     v => (/^(https:\/\/)?(w{3}\.)?admin.gll.gg\/tournament\/(.+)?$/.test(v) || v === "") || "Must be a valid GLL URL"
+  ],
+  url: [
+    v => (/[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)?/gi.test(v) || v === "") || "Must be a valid URL"
   ]
 }

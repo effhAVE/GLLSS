@@ -12,12 +12,15 @@ import Teamkills from '../views/Teamkills.vue'
 import AboutMe from '../views/AboutMe.vue'
 import Accounts from '../views/Accounts.vue'
 import Codes from '../views/Codes.vue'
+import Articles from '../views/Articles.vue'
+import ArticlesCreate from '../views/ArticlesCreate.vue'
 import Data from '../views/Data.vue'
 import DataMonthPage from '../views/generic/DataMonthPage.vue'
 import Series from '../views/Series.vue'
 import SeriesPage from '../views/generic/SeriesPage.vue'
 import Tournaments from '../views/Tournaments.vue'
 import TournamentPage from '../views/generic/TournamentPage.vue'
+import ArticlePage from '../views/generic/ArticlePage.vue'
 import Page404 from '../views/generic/Page404.vue'
 import Page403 from '../views/generic/Page403.vue'
 import ConfirmUsers from '../views/admin/ConfirmUsers.vue'
@@ -82,6 +85,24 @@ const routes = [{
     }
   },
   {
+    path: "/articles",
+    name: "Articles",
+    component: Articles,
+    meta: {
+      requiresAuth: true,
+      requiredRole: "host"
+    }
+  },
+  {
+    path: "/articles/create",
+    name: "Create an article",
+    component: ArticlesCreate,
+    meta: {
+      requiresAuth: true,
+      requiredRole: "teamleader"
+    }
+  },
+  {
     path: "/data",
     name: "Data",
     component: Data,
@@ -138,6 +159,15 @@ const routes = [{
     path: "/tournaments/:tournamentID",
     name: "Tournament",
     component: TournamentPage,
+    meta: {
+      requiresAuth: true,
+      requiredRole: "host"
+    }
+  },
+  {
+    path: "/articles/:articleID",
+    name: "Article",
+    component: ArticlePage,
     meta: {
       requiresAuth: true,
       requiredRole: "host"

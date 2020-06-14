@@ -9,6 +9,7 @@ const data = require("../routes/data");
 const schedules = require("../routes/schedules");
 const gameaccounts = require("../routes/gameaccounts");
 const accountcodes = require("../routes/accountcodes");
+const articles = require("../routes/articles");
 const error = require("../middleware/error");
 const cors = require("cors");
 
@@ -27,5 +28,6 @@ module.exports = function(app) {
   app.use("/api/schedules", schedules);
   app.use("/api/accounts", gameaccounts);
   app.use("/api/codes", accountcodes);
+  app.use("/api/articles", articles);
   app.use(error);
 }

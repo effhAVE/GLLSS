@@ -72,17 +72,27 @@
         <v-list-item-title>Teamkills script</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item
-      link
-      href="https://docs.google.com/document/d/1Pr5SR5eYc-W2-28ZWG_nft1PO4NjvgQe6EtKEeJ9vUU/edit?fbclid=IwAR3vUT4mmnuNmlGoAfEFzHRE35eRXqmFfDooGxKi1_phIZR5BuOHl0A58TU"
-      target="_blank"
-      v-if="user.roles.includes(`host`)"
-    >
+    <v-list-group prepend-icon="mdi-book-open-page-variant" color="accent" v-if="user.roles.includes(`host`)">
+      <template v-slot:activator>
+        <v-list-item-title>Guides</v-list-item-title>
+      </template>
+      <v-list-item link to="/articles/5ee66cfc24db59244807ff70">
+        <v-list-item-content>
+          <v-list-item-title>GLLSS Guide</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item link to="/articles/5ee66cef24db59244807ff6f">
+        <v-list-item-content>
+          <v-list-item-title>Hosting Guide</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-list-group>
+    <v-list-item link to="/articles" v-if="user.roles.includes(`host`)">
       <v-list-item-action>
-        <v-icon>mdi-book-open-page-variant</v-icon>
+        <v-icon>mdi-book</v-icon>
       </v-list-item-action>
       <v-list-item-content>
-        <v-list-item-title>Hosting guide</v-list-item-title>
+        <v-list-item-title>Articles</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
     <v-list-group prepend-icon="mdi-shield-account" color="accent" v-if="user.roles.includes(`admin`)" :value="$route.path.includes('admin')">
