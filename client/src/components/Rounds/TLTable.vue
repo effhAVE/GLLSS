@@ -80,7 +80,7 @@
           </div>
         </template>
         <v-list v-if="user.roles.includes('teamleader') && isPast">
-          <v-list-item v-for="(host, i) in availableEdited" :key="i" @click="changeRoundHost(round, item.host, host)">
+          <v-list-item v-for="(host, i) in availableEdited" :key="i" @click="changeRoundTL(round, item.host, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
