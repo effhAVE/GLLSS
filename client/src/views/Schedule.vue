@@ -35,12 +35,29 @@
         <v-card-title class="headline secondary" primary-title>
           Availability table
         </v-card-title>
-        <AvailabilityTable :availableList="availableList" :showTeamleads="showTeamleads" :showHosts="showHosts" />
+        <AvailabilityTable :availableList="availableList" :showTeamleads="showTeamleads" :showHosts="showHosts" :selectedGames="availabilityGames" />
         <v-divider></v-divider>
 
         <v-card-actions>
           <v-checkbox v-model="showTeamleads" label="Show teamleads" color="accent"></v-checkbox>
           <v-checkbox v-model="showHosts" label="Show hosts" color="accent" class="mx-4"></v-checkbox>
+          <v-select
+            :items="games"
+            v-model="availabilityGames"
+            label="Games"
+            outlined
+            multiple
+            dense
+            color="accent"
+            item-color="accent"
+            class="filter-input"
+            hide-details
+            :menu-props="{ bottom: true, offsetY: true }"
+          >
+            <template v-slot:selection="{ index }">
+              <span class="grey--text caption" v-if="index === 0">({{ availabilityGames.length }} selected)</span>
+            </template>
+          </v-select>
           <v-spacer></v-spacer>
           <v-btn color="accent" text @click="$refs.scheduling.getRounds(selectedWeek)">
             Refresh
@@ -88,7 +105,9 @@ export default {
         0: null,
         1: null
       },
-      gameValues: {}
+      gameValues: {},
+      games: [],
+      availabilityGames: []
     };
   },
   methods: {
@@ -123,6 +142,10 @@ export default {
     }
   },
   mounted() {
+    this.$http.get(`${this.APIURL}/collections/games`).then(response => {
+      this.games = this.availabilityGames = response.data;
+    });
+
     this.$http
       .get(`${this.APIURL}/data/gamevalues`)
       .then(response => {

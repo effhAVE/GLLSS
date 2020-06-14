@@ -21,7 +21,7 @@
             </table>
           </td>
 
-          <td v-for="(dayObject, dayName) in list" :key="dayName" class="pa-0 has-border has-border-thick">
+          <td v-for="(dayObject, dayName) in filteredGames" :key="dayName" class="pa-0 has-border has-border-thick">
             <table>
               <tr>
                 <td :colspan="Object.values(dayObject).length">
@@ -59,10 +59,10 @@
         </tr>
         <template>
           <tr v-for="user in filteredUsers" :key="`AT${user._id}`" style="position: relative">
-            <th class="fixed primary" :class="teamLeads.includes(user) ? 'blue--text' : ''">
+            <th class="fixed primary" :class="teamLeads.includes(user) ? 'blue--text' : user.isHosting ? '' : 'grey--text'">
               {{ user.nickname }}
             </th>
-            <td v-for="(dayObject, dayName) in list" :key="dayName" class="has-border-left has-border-left-thick pa-0">
+            <td v-for="(dayObject, dayName) in filteredGames" :key="dayName" class="has-border-left has-border-left-thick pa-0">
               <table style="table-layout: fixed; text-align: center">
                 <tr>
                   <td v-for="(gameObject, gameName) in dayObject" :key="gameName" :colspan="gameObject.length" class="pa-0 has-border-left">
@@ -99,6 +99,10 @@ export default {
     showHosts: {
       type: Boolean,
       default: true
+    },
+    selectedGames: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -109,6 +113,21 @@ export default {
     };
   },
   computed: {
+    filteredGames() {
+      const daysObject = {};
+      for (let [day, games] of Object.entries(this.list)) {
+        const filtered = Object.keys(games)
+          .filter(game => this.selectedGames.includes(game))
+          .reduce((object, game) => {
+            object[game] = games[game];
+            return object;
+          }, {});
+        daysObject[day] = filtered;
+      }
+
+      this.$forceUpdate();
+      return daysObject;
+    },
     filteredUsers() {
       const users = [];
       if (this.showTeamleads) {
@@ -119,7 +138,23 @@ export default {
         users.push(...this.hosts);
       }
 
-      return users;
+      const availabilityUsers = [];
+
+      users.forEach(user => {
+        for (let [day, games] of Object.entries(this.filteredGames)) {
+          for (let game of Object.values(games)) {
+            game.forEach(round => {
+              if (round.hosts.some(host => host === user.nickname)) user.isHosting = true;
+              if (round.available.includes(user.nickname) && !availabilityUsers.includes(user)) {
+                availabilityUsers.push(user);
+              }
+            });
+          }
+        }
+      });
+
+      const filteredUsers = users.filter(user => availabilityUsers.includes(user));
+      return filteredUsers;
     }
   },
   created() {
