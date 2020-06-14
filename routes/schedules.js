@@ -14,6 +14,7 @@ const router = express.Router();
 const moment = require("moment");
 
 router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
+  const collisions = [];
   for (const roundRequest of req.body) {
     const tournament = await Tournament.findById(roundRequest.tournamentID);
     if (!tournament) return res.status(400).send("No tournament found.");
@@ -43,8 +44,50 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
         return res.status(400).send("Bad request.");
       }
 
-      [round.hosts, round.teamLeads].forEach(array => {
-        array.forEach(async hostObject => {
+      for (const [arrayIndex, array] of [round.hosts, round.teamLeads].entries()) {
+        for (const hostObject of array) {
+          if (arrayIndex === 0) {
+            const host = await User.findById(hostObject.host).populate({
+              path: "tournamentsHosted",
+              match: {
+                $and: [{
+                    "rounds.startDate": {
+                      $lt: round.endDate
+                    }
+                  },
+                  {
+                    "rounds.endDate": {
+                      $gt: round.startDate
+                    }
+                  },
+                  {
+                    "name": {
+                      $ne: tournament.name
+                    }
+                  }
+                ]
+              },
+              select: "name rounds.name rounds.startDate rounds.endDate -_id"
+            });
+
+            host.tournamentsHosted = host.tournamentsHosted.filter(tournament => {
+              tournament.rounds = tournament.rounds.filter(tournamentRound => moment(tournamentRound.startDate).isBefore(moment(round.endDate)) && moment(tournamentRound.endDate).isAfter(moment(round.startDate)));
+              return tournament.rounds.length;
+            });
+
+            if (host.tournamentsHosted.length) {
+              collisions.push({
+                nickname: host.nickname,
+                round: round.name,
+                tournament: tournament.name,
+                collision: host.tournamentsHosted.map(el => ({
+                  ...el.rounds[0].toObject(),
+                  tournament: el.name
+                }))
+              });
+            }
+          }
+
           await User.findByIdAndUpdate(hostObject.host, {
               "$addToSet": {
                 "tournamentsHosted": tournament._id
@@ -53,8 +96,8 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
               new: true
             })
             .exec((error, data) => data);
-        });
-      });
+        };
+      };
 
       excluded.forEach(async hostObject => {
         for (const round of tournament.rounds) {
@@ -77,7 +120,7 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
     }
   }
 
-  return res.send(true);
+  return res.send(collisions);
 });
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {

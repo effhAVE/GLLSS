@@ -6,11 +6,30 @@
         Save
       </v-btn>
     </v-snackbar>
+    <v-snackbar v-model="collisionsWarning" color="warning" bottom right multi-line :timeout="0">
+      Collisions were found. Do you want to see them?
+      <v-btn
+        text
+        color="black"
+        @click="
+          showCollisionsSummary = true;
+          collisionsWarning = false;
+        "
+      >
+        Show
+      </v-btn>
+      <v-btn text color="secondary" @click="collisionsWarning = false">
+        Close
+      </v-btn>
+    </v-snackbar>
+    <CollisionsSummary :collisions="collisions" :show="showCollisionsSummary" @close="showCollisionsSummary = false" />
     <v-tabs v-model="gamesTab" background-color="primary" slider-color="accent">
       <v-tab>All</v-tab>
       <v-tab v-for="gameObject in groupedRounds" :key="gameObject.game">
         {{ gameObject.game }}
       </v-tab>
+      <v-spacer></v-spacer>
+      <v-btn @click="showCollisionsSummary = true" v-if="collisions.length" text color="warning" large>Show collisions</v-btn>
     </v-tabs>
     <v-tabs-items v-model="gamesTab" class="py-4">
       <v-tab-item>
@@ -52,19 +71,24 @@
 <script>
 import Round from "./RoundSimplified";
 import availabilityGroup from "../../helpers/availabilityGroup";
+import CollisionsSummary from "./CollisionsSummary";
 export default {
   props: {
     week: Number
   },
   components: {
-    Round
+    Round,
+    CollisionsSummary
   },
   data() {
     return {
       groupedRounds: [],
       availabilityList: [],
       changedRounds: [],
-      gamesTab: null
+      gamesTab: null,
+      collisions: [],
+      collisionsWarning: false,
+      showCollisionsSummary: false
     };
   },
   methods: {
@@ -126,11 +150,16 @@ export default {
       this.changedRounds.splice(0);
       this.$http
         .put(`${this.APIURL}/schedules`, rounds)
-        .then(() => {
+        .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Rounds updated!",
             type: "success"
           });
+
+          if (response.data.length) {
+            this.collisionsWarning = true;
+            this.collisions = response.data;
+          }
         })
         .catch(error =>
           this.$store.commit("snackbarMessage", {

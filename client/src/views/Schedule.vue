@@ -92,26 +92,6 @@ export default {
     };
   },
   methods: {
-    /* calculateChange(change) {
-      const { type, oldHost, newHost, host, game, bestOf } = change;
-      const value = this.gameValues[game] * bestOf;
-      if (type === "hostChange" && this.balance[this.selectedWeek][game][oldHost]) {
-        this.balance[this.selectedWeek][game][oldHost.nickname].current -= value;
-
-        if (newHost) {
-          this.balance[this.selectedWeek][game][newHost.nickname].current += value;
-        }
-      } else if (type === "hostAdd") {
-        if (!this.balance[this.selectedWeek][game][host.nickname]) {
-          this.$set(this.balance[this.selectedWeek][game], host.nickname, {
-            lost: 0,
-            current: value
-          });
-        } else {
-          this.balance[this.selectedWeek][game][host.nickname].current += value;
-        }
-      }
-    }, */
     getHostsBalance(week = 0) {
       this.$http
         .get(`${this.APIURL}/data/schedule/?week=${week}`)
