@@ -89,7 +89,7 @@
     </v-list-group>
     <v-list-item link to="/articles" v-if="user.roles.includes(`host`)">
       <v-list-item-action>
-        <v-icon>mdi-book</v-icon>
+        <v-icon>mdi-newspaper-variant-outline</v-icon>
       </v-list-item-action>
       <v-list-item-content>
         <v-list-item-title>Articles</v-list-item-title>
