@@ -35,7 +35,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
 });
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
-  const codes = await Accountcode.find({}).populate("assignedUser1 assignedUser2", "-tournamentsHosted").select("-adminToken");
+  const codes = await Accountcode.find({}).populate("assignedUser1 assignedUser2", "-tournamentsHosted").select("-adminToken").sort("createdAt");
   return res.send(codes);
 });
 
