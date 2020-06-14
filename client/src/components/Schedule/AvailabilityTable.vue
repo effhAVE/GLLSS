@@ -125,7 +125,6 @@ export default {
         daysObject[day] = filtered;
       }
 
-      this.$forceUpdate();
       return daysObject;
     },
     filteredUsers() {
@@ -141,6 +140,7 @@ export default {
       const availabilityUsers = [];
 
       users.forEach(user => {
+        user.isHosting = false;
         for (let [day, games] of Object.entries(this.filteredGames)) {
           for (let game of Object.values(games)) {
             game.forEach(round => {
