@@ -98,7 +98,6 @@ export default {
       });
     },
     onTocRenedered(html) {
-      console.log(html);
       this.tocList = html;
     },
     editArticle(article) {
