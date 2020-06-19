@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
+const categories = require("../collections/articleCategories");
 const articleSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -23,6 +24,11 @@ const articleSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
+  category: {
+    type: [String],
+    enum: categories,
+    default: []
+  }
 }, {
   timestamps: {
     createdAt: "createdAt",

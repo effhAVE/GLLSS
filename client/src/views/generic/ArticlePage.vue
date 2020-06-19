@@ -170,7 +170,7 @@ export default {
 
   h1 {
     margin-bottom: 1em;
-    color: var(--v-secondary-base);
+    color: white;
   }
 
   h2 {

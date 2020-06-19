@@ -27,7 +27,7 @@
     </v-app-bar>
 
     <v-content class="primary">
-      <keep-alive include="Home">
+      <keep-alive include="Home, Article">
         <router-view class="pa-8" :user="user"></router-view>
       </keep-alive>
     </v-content>

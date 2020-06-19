@@ -31,7 +31,7 @@
       <span class="overline">Created: {{ article.createdAt | moment("YYYY-MM-DD HH:mm") }}</span>
       <v-spacer></v-spacer>
 
-      <v-btn small color="accent" target="_blank"><router-link :to="`articles/${article._id}`" class="black--text">Read More</router-link></v-btn>
+      <v-btn small color="accent black--text" :to="`articles/${article._id}`">Read more</v-btn>
     </v-card-actions>
   </v-card>
 </template>
