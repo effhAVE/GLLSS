@@ -47,7 +47,7 @@
       </v-layout>
     </v-container>
     <v-card-text>
-      <vue-markdown class="markdown">{{ article.content }}</vue-markdown>
+      <vue-markdown class="markdown" :source="article.content"></vue-markdown>
     </v-card-text>
     <v-card-actions>
       <p class="subtitle-2 ma-0">
@@ -129,7 +129,7 @@ export default {
         if (articleID) {
           this.getArticle(articleID);
         } else {
-          this.tournament = null;
+          this.article = null;
         }
       },
       immediate: true
