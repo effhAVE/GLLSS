@@ -47,7 +47,16 @@
       </v-layout>
     </v-container>
     <v-card-text>
-      <vue-markdown class="markdown" :source="article.content"></vue-markdown>
+      <div id="tocList" v-html="tocList" class="mb-4"></div>
+      <vue-markdown
+        class="markdown"
+        :source="article.content"
+        :toc="true"
+        toc-id="tocList"
+        :toc-first-level="2"
+        :toc-last-level="4"
+        @toc-rendered="onTocRenedered"
+      ></vue-markdown>
     </v-card-text>
     <v-card-actions>
       <p class="subtitle-2 ma-0">
@@ -74,7 +83,8 @@ export default {
       id: this.$route.params.articleID,
       article: null,
       editArticleModal: false,
-      deleteArticleModal: false
+      deleteArticleModal: false,
+      tocList: ""
     };
   },
   components: {
@@ -86,6 +96,10 @@ export default {
       this.$http.get(`${this.APIURL}/articles/${id}`).then(response => {
         this.article = response.data;
       });
+    },
+    onTocRenedered(html) {
+      console.log(html);
+      this.tocList = html;
     },
     editArticle(article) {
       this.$http
@@ -139,20 +153,35 @@ export default {
 </script>
 <style lang="scss">
 .theme--dark.v-sheet .markdown {
-  p {
-    font-size: 0.95em;
+  color: #e4e4e4;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    padding-top: 70px;
+    margin-top: -70px;
+  }
+
+  p,
+  ul {
+    margin-bottom: 16px;
   }
 
   h1 {
     margin-bottom: 1em;
+    color: var(--v-secondary-base);
   }
 
   h2 {
     margin-bottom: 0.5em;
+    color: var(--v-anchor-base);
   }
 
   h3 {
     margin-bottom: 0.2em;
+    color: white;
   }
 }
 </style>
