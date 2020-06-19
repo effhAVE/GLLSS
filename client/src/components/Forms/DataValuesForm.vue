@@ -38,6 +38,7 @@ export default {
   data() {
     return {
       gamesList: [],
+      gameValues: null,
       TLRatio: 100,
       valid: true,
       validation: [v => !!v || "All game values are required", v => v > 0 || "Game value must be positive"],
@@ -55,13 +56,22 @@ export default {
     }
   },
   mounted() {
-    this.$http.get(`${this.APIURL}/collections/games`).then(response => {
-      this.gamesList = response.data.map(game => {
-        let value = 70;
-        if (game === "Apex") value = 40;
-        return (game = { name: game, value: value });
+    this.$http
+      .get(`${this.APIURL}/data/gamevalues`)
+      .then(response => {
+        this.gameValues = response.data;
+        this.$http.get(`${this.APIURL}/collections/games`).then(response => {
+          this.gamesList = response.data.map(game => {
+            return (game = { name: game, value: this.gameValues[game] || 70 });
+          });
+        });
+      })
+      .catch(error => {
+        this.$store.commit("snackbarMessage", {
+          type: "error",
+          message: "No game values found."
+        });
       });
-    });
   }
 };
 </script>
