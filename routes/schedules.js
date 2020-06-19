@@ -67,12 +67,14 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
                   }
                 ]
               },
-              select: "name rounds.name rounds.startDate rounds.endDate -_id"
+              select: "name rounds.name rounds.startDate rounds.endDate rounds.hosts -_id"
             });
 
             host.tournamentsHosted = host.tournamentsHosted.filter(tournament => {
-              tournament.rounds = tournament.rounds.filter(tournamentRound => moment(tournamentRound.startDate).isBefore(moment(round.endDate)) && moment(tournamentRound.endDate).isAfter(moment(round.startDate)));
-              return tournament.rounds.length;
+              tournament.rounds = tournament.rounds.filter(tournamentRound => moment(tournamentRound.startDate).isBefore(moment(round.endDate)) &&
+                moment(tournamentRound.endDate).isAfter(moment(round.startDate)) &&
+                tournamentRound.hosts.some(hostObject => hostObject.host.equals(host._id)));
+              return !!tournament.rounds.length;
             });
 
             if (host.tournamentsHosted.length) {
