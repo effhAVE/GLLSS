@@ -6,7 +6,7 @@
     </v-card-title>
     <v-card-text>
       <v-row>
-        <AccountForm @submit="saveAccount($event)" />
+        <AccountForm @submit="saveAccount($event)" :user="user" />
       </v-row>
     </v-card-text>
   </v-card>
@@ -15,6 +15,9 @@
 import AccountForm from "../../components/Forms/AccountForm";
 
 export default {
+  props: {
+    user: Object
+  },
   components: {
     AccountForm
   },
