@@ -39,10 +39,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
 });
 
 router.get("/", auth, validateAccess("host"), async (req, res) => {
-  const accounts = await Gameaccount.find({}).populate("claimedBy presets.createdBy").sort("password").collation({
-    locale: "en_US",
-    numericOrdering: true
-  });
+  const accounts = await Gameaccount.find({}).populate("claimedBy presets.createdBy").sort("_id");
   return res.send(accounts);
 });
 
