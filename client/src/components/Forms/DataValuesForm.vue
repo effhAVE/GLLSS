@@ -8,7 +8,7 @@
         <v-text-field
           v-for="game in gamesList"
           :key="game.name"
-          v-model="game.value"
+          v-model.number="game.value"
           color="accent"
           :label="game.name"
           required

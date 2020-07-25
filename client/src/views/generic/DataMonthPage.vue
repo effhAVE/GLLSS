@@ -16,7 +16,7 @@
         </v-btn>
       </div>
     </v-card-title>
-    <v-tabs fixed-tabs v-model="tab" background-color="secondary" v-if="dataObject.calculation">
+    <v-tabs fixed-tabs v-model="tab" background-color="secondary" v-if="dataObject.calculation && dataObject.calculation.hosts">
       <v-tab>
         Overview
       </v-tab>
@@ -30,7 +30,7 @@
     <v-alert outlined type="warning" color="accent" v-else>
       No calculation available at the moment.
     </v-alert>
-    <v-tabs-items v-model="tab" class="transparent" v-if="dataObject.calculation">
+    <v-tabs-items v-model="tab" class="transparent" v-if="dataObject.calculation && dataObject.calculation.hosts">
       <v-tab-item>
         <v-card flat color="transparent">
           <v-data-table
