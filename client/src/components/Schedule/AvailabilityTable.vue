@@ -144,8 +144,11 @@ export default {
         for (let [day, games] of Object.entries(this.filteredGames)) {
           for (let game of Object.values(games)) {
             game.forEach(round => {
-              if (round.hosts.some(host => host === user.nickname)) user.isHosting = true;
-              if (round.available.includes(user.nickname) && !availabilityUsers.includes(user)) {
+              const isHosting = round.hosts.some(host => host === user.nickname);
+              const isLeading = round.teamLeads.some(host => host === user.nickname);
+              if (isHosting) user.isHosting = true;
+              if (isLeading) user.isLeading = true;
+              if (!availabilityUsers.includes(user) && (round.available.includes(user.nickname) || isHosting || isLeading)) {
                 availabilityUsers.push(user);
               }
             });
