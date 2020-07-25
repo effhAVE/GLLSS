@@ -97,6 +97,12 @@ router.delete("/:rid", auth, validateAccess("admin"), validateObjectId, async (r
   });
 
   await round.remove();
+  if (tournament.rounds.length) {
+    tournament.rounds.sort((a, b) => a.startDate - b.startDate);
+    tournament.startDate = tournament.rounds[0].startDate;
+    tournament.endDate = tournament.rounds[tournament.rounds.length - 1].endDate;
+  }
+
   await tournament.save();
 
   return res.send(round);
