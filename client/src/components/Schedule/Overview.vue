@@ -102,8 +102,15 @@ export default {
       this.changedRounds.push(roundObject);
     },
     getRounds(week = 0) {
+      const utc = this.$moment()
+        .utc()
+        .isoWeek();
+      const now = this.$moment(this.$store.state.now)
+        .add(week, "weeks")
+        .isoWeek();
+      const utcWeekDifference = now - utc;
       this.availabilityList = [];
-      this.$http.get(`${this.APIURL}/schedules/?week=${week}`).then(response => {
+      this.$http.get(`${this.APIURL}/schedules/?week=${utcWeekDifference}`).then(response => {
         this.groupedRounds = response.data;
         this.groupedRounds.forEach(gameObject => {
           for (const rounds of Object.values(gameObject.rounds)) {
