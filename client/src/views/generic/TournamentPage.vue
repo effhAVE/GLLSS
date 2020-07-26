@@ -80,7 +80,7 @@
         </v-card>
       </v-dialog>
     </v-card-title>
-    <TournamentTable :tournament="tournament" />
+    <TournamentTable :tournament="tournament" :cost="tournamentCost" />
     <div class="rounds d-flex align-start flex-wrap">
       <Round
         v-for="round in tournament.rounds"
@@ -127,8 +127,51 @@ export default {
       editModal: false,
       copyModal: false,
       usersAvailable: [],
-      changedRounds: []
+      changedRounds: [],
+      gameValues: null,
+      TLRatio: 100
     };
+  },
+  computed: {
+    tournamentCost() {
+      let hostCost = 0;
+      let TLCost = 0;
+      this.tournament.rounds.forEach(round => {
+        round.hosts.forEach(hostObject => {
+          hostObject.lostHosting
+            ? (hostCost += 0)
+            : (hostCost += this.gameValues[this.tournament.game] * (round.bestOf + (+hostObject.timeBalance || 0)));
+        });
+
+        round.teamLeads.forEach(TLObject => {
+          let TLTime;
+          if (TLObject.lostLeading) {
+            TLTime = 0;
+          } else {
+            TLTime = this.$moment(round.endDate)
+              .add(TLObject.timeBalance, "minutes")
+              .diff(this.$moment(round.startDate).subtract(round.prepTime, "minutes"), "minutes");
+          }
+
+          TLCost += (TLTime / 60) * this.TLRatio;
+        });
+      });
+
+      return hostCost + TLCost;
+    }
+  },
+  mounted() {
+    this.$http
+      .get(`${this.APIURL}/data/gamevalues`)
+      .then(response => {
+        this.gameValues = response.data;
+      })
+      .catch(error => {
+        this.$store.commit("snackbarMessage", {
+          type: "error",
+          message: "No game values found. Cost cannot be calculated."
+        });
+      });
   },
   methods: {
     tournamentDates(tournament) {

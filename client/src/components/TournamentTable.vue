@@ -13,11 +13,7 @@
         <tr>
           <th>Series ID</th>
           <td>
-            <router-link
-              v-if="tournament.series"
-              :to="`/series/${tournament.series}`"
-              >{{ tournament.series }}</router-link
-            >
+            <router-link v-if="tournament.series" :to="`/series/${tournament.series}`">{{ tournament.series }}</router-link>
             <span v-else>null</span>
           </td>
         </tr>
@@ -48,6 +44,10 @@
           <th>End date</th>
           <td>{{ tournament.endDate | moment("MMMM DD, YYYY HH:mm") }}</td>
         </tr>
+        <tr>
+          <th>Tournament cost</th>
+          <td>{{ cost }} SEK</td>
+        </tr>
       </tbody>
     </template>
   </v-simple-table>
@@ -56,7 +56,8 @@
 <script>
 export default {
   props: {
-    tournament: Object
+    tournament: Object,
+    cost: Number
   }
 };
 </script>
