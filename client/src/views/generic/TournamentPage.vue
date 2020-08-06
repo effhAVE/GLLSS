@@ -136,6 +136,7 @@ export default {
     tournamentCost() {
       let hostCost = 0;
       let TLCost = 0;
+      if (!this.gameValues) return 0;
       this.tournament.rounds.forEach(round => {
         round.hosts.forEach(hostObject => {
           hostObject.lostHosting
@@ -157,7 +158,7 @@ export default {
         });
       });
 
-      return hostCost + TLCost;
+      return Number((hostCost + TLCost).toFixed(0));
     }
   },
   mounted() {
