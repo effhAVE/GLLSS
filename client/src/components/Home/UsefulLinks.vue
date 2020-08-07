@@ -12,7 +12,7 @@
         <a href=" https://pubg.seatlon.eu/">PUBG Match/Player Search</a>
       </li>
       <li>
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLScdXNynI54HnMaT9i0x0DgAdG6JCZIGVI0b69suKA-7G7ig2A/viewform">Cheater Report Form</a>
+        <a href="https://gll.gg/report-player">Cheater Report Form</a>
       </li>
       <li>
         <a href="https://globalesports.wpengine.com/wp-content/uploads/2020/02/PUBG_Global_Rules-SUPER-v2.0.0.pdf">SUPER Settings 2.0.0</a>
