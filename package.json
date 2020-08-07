@@ -16,6 +16,7 @@
   "author": "Grzegorz Kowalczyk",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.19.2",
     "bcrypt": "^1.0.3",
     "config": "^1.29.4",
     "connect-history-api-fallback": "^1.6.0",
