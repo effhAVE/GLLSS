@@ -49,7 +49,7 @@
     <v-card-text>
       <div id="tocList" v-html="tocList" class="mb-4"></div>
       <vue-markdown
-        class="markdown"
+        class="markdown-body"
         :source="article.content"
         :toc="true"
         toc-id="tocList"
@@ -151,8 +151,7 @@ export default {
 };
 </script>
 <style lang="scss">
-.theme--dark.v-sheet .markdown {
-  color: #e4e4e4;
+.theme--dark.v-sheet .markdown-body:not(.v-note-wrapper) {
   h1,
   h2,
   h3,
@@ -166,6 +165,7 @@ export default {
   p,
   ul {
     margin-bottom: 16px;
+    color: #e4e4e4;
   }
 
   h1 {

@@ -6,6 +6,7 @@ import vuetify from './plugins/vuetify';
 import axios from "axios";
 import VueJWT from 'vuejs-jwt';
 import DatetimePicker from 'vuetify-datetime-picker'
+import 'mavon-editor/dist/css/index.css';
 
 Vue.use(DatetimePicker);
 Vue.use(VueJWT, {
