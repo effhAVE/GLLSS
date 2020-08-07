@@ -6,9 +6,9 @@
     <v-alert outlined type="warning" color="accent">
       Be sure to read the guide before performing any actions.
     </v-alert>
-    <v-card-text>
+    <v-card-text class="d-flex align-center">
       <v-text-field
-        v-model.trim="id"
+        v-model.trim="ids"
         color="accent"
         label="API ID"
         required
@@ -17,27 +17,29 @@
         hint="https://apex.seatlon.eu/matches/API_ID"
       >
       </v-text-field>
+      <v-btn v-show="this.matches.length" @click="getMatches" text color="accent">Refresh</v-btn>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="accent" text @click="id = ''">
+      <v-btn color="accent" text @click="ids = ''">
         Clear
       </v-btn>
-      <v-btn color="accent" text @click="getMatches" :disabled="!id || recentlySent">
+      <v-btn color="accent" text @click="getMatches" :disabled="!ids || recentlySent">
         Send
       </v-btn>
     </v-card-actions>
     <v-card-text>
-      <p v-if="fetching">Fetching...</p>
+      <p v-show="fetching">Fetching...</p>
       <div v-if="matches.length">
-        <v-list color="transparent">
+        <v-list color="transparent" dense>
           <v-subheader>Matches</v-subheader>
           <v-list-item v-for="(match, i) in matches" :key="i" @click="selectMatch(i)" active-color="accent">
             <v-list-item-content>
               <v-list-item-title class="white--text">
                 Start date: <span class="accent--text">{{ match.date | moment("MMMM DD HH:mm") }}</span>
+                <span class="overline ml-4">Token ID: {{ match.id }}</span>
                 <v-list-item-icon v-if="selectedMatch === match">
-                  <v-icon small color="accent">mdi-checkbox-blank-circle</v-icon>
+                  <v-icon x-small color="accent">mdi-checkbox-blank-circle</v-icon>
                 </v-list-item-icon>
               </v-list-item-title>
             </v-list-item-content>
@@ -48,7 +50,15 @@
           <v-list-item v-for="(team, i) in selectedMatch.teams" :key="i">
             <v-list-item-content v-for="(player, i) in team" :key="i" class="pa-0">
               <v-list-item-title>
-                <v-text-field color="accent" class="mx-2" autocomplete="off" :placeholder="player.name" v-model="player.alternativeName" dense />
+                <v-text-field
+                  color="accent"
+                  class="mx-2"
+                  autocomplete="off"
+                  :placeholder="player.name"
+                  v-model="player.alternativeName"
+                  @input="changePlayerName(player.name, $event)"
+                  dense
+                />
               </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
@@ -61,38 +71,45 @@
 export default {
   data() {
     return {
-      id: "",
+      ids: "",
       fetching: false,
-      requestSent: false,
       matches: [],
       selectedMatch: null,
       recentlySent: false
     };
   },
   methods: {
-    getMatches() {
+    async getMatches() {
       this.fetching = true;
       this.recentlySent = true;
       this.selectedMatch = null;
       window.setTimeout(() => (this.recentlySent = false), 1000 * 5);
-      this.$http
-        .get(`${this.APIURL}/collections/apex?id=${this.id}`)
-        .then(response => {
-          if (response.status >= 400) throw new Error(response.data);
-          this.matches = response.data;
-          this.fetching = false;
-          this.requestSent = true;
-        })
-        .catch(error => {
-          this.requestSent = false;
-          this.matches = [];
-          this.fetching = false;
-
-          this.$store.commit("snackbarMessage", {
-            type: "error",
-            message: error
-          });
-        });
+      const ids = this.ids.split("-");
+      const promises = [];
+      const responseMatches = [];
+      for (const id of ids) {
+        promises.push(
+          this.$http
+          .get(`${this.APIURL}/collections/apex?id=${id}`)
+          .then(response => {
+            if (response.status >= 400) throw new Error(response.data);
+            const mappedMatches = response.data.map(el => ({ ...el, id: id }));
+            responseMatches.push(...mappedMatches);
+          })
+          .catch(error => {
+            this.matches = [];
+            this.$store.commit("snackbarMessage", {
+              type: "error",
+              message: error
+            });
+          })
+        );
+      }
+      
+      await Promise.all(promises);
+      responseMatches.sort((a, b) => new Date(a.date) - new Date(b.date));
+      this.matches.push(...responseMatches.slice(this.matches.length));
+      this.fetching = false;
     },
     selectMatch(index) {
       this.selectedMatch = this.matches[index];
@@ -105,9 +122,19 @@ export default {
       document.execCommand("copy");
       document.body.removeChild(el);
       this.$store.commit("snackbarMessage", {
-            type: "success",
-            message: "Copied to clipboard!."
-          });
+        type: "success",
+        message: "Copied to clipboard!."
+      });
+    },
+    changePlayerName(nickname, value) {
+      const matches = this.matches.filter(match => this.$moment().diff(this.$moment(match.date), "hours") < 24)
+      this.matches.forEach(match => {
+        const players = match.teams.flat();
+        const player = players.find(player => player.name === nickname);
+        if (player) {
+          player.alternativeName = value;
+        }
+      });
     }
   }
 };
