@@ -21,15 +21,11 @@
 </template>
 <script>
 import validations from "../../helpers/validations";
-import { mavonEditor } from 'mavon-editor'
 export default {
   props: {
     article: {
       type: Object
     }
-  },
-  components: {
-    mavonEditor
   },
   data() {
     return {

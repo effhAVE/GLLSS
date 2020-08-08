@@ -152,6 +152,16 @@ export default {
 </script>
 <style lang="scss">
 .theme--dark.v-sheet .markdown-body:not(.v-note-wrapper) {
+  a {
+    color: var(--v-accent-base);
+  }
+
+  .table {
+    tr {
+      background-color: transparent;
+      color: white;
+    }
+  }
   h1,
   h2,
   h3,
@@ -163,23 +173,21 @@ export default {
   }
 
   p,
-  ul {
+  ul,
+  ol {
     margin-bottom: 16px;
     color: #e4e4e4;
   }
 
-  h1 {
-    margin-bottom: 1em;
-    color: white;
-  }
-
   h2 {
-    margin-bottom: 0.5em;
     color: var(--v-anchor-base);
   }
 
-  h3 {
-    margin-bottom: 0.2em;
+  h1,
+  h3,
+  h4,
+  h5,
+  h6 {
     color: white;
   }
 }

@@ -5,9 +5,11 @@ import store from './store'
 import vuetify from './plugins/vuetify';
 import axios from "axios";
 import VueJWT from 'vuejs-jwt';
-import DatetimePicker from 'vuetify-datetime-picker'
-import 'mavon-editor/dist/css/index.css';
+import DatetimePicker from 'vuetify-datetime-picker';
+import mavonEditor from 'mavon-editor';
+import "./assets/css/styles.scss";
 
+Vue.use(mavonEditor);
 Vue.use(DatetimePicker);
 Vue.use(VueJWT, {
   keyName: "token"
