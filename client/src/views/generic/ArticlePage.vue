@@ -14,9 +14,7 @@
               </template>
               <v-card class="primary">
                 <v-card-text>
-                  <v-container>
-                    <ArticleForm :article="article" @cancel="editArticleModal = false" @submit="editArticle" />
-                  </v-container>
+                  <ArticleForm :article="article" @cancel="editArticleModal = false" @submit="editArticle" />
                 </v-card-text>
               </v-card>
             </v-dialog>

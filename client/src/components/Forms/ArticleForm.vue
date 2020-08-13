@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-col cols="9">
+    <v-col cols="11">
       <v-form ref="form" style="min-width: 500px;" v-model="valid">
         <v-text-field v-model="draft.title" color="accent" label="Title" :rules="validations.required"></v-text-field>
         <v-text-field v-model="draft.previewImageURL" color="accent" label="Preview image URL" :rules="validations.url"></v-text-field>
