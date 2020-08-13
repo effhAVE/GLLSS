@@ -10,11 +10,11 @@
       <v-text-field
         v-model.trim="ids"
         color="accent"
-        label="API ID"
+        label="Stats tokens"
         required
         @keydown.enter="getMatches"
         autocomplete="off"
-        hint="https://apex.seatlon.eu/matches/API_ID"
+        hint="Separate tokens with minus ( - ) sign"
       >
       </v-text-field>
       <v-btn v-show="this.matches.length" @click="getMatches" text color="accent">Refresh</v-btn>
@@ -32,7 +32,6 @@
       <p v-show="fetching">Fetching...</p>
       <div v-if="matches.length">
         <v-list color="transparent" dense>
-          <v-subheader>Matches</v-subheader>
           <v-list-item v-for="(match, i) in matches" :key="i" @click="selectMatch(i)" active-color="accent">
             <v-list-item-content>
               <v-list-item-title class="white--text">
@@ -75,8 +74,23 @@ export default {
       fetching: false,
       matches: [],
       selectedMatch: null,
-      recentlySent: false
+      recentlySent: false,
+      changedPlayers: []
     };
+  },
+  mounted() {
+    this.$http.get(`${this.APIURL}/codes/my`)
+      .then(response => {
+        if (response.status >= 400) throw new Error(response.data);
+          this.ids = response.data.map(token => token.statsToken).join("-");
+        })
+      .catch(error => {
+        this.matches = [];
+        this.$store.commit("snackbarMessage", {
+          type: "error",
+          message: error
+        });
+      })
   },
   methods: {
     async getMatches() {
@@ -88,6 +102,7 @@ export default {
       const promises = [];
       const responseMatches = [];
       for (const id of ids) {
+        if (!id.length) continue;
         promises.push(
           this.$http
           .get(`${this.APIURL}/collections/apex?id=${id}`)
@@ -107,8 +122,19 @@ export default {
       }
       
       await Promise.all(promises);
+      if (!responseMatches.length) {
+        this.$store.commit("snackbarMessage", {
+          type: "warning",
+          message: "No recent matches found."
+        });
+      }
+      
       responseMatches.sort((a, b) => new Date(a.date) - new Date(b.date));
       this.matches.push(...responseMatches.slice(this.matches.length));
+      this.changedPlayers.forEach(player => {
+        this.renamePlayersInMatches(this.matches, player.nickname, player.alternativeName);
+      });
+
       this.fetching = false;
     },
     selectMatch(index) {
@@ -126,8 +152,7 @@ export default {
         message: "Copied to clipboard!."
       });
     },
-    changePlayerName(nickname, value) {
-      const matches = this.matches.filter(match => this.$moment().diff(this.$moment(match.date), "hours") < 24)
+    renamePlayersInMatches(matches, nickname, value) {
       this.matches.forEach(match => {
         const players = match.teams.flat();
         const player = players.find(player => player.name === nickname);
@@ -135,6 +160,15 @@ export default {
           player.alternativeName = value;
         }
       });
+    },
+    changePlayerName(nickname, value) {
+      const matches = this.matches.filter(match => this.$moment().diff(this.$moment(match.date), "hours") < 24);
+      this.changedPlayers = this.changedPlayers.filter(player => player.nickname !== nickname);
+      if (value.length) {
+        this.changedPlayers.push({ nickname, alternativeName: value });
+      }
+
+      this.renamePlayersInMatches(matches, nickname, value);
     }
   }
 };
