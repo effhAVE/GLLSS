@@ -50,7 +50,7 @@
       </template>
       <template v-slot:item.assignedUser2="{ item, value }">
         <div class="d-flex justify-space-between align-center px-1">
-          <span v-if="value">{{ value.nickname }}</span>
+          <span v-if="value" :class="value._id === user._id ? 'accent--text font-weight-black' : ''">{{ value.nickname }}</span>
           <span v-else class="grey--text caption">none</span>
           <v-menu bottom offset-y max-height="300px" v-if="user.roles.includes('admin')">
             <template v-slot:activator="{ on }">

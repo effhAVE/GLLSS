@@ -39,6 +39,17 @@ router.get("/", auth, validateAccess("host"), async (req, res) => {
   return res.send(codes);
 });
 
+router.get("/my", auth, validateAccess("host"), async (req, res) => {
+  const codes = await Accountcode.find({
+    $or: [{
+      assignedUser1: req.user._id
+    }, {
+      assignedUser2: req.user._id
+    }]
+  }).select("statsToken").sort("createdAt");
+  return res.send(codes);
+});
+
 router.get("/:id/admintoken", auth, validateAccess("host"), async (req, res) => {
   const code = await Accountcode.findById(req.params.id).select("assignedUser1 assignedUser2 adminToken");
   if (!code) return res.status(400).send("No code found.");

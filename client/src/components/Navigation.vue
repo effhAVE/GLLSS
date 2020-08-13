@@ -64,14 +64,22 @@
         <v-list-item-title>Data</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item link to="/teamkills" v-if="user.roles.includes(`host`)">
-      <v-list-item-action>
-        <v-icon>mdi-target-account</v-icon>
-      </v-list-item-action>
-      <v-list-item-content>
-        <v-list-item-title>Teamkills script</v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
+    <v-list-group prepend-icon="mdi-help-circle" color="accent" v-if="user.roles.includes(`host`)">
+      <template v-slot:activator>
+        <v-list-item-title>Helpers</v-list-item-title>
+      </template>
+      <v-list-item link to="/teamkills">
+        <v-list-item-content>
+          <v-list-item-title>Teamkills script</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item link to="/apex">
+        <v-list-item-content>
+          <v-list-item-title>Apex autoscoring</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-list-group>
+
     <v-list-group prepend-icon="mdi-book-open-page-variant" color="accent" v-if="user.roles.includes(`host`)">
       <template v-slot:activator>
         <v-list-item-title>Guides</v-list-item-title>

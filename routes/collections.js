@@ -3,6 +3,8 @@ const router = express.Router();
 const auth = require("../middleware/auth");
 const validateAccess = require("../middleware/validateAccess");
 const https = require('https');
+const axios = require("axios");
+const moment = require("moment");
 const {
   roles,
   games,
@@ -25,6 +27,36 @@ router.get("/regions", auth, async (req, res) => {
 
 router.get("/recurrences", auth, async (req, res) => {
   res.send(recurrences);
+});
+
+router.get("/presets", auth, async (req, res) => {
+  res.send(presets);
+});
+
+router.get("/apex", auth, validateAccess("host"), async (req, res) => {
+  const apiID = req.query.id;
+  if (!apiID) return res.status(400).send("No ID provided.");
+  axios.get(`https://apex.seatlon.eu/api/match/${apiID}`)
+    .then(response => {
+      if (response.status < 400) {
+        const results = Object.values(response.data)
+          .filter(match => moment().diff(moment(match.data.time.date), "days") < 2)
+          .map(match => {
+            return {
+              date: match.data.time.date,
+              teams: match.data.rosters.map(roster => roster.rosterPlayers.map(player => {
+                return {
+                  kills: player.kills,
+                  name: player.playerName,
+                  teamPlacement: player.teamPlacement
+                }
+              }))
+            }
+          });
+
+        return res.send(results);
+      } else return res.status(500).send("Could not fetch data.")
+    });
 });
 
 router.get("/teamkills", auth, validateAccess("host"), async (req, res) => {
@@ -64,8 +96,5 @@ router.get("/teamkills", auth, validateAccess("host"), async (req, res) => {
   });
 });
 
-router.get("/presets", auth, async (req, res) => {
-  res.send(presets);
-});
 
 module.exports = router;
