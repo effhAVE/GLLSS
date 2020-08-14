@@ -1,54 +1,54 @@
 <template>
   <div>
-    <v-row class="ma-0 mt-12">
-      <h3 class="subtitle">
-        Past tournaments
-      </h3>
-      <v-spacer></v-spacer>
-      <v-select
-        :items="filters"
-        v-model="selectedType"
-        @change="changeFilters"
-        label="Type"
-        outlined
-        dense
-        color="accent"
-        class="filter-input"
-      ></v-select>
-      <v-select
-        :items="gameFilters"
-        @change="changeFilters"
-        v-model="selectedGameFilters"
-        label="Games"
-        outlined
-        multiple
-        dense
-        color="accent"
-        item-color="accent"
-        class="ml-4 filter-input"
-        clearable
-        :menu-props="{ bottom: true, offsetY: true }"
-      ></v-select>
-      <v-select
-        :items="regionFilters"
-        @change="changeFilters"
-        item-text="name"
-        item-value="name"
-        v-model="selectedRegionFilters"
-        multiple
-        label="Regions"
-        class="ml-4 filter-input"
-        outlined
-        dense
-        color="accent"
-        item-color="accent"
-        clearable
-        :menu-props="{ bottom: true, offsetY: true }"
-        ><template v-slot:selection="{ item, index }">
-          <span v-if="index < 2">{{ item.name }}, </span>
-          <span v-if="index === 2" class="grey--text caption ml-1">(+{{ selectedRegionFilters.length - 2 }} others)</span>
-        </template></v-select
-      >
+    <v-row class="flex-column flex-sm-row ma-0 mt-12" no-gutters>
+      <v-col>
+        <h3 class="subtitle mb-8">
+          Past tournaments
+        </h3>
+      </v-col>
+      <v-col col="3" class="pa-1">
+        <v-select :items="filters" v-model="selectedType" @change="changeFilters" label="Type" outlined dense color="accent" class="filter-input">
+        </v-select>
+      </v-col>
+      <v-col col="3" class="pa-1">
+        <v-select
+          :items="gameFilters"
+          @change="changeFilters"
+          v-model="selectedGameFilters"
+          label="Games"
+          outlined
+          multiple
+          dense
+          color="accent"
+          item-color="accent"
+          class="filter-input"
+          clearable
+          :menu-props="{ bottom: true, offsetY: true }"
+        ></v-select>
+      </v-col>
+      <v-col col="3" class="pa-1">
+        <v-select
+          :items="regionFilters"
+          @change="changeFilters"
+          item-text="name"
+          item-value="name"
+          v-model="selectedRegionFilters"
+          multiple
+          label="Regions"
+          class="filter-input"
+          outlined
+          dense
+          color="accent"
+          item-color="accent"
+          clearable
+          :menu-props="{ bottom: true, offsetY: true }"
+        >
+          <template v-slot:selection="{ item, index }">
+            <span v-if="index < 2">{{ item.name }}, </span>
+            <span v-if="index === 2" class="grey--text caption ml-1">(+{{ selectedRegionFilters.length - 2 }} others)</span>
+          </template>
+        </v-select>
+      </v-col>
     </v-row>
 
     <v-data-table
@@ -99,8 +99,8 @@ export default {
           align: "start",
           value: "name"
         },
-        { text: "Game", value: "game", align: "center", width: 200 },
-        { text: "Region", value: "region", width: 200 },
+        { text: "Game", value: "game", align: "center" },
+        { text: "Region", value: "region" },
         { text: "End date", value: "endDate" }
       ],
       filters: [

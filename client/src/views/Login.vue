@@ -1,7 +1,7 @@
 <template>
   <v-container fluid fill-height>
-    <v-row align="center" justify="center">
-      <v-col cols="12" sm="8" md="4">
+    <v-row align="center" justify="center" no-gutters>
+      <v-col cols="12" sm="8" md="4" class="pa-2">
         <v-card class="elevation-12 mb-4" color="primary">
           <v-toolbar color="secondary" flat>
             <v-toolbar-title>Sign in to continue</v-toolbar-title>

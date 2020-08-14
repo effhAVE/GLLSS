@@ -25,24 +25,14 @@
     </v-card-text>
     <v-card-actions>
       <div>
-        <p class="mb-0">
-          No account? <router-link to="/register">Register now!</router-link>
-        </p>
+        <p class="mb-0">No account? <router-link to="/register">Register now!</router-link></p>
         <p class="mb-0">
           Or maybe you
           <router-link to="/forgot-password">forgot your password?</router-link>
         </p>
       </div>
       <v-spacer></v-spacer>
-      <v-btn
-        color="accent"
-        class="black--text"
-        large
-        type="submit"
-        :disabled="!valid"
-        @click.prevent="$emit('submit', { email, password })"
-        >Sign in</v-btn
-      >
+      <v-btn color="accent" class="black--text" type="submit" :disabled="!valid" @click.prevent="$emit('submit', { email, password })">Sign in</v-btn>
     </v-card-actions>
   </v-form>
 </template>

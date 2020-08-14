@@ -143,6 +143,14 @@
         </v-list-item-content>
       </v-list-item>
     </v-list-group>
+    <v-list-item link to="/logout" v-if="user">
+      <v-list-item-action>
+        <v-icon>mdi-lock-open</v-icon>
+      </v-list-item-action>
+      <v-list-item-content>
+        <v-list-item-title>Logout</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
   </v-list>
 </template>
 

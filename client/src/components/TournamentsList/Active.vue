@@ -95,7 +95,7 @@
             :color="tournamentColor(item.rounds)"
             :value="isHostingTournament(item.rounds)"
             :ripple="false"
-            style="margin-left: 60px"
+            style="margin-left: 60px;"
           ></v-simple-checkbox>
         </div>
       </template>
@@ -340,6 +340,5 @@ export default {
 <style lang="scss">
 .filter-input {
   flex-basis: 0;
-  width: 50%;
 }
 </style>

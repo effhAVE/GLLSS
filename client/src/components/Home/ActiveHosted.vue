@@ -11,6 +11,7 @@
       hide-default-footer
       disable-pagination
       disable-sort
+      mobile-breakpoint="0"
     >
       <template v-slot:item="{ item }">
         <tr class="primary lighten-1">
@@ -20,27 +21,28 @@
           <td>{{ item.game }}</td>
           <td>{{ item.region }}</td>
         </tr>
-        <tr class="v-data-table__expanded v-data-table__expanded__content">
-          <td :colspan="headers.length">
-            <table style="table-layout: fixed;" class="header-borders pa-2">
+        <tr>
+          <td :colspan="headers.length" class="pa-0 pa-sm-2">
+            <table style="table-layout: fixed;" class="header-borders px-0 pt-2 pa-sm-2 d-flex d-md-table">
               <thead class="accent--text">
-                <th>Round name</th>
-                <th>Start date</th>
-                <th>Best of</th>
-                <th>Role</th>
-                <th>Group</th>
-                <th>Prep time</th>
-                <th>Ready</th>
-                <th>Starts</th>
+                <th class="hidden-md-and-down d-md-table-cell">Round name</th>
+                <th class="d-flex align-center justify-center d-md-table-cell">Start date</th>
+                <th class="d-flex align-center justify-center d-md-table-cell">Best of</th>
+                <th class="hidden-md-and-down d-md-table-cell">Role</th>
+                <th class="d-flex align-center justify-center d-md-table-cell">Group</th>
+                <th class="hidden-md-and-down d-md-table-cell">Prep time</th>
+                <th class="d-flex align-center justify-center d-md-table-cell">Ready</th>
+                <th class="hidden-md-and-down d-md-table-cell">Starts</th>
               </thead>
-              <tbody>
-                <tr v-for="round in item.rounds" :key="round._id">
-                  <td>{{ round.name }}</td>
-                  <td>
-                    {{ $moment(round.startDate).format("MMMM DD HH:mm") }}
+              <tbody class="flex-grow-1 flex-md-column">
+                <tr v-for="round in item.rounds" :key="round._id" class="d-md-table-row d-table-cell flex-grow-1 text-center">
+                  <td class="hidden-md-and-down d-md-table-cell">{{ round.name }}</td>
+                  <td class="d-flex align-center justify-center d-md-table-cell">
+                    <span class="hidden-xs-only">{{ $moment(round.startDate).format("MMMM DD HH:mm") }}</span>
+                    <span class="hidden-sm-and-up">{{ $moment(round.startDate).format("MMM DD HH:mm") }}</span>
                   </td>
-                  <td>{{ round.bestOf }}</td>
-                  <td>
+                  <td class="d-flex align-center justify-center d-md-table-cell">{{ round.bestOf }}</td>
+                  <td class="hidden-md-and-down d-md-table-cell">
                     <span v-if="isLeading(round)" class="blue--text">
                       teamlead
                     </span>
@@ -48,7 +50,7 @@
                       host
                     </span>
                   </td>
-                  <td>
+                  <td class="d-flex align-center justify-center d-md-table-cell">
                     <div v-if="!isLeading(round)">
                       <span v-if="item.game !== 'Autochess'">{{
                         myHost(round).groupName.replace("index", round.hosts.indexOf(myHost(round)) + 1)
@@ -63,10 +65,10 @@
                       </span>
                     </div>
                   </td>
-                  <td>
+                  <td class="hidden-md-and-down d-md-table-cell">
                     <span v-if="isLeading(round)">{{ round.prepTime }} minutes</span>
                   </td>
-                  <td>
+                  <td class="d-flex align-center justify-center d-md-table-cell">
                     <v-btn icon v-if="lostLeadingOrHosting(round)">
                       <v-icon color="warning">
                         mdi-account-off
@@ -83,7 +85,7 @@
                       </v-icon>
                     </v-btn>
                   </td>
-                  <td>
+                  <td class="hidden-md-and-down d-md-table-cell">
                     {{ $moment(round.startDate).from(now) }}
                   </td>
                 </tr>
@@ -124,8 +126,8 @@ export default {
           align: "start",
           value: "name"
         },
-        { text: "Game", value: "game", width: 200 },
-        { text: "Region", value: "region", width: 200 }
+        { text: "Game", value: "game" },
+        { text: "Region", value: "region" }
       ]
     };
   },

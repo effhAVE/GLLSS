@@ -17,16 +17,16 @@
       </div>
       <v-row v-else>
         <v-col>
-          <v-row>
+          <v-row class="flex-column flex-sm-row" no-gutters>
             <v-col>
-              <v-switch v-model="showPastTournaments" label="Show past tournaments" color="accent"></v-switch>
+              <v-switch v-model="showPastTournaments" label="Show past tournaments" color="accent" class="ma-0" dense></v-switch>
             </v-col>
             <v-col>
-              <v-switch v-model="showPastRounds" label="Show past rounds" color="accent"></v-switch>
+              <v-switch v-model="showPastRounds" label="Show past rounds" color="accent" class="ma-0" dense></v-switch>
             </v-col>
             <v-spacer></v-spacer>
           </v-row>
-          <v-row>
+          <v-row no-gutters>
             <v-col>
               <ActiveHosted ref="activeHosted" :redirect="redirect" :showPastRounds="showPastRounds" :user="user" :now="now" />
             </v-col>
@@ -105,8 +105,17 @@ export default {
   color: var(--v-accent-base);
 }
 .header-borders {
+  tbody {
+    display: flex;
+    @media screen and (min-width: 960px) {
+      display: table-row-group;
+    }
+  }
   tr:last-of-type > td {
-    border-bottom: none !important;
+    border-bottom: thin solid rgba(255, 255, 255, 0.12) !important;
+    @media screen and (min-width: 960px) {
+      border-bottom: none !important;
+    }
   }
   th {
     border-bottom: thin solid rgba(255, 255, 255, 0.12);

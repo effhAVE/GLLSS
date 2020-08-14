@@ -6,19 +6,19 @@
         Close
       </v-btn>
     </v-snackbar>
-    <v-navigation-drawer v-model="drawer" app clipped color="primary lighten-1" v-if="user">
+    <v-navigation-drawer v-model="drawer" app clipped color="primary lighten-1" touchless v-if="user">
       <Navigation :user="user" />
     </v-navigation-drawer>
 
     <v-app-bar app clipped-left flat color="secondary">
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title>GLL Staff Scheduler</v-toolbar-title>
+      <v-toolbar-title><span class="hidden-xs-only">GLL Staff Scheduler</span><span class="hidden-sm-and-up">GLLSS</span></v-toolbar-title>
       <v-spacer />
       <span>{{ $store.state.now | moment("HH:mm") }}</span>
       <span v-if="user" class="accent--text font-weight-bold mx-4">
         {{ user.nickname }}
       </span>
-      <v-btn text v-if="isLoggedIn" @click="logout">
+      <v-btn text v-if="isLoggedIn" @click="logout" class="hidden-xs-only">
         Logout
       </v-btn>
       <v-btn text v-else @click="$router.push('/login')">
@@ -28,11 +28,24 @@
 
     <v-content class="primary">
       <keep-alive include="Home, Article">
-        <router-view class="pa-8" :user="user"></router-view>
+        <router-view class="pa-md-8 pa-sm-4 pa-0" :user="user"></router-view>
       </keep-alive>
     </v-content>
-
-    <v-footer app color="primary darken-1">
+    <v-bottom-navigation class="d-sm-none" background-color="primary" color="accent" app shift hide-on-scroll>
+      <v-btn to="/">
+        <span>Home</span>
+        <v-icon>mdi-home</v-icon>
+      </v-btn>
+      <v-btn to="/tournaments">
+        <span>Tournaments</span>
+        <v-icon>mdi-format-list-bulleted</v-icon>
+      </v-btn>
+      <v-btn to="/calendar">
+        <span>Calendar</span>
+        <v-icon>mdi-calendar</v-icon>
+      </v-btn>
+    </v-bottom-navigation>
+    <v-footer app color="primary darken-1 d-none d-sm-flex">
       <v-spacer />
       <span>Created for GLL by <router-link to="/aboutme">hAVE</router-link> &copy; 2020</span>
       <v-spacer />
