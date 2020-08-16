@@ -30,7 +30,7 @@
     <v-alert outlined type="warning" color="accent" v-else>
       No calculation available at the moment.
     </v-alert>
-    <v-tabs-items v-model="tab" class="transparent" v-if="dataObject.calculation && dataObject.calculation.hosts">
+    <v-tabs-items v-model="tab" class="transparent" v-if="dataObject.calculation && dataObject.calculation.hosts" touchless>
       <v-tab-item>
         <v-card flat color="transparent">
           <v-data-table
@@ -59,7 +59,7 @@
           <v-tab v-for="(value, game) in gameSpecificValues" :key="game"> {{ game }}</v-tab>
         </v-tabs>
         <v-card flat color="transparent">
-          <v-tabs-items v-model="gamesTab" class="transparent">
+          <v-tabs-items v-model="gamesTab" class="transparent" touchless>
             <v-tab-item v-for="(gameValues, game) in gameSpecificValues" :key="game">
               <v-data-table
                 class="table-background table-simple not-editable text-center"
@@ -98,7 +98,7 @@
           <v-tab>Games</v-tab>
           <v-tab>Total</v-tab>
         </v-tabs>
-        <v-tabs-items v-model="statsTab" class="transparent">
+        <v-tabs-items v-model="statsTab" class="transparent" touchless>
           <v-card flat color="transparent">
             <v-tab-item>
               <v-simple-table class="table-background table-simple not-editable text-center">

@@ -31,7 +31,7 @@
       <v-spacer></v-spacer>
       <v-btn @click="showCollisionsSummary = true" v-if="collisions.length" text color="warning" large>Show collisions</v-btn>
     </v-tabs>
-    <v-tabs-items v-model="gamesTab" class="py-4">
+    <v-tabs-items v-model="gamesTab" class="py-4" touchless>
       <v-tab-item>
         <div v-for="gameObject in groupedRounds" :key="gameObject.game">
           <h3 class="title accent--text">{{ gameObject.game }}</h3>

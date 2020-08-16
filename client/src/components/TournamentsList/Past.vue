@@ -1,57 +1,63 @@
 <template>
   <div>
-    <v-row class="mt-12">
+    <v-row class="mt-6 mb-4">
       <v-card-subtitle>Past tournaments</v-card-subtitle>
       <v-spacer></v-spacer>
     </v-row>
-    <v-row class="mx-0">
-      <v-select
-        :items="gameFilters"
-        @change="changeFilters"
-        v-model="selectedGameFilters"
-        label="Games"
-        outlined
-        multiple
-        dense
-        color="accent"
-        item-color="accent"
-        class="filter-input"
-        clearable
-        :menu-props="{ bottom: true, offsetY: true }"
-      ></v-select>
-      <v-select
-        :items="regionFilters"
-        @change="changeFilters"
-        item-text="name"
-        item-value="name"
-        v-model="selectedRegionFilters"
-        multiple
-        label="Regions"
-        class="ml-4 filter-input"
-        outlined
-        dense
-        color="accent"
-        item-color="accent"
-        clearable
-        :menu-props="{ bottom: true, offsetY: true }"
-      >
-        <template v-slot:selection="{ item, index }">
-          <span v-if="index < 2">{{ item.name }}, </span>
-          <span v-if="index === 2" class="grey--text caption ml-1">(+{{ selectedRegionFilters.length - 2 }} others)</span>
-        </template>
-      </v-select>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        color="accent"
-        class="mx-4 pa-0 filter-input"
-        label="Name"
-        single-line
-        hide-details
-        outlined
-        dense
-        @keyup="searchTimeout"
-      ></v-text-field>
+    <v-row class="flex-column flex-sm-row mb-4" no-gutters>
+      <v-col col="3" class="pa-1">
+        <v-select
+          :items="gameFilters"
+          @change="changeFilters"
+          v-model="selectedGameFilters"
+          label="Games"
+          outlined
+          multiple
+          dense
+          color="accent"
+          item-color="accent"
+          class="filter-input"
+          clearable
+          :menu-props="{ bottom: true, offsetY: true }"
+        ></v-select>
+      </v-col>
+      <v-col col="3" class="pa-1">
+        <v-select
+          :items="regionFilters"
+          @change="changeFilters"
+          item-text="name"
+          item-value="name"
+          v-model="selectedRegionFilters"
+          multiple
+          label="Regions"
+          class="filter-input"
+          outlined
+          dense
+          color="accent"
+          item-color="accent"
+          clearable
+          :menu-props="{ bottom: true, offsetY: true }"
+        >
+          <template v-slot:selection="{ item, index }">
+            <span v-if="index < 2">{{ item.name }}, </span>
+            <span v-if="index === 2" class="grey--text caption ml-1">(+{{ selectedRegionFilters.length - 2 }} others)</span>
+          </template>
+        </v-select>
+      </v-col>
+      <v-col col="3" class="pa-1">
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          color="accent"
+          class="pa-0 filter-input"
+          label="Name"
+          single-line
+          hide-details
+          outlined
+          dense
+          @keyup="searchTimeout"
+        ></v-text-field>
+      </v-col>
     </v-row>
     <v-data-table
       class="table-background"
@@ -63,6 +69,7 @@
       show-expand
       hide-default-footer
       disable-pagination
+      mobile-breakpoint="740"
       item-key="_id"
     >
       <template v-slot:item.rounds="{ item }">
@@ -71,16 +78,16 @@
         </div>
       </template>
       <template v-slot:expanded-item="{ headers, item }" tag="div">
-        <td :colspan="headers.length">
+        <td :colspan="headers.length" class="pa-0 px-md-4">
           <v-simple-table class="table-background-inner">
             <template v-slot:default>
               <thead>
                 <tr>
                   <th>Hosted</th>
-                  <th>Round name</th>
+                  <th class="hidden-xxs-only">Round name</th>
                   <th>Best of</th>
                   <th>Start date</th>
-                  <th>End date</th>
+                  <th class="hidden-xs-only">End date</th>
                 </tr>
               </thead>
               <tbody>
@@ -88,10 +95,15 @@
                   <td width="50">
                     <v-simple-checkbox :color="roundColor(round)" :ripple="false" :value="round.isHosting || round.isLeading"></v-simple-checkbox>
                   </td>
-                  <td>{{ round.name }}</td>
+                  <td class="hidden-xxs-only">{{ round.name }}</td>
                   <td>{{ round.bestOf }}</td>
-                  <td>{{ round.startDate | moment("MMMM DD, YYYY HH:mm") }}</td>
-                  <td>{{ round.endDate | moment("MMMM DD, YYYY HH:mm") }}</td>
+                  <td>
+                    <span class="hidden-xs-only">{{ round.startDate | moment("MMMM DD, YYYY HH:mm") }}</span>
+                    <span class="hidden-sm-and-up">{{ round.startDate | moment("MMM DD HH:mm") }}</span>
+                  </td>
+                  <td class="hidden-xs-only">
+                    <span>{{ round.endDate | moment("MMMM DD, YYYY HH:mm") }}</span>
+                  </td>
                 </tr>
               </tbody>
             </template>
@@ -102,10 +114,12 @@
         <router-link :to="`tournaments/${item._id}`" class="white--text">{{ item.name }}</router-link>
       </template>
       <template v-slot:item.startDate="{ item }">
-        <span>{{ item.startDate | moment("MMMM DD, YYYY HH:mm") }}</span>
+        <span class="hidden-sm-and-down">{{ item.startDate | moment("MMMM DD, YYYY HH:mm") }}</span>
+        <span class="hidden-md-and-up">{{ item.startDate | moment("MMM DD HH:mm") }}</span>
       </template>
       <template v-slot:item.endDate="{ item }">
-        <span>{{ item.endDate | moment("MMMM DD, YYYY HH:mm") }}</span>
+        <span class="hidden-sm-and-down">{{ item.endDate | moment("MMMM DD, YYYY HH:mm") }}</span>
+        <span class="hidden-md-and-up">{{ item.endDate | moment("MMM DD HH:mm") }}</span>
       </template>
       <template v-slot:footer>
         <div class="v-data-footer">
@@ -136,9 +150,9 @@ export default {
       allLoaded: false,
       headers: [
         {
-          text: "Hosting",
+          text: "Hosted",
           value: "rounds",
-          width: 150,
+          width: 50,
           sortable: false
         },
         {
@@ -147,17 +161,16 @@ export default {
           sortable: false,
           value: "name"
         },
-        { text: "Game", value: "game", align: "center", width: 200 },
+        { text: "Game", value: "game", align: "center" },
         {
           text: "Rounds",
           value: "rounds.length",
           align: "center",
-          width: 100,
           sortable: false
         },
         { text: "Start date", value: "startDate" },
         { text: "End date", value: "endDate" },
-        { text: "", value: "data-table-expand", width: 100 }
+        { text: "", value: "data-table-expand" }
       ],
       selectedGameFilters: [],
       selectedRegionFilters: [],

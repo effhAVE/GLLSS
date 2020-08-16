@@ -26,22 +26,22 @@
             <table style="table-layout: fixed;" class="header-borders px-0 pt-2 pa-sm-2 d-flex d-md-table">
               <thead class="accent--text">
                 <th class="hidden-md-and-down d-md-table-cell">Round name</th>
-                <th class="d-flex align-center justify-center d-md-table-cell">Start date</th>
-                <th class="d-flex align-center justify-center d-md-table-cell">Best of</th>
+                <th class="hidden-xs-only d-sm-flex align-center justify-center d-md-table-cell">Start date</th>
+                <th class="hidden-xs-only d-sm-flex align-center justify-center d-md-table-cell">Best of</th>
                 <th class="hidden-md-and-down d-md-table-cell">Role</th>
-                <th class="d-flex align-center justify-center d-md-table-cell">Group</th>
+                <th class="hidden-xs-only d-sm-flex align-center justify-center d-md-table-cell">Group</th>
                 <th class="hidden-md-and-down d-md-table-cell">Prep time</th>
-                <th class="d-flex align-center justify-center d-md-table-cell">Ready</th>
+                <th class="hidden-xs-only d-sm-flex align-center justify-center d-md-table-cell">Ready</th>
                 <th class="hidden-md-and-down d-md-table-cell">Starts</th>
               </thead>
               <tbody class="flex-grow-1 flex-md-column">
-                <tr v-for="round in item.rounds" :key="round._id" class="d-md-table-row d-table-cell flex-grow-1 text-center">
+                <tr v-for="round in item.rounds" :key="round._id" class="d-md-table-row d-table-cell flex-grow-1 text-center text-md-left">
                   <td class="hidden-md-and-down d-md-table-cell">{{ round.name }}</td>
                   <td class="d-flex align-center justify-center d-md-table-cell">
                     <span class="hidden-xs-only">{{ $moment(round.startDate).format("MMMM DD HH:mm") }}</span>
                     <span class="hidden-sm-and-up">{{ $moment(round.startDate).format("MMM DD HH:mm") }}</span>
                   </td>
-                  <td class="d-flex align-center justify-center d-md-table-cell">{{ round.bestOf }}</td>
+                  <td class="d-flex align-center justify-center d-md-table-cell"><span class="hidden-sm-and-up">BO </span>{{ round.bestOf }}</td>
                   <td class="hidden-md-and-down d-md-table-cell">
                     <span v-if="isLeading(round)" class="blue--text">
                       teamlead

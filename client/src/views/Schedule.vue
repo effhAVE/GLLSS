@@ -19,7 +19,7 @@
         Teamleads balance
       </v-tab>
     </v-tabs>
-    <v-tabs-items v-model="tab" class="transparent">
+    <v-tabs-items v-model="tab" class="transparent" touchless>
       <v-tab-item>
         <ScheduleTable @scheduleList="onAvailableList" :week="selectedWeek" ref="scheduling" />
       </v-tab-item>

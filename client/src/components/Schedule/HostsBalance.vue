@@ -8,7 +8,7 @@
       <v-btn text color="accent" @click="$emit('getBalance')">Recalculate</v-btn>
     </v-tabs>
     <v-row class="ma-0"> </v-row>
-    <v-tabs-items v-model="balanceTab" class="py-4">
+    <v-tabs-items v-model="balanceTab" class="py-4" touchless>
       <v-tab-item v-for="(gameObject, game) in nonEmptyGames" :key="game">
         <v-card-text>
           <v-row>

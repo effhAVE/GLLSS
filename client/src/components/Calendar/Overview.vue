@@ -6,7 +6,7 @@
         {{ gameObject.game }}
       </v-tab>
     </v-tabs>
-    <v-tabs-items v-model="gamesTab" class="py-4">
+    <v-tabs-items v-model="gamesTab" class="py-4" touchless>
       <v-tab-item>
         <div v-for="gameObject in groupedRounds" :key="gameObject.game">
           <h3 class="title accent--text">{{ gameObject.game }}</h3>

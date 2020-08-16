@@ -9,9 +9,11 @@
     <v-card-title>
       Tournaments
     </v-card-title>
-    <v-switch v-model="showPastTournaments" label="Show past tournaments" color="accent"></v-switch>
-    <ActiveTournaments :user="user" @availabilityChange="onAvailabilityChange" :gameFilters="gamesList" :regionFilters="regionsList" />
-    <PastTournaments :user="user" v-show="showPastTournaments" :gameFilters="gamesList" :regionFilters="regionsList" />
+    <v-card-text>
+      <v-switch v-model="showPastTournaments" label="Show past tournaments" color="accent" dense></v-switch>
+      <ActiveTournaments :user="user" @availabilityChange="onAvailabilityChange" :gameFilters="gamesList" :regionFilters="regionsList" />
+      <PastTournaments :user="user" v-show="showPastTournaments" :gameFilters="gamesList" :regionFilters="regionsList" />
+    </v-card-text>
   </v-card>
 </template>
 
