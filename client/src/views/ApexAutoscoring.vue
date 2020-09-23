@@ -1,11 +1,7 @@
 <template>
   <v-card height="100%" color="transparent">
-    <v-card-title>
-      Apex Autoscoring
-    </v-card-title>
-    <v-alert outlined type="warning" color="accent">
-      Be sure to read the guide before performing any actions.
-    </v-alert>
+    <v-card-title> Apex Autoscoring </v-card-title>
+    <v-alert outlined type="warning" color="accent"> Be sure to read the guide before performing any actions. </v-alert>
     <v-card-text class="d-flex align-center">
       <v-text-field
         v-model.trim="ids"
@@ -17,16 +13,12 @@
         hint="Separate tokens with minus ( - ) sign"
       >
       </v-text-field>
-      <v-btn v-show="this.matches.length" @click="getMatches" text color="accent">Refresh</v-btn>
+      <v-btn v-show="this.matches.length" :disabled="!ids || recentlySent" @click="getMatches" text color="accent">Refresh</v-btn>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="accent" text @click="ids = ''">
-        Clear
-      </v-btn>
-      <v-btn color="accent" text @click="getMatches" :disabled="!ids || recentlySent">
-        Send
-      </v-btn>
+      <v-btn color="accent" text @click="ids = ''"> Clear </v-btn>
+      <v-btn color="accent" text @click="getMatches" :disabled="!ids || recentlySent"> Send </v-btn>
     </v-card-actions>
     <v-card-text>
       <p v-show="fetching">Fetching...</p>
@@ -79,25 +71,26 @@ export default {
     };
   },
   mounted() {
-    this.$http.get(`${this.APIURL}/codes/my`)
+    this.$http
+      .get(`${this.APIURL}/codes/my`)
       .then(response => {
         if (response.status >= 400) throw new Error(response.data);
-          this.ids = response.data.map(token => token.statsToken).join("-");
-        })
+        this.ids = response.data.map(token => token.statsToken).join("-");
+      })
       .catch(error => {
         this.matches = [];
         this.$store.commit("snackbarMessage", {
           type: "error",
           message: error
         });
-      })
+      });
   },
   methods: {
     async getMatches() {
       this.fetching = true;
       this.recentlySent = true;
       this.selectedMatch = null;
-      window.setTimeout(() => (this.recentlySent = false), 1000 * 5);
+      window.setTimeout(() => (this.recentlySent = false), 1000 * 60);
       const ids = this.ids.split("-");
       const promises = [];
       const responseMatches = [];
@@ -105,22 +98,22 @@ export default {
         if (!id.length) continue;
         promises.push(
           this.$http
-          .get(`${this.APIURL}/collections/apex?id=${id}`)
-          .then(response => {
-            if (response.status >= 400) throw new Error(response.data);
-            const mappedMatches = response.data.map(el => ({ ...el, id: id }));
-            responseMatches.push(...mappedMatches);
-          })
-          .catch(error => {
-            this.matches = [];
-            this.$store.commit("snackbarMessage", {
-              type: "error",
-              message: error
-            });
-          })
+            .get(`${this.APIURL}/collections/apex?id=${id}`)
+            .then(response => {
+              if (response.status >= 400) throw new Error(response.data);
+              const mappedMatches = response.data.map(el => ({ ...el, id: id }));
+              responseMatches.push(...mappedMatches);
+            })
+            .catch(error => {
+              this.matches = [];
+              this.$store.commit("snackbarMessage", {
+                type: "error",
+                message: error
+              });
+            })
         );
       }
-      
+
       await Promise.all(promises);
       if (!responseMatches.length) {
         this.$store.commit("snackbarMessage", {
@@ -128,7 +121,7 @@ export default {
           message: "No recent matches found."
         });
       }
-      
+
       responseMatches.sort((a, b) => new Date(a.date) - new Date(b.date));
       this.matches.push(...responseMatches.slice(this.matches.length));
       this.changedPlayers.forEach(player => {

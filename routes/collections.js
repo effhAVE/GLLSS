@@ -55,7 +55,13 @@ router.get("/apex", auth, validateAccess("host"), async (req, res) => {
           });
 
         return res.send(results);
-      } else return res.status(500).send("Could not fetch data.")
+      } else return res.status(500).send("Could not fetch data.");
+    })
+    .catch(error => {
+      if (error.response.status !== 404) {
+        console.error(error.response.data);
+        return res.status(500).send("Could not fetch data.");
+      } else return res.status(200).send([]);
     });
 });
 
