@@ -1,18 +1,32 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import Vue from "vue";
+import Vuex from "vuex";
 import axios from "axios";
 import greeting from "../helpers/greeting";
-import router from "../router"
-import VueJWT from 'vuejs-jwt'
-import moment from "moment"
+import router from "../router";
+import VueJWT from "vuejs-jwt";
+import moment from "moment";
+import VuexPersistence from "vuex-persist";
+
+import autoscoring from "./autoscoringModule";
 
 Vue.use(Vuex);
 Vue.use(VueJWT, {
   keyName: "token"
 });
 const APIURL = process.env.VUE_APP_APIURL;
+const vuexLocal = new VuexPersistence({
+  reducer: state => ({
+    autoscoring: {
+      changedPlayers: state.autoscoring.changedPlayers,
+      lastUpdate: state.autoscoring.lastUpdate
+    }
+  })
+});
 
 export default new Vuex.Store({
+  modules: {
+    autoscoring
+  },
   state: {
     now: new Date(),
     status: "",
@@ -27,7 +41,9 @@ export default new Vuex.Store({
   },
   mutations: {
     updateDate(state) {
-      state.now = moment(state.now).add(1, "minutes").toDate();
+      state.now = moment(state.now)
+        .add(1, "minutes")
+        .toDate();
     },
     setDate(state, date) {
       state.now = moment(date).toDate();
@@ -54,23 +70,17 @@ export default new Vuex.Store({
       clearInterval(state.tokenTimer);
       state.tokenTimer = null;
     },
-    snackbarMessage(state, {
-      type,
-      message
-    }) {
+    snackbarMessage(state, { type, message }) {
       state.snackbar.type = type;
       state.snackbar.message = message;
     }
   },
   actions: {
-    login({
-      commit,
-      dispatch,
-      state
-    }, user) {
+    login({ commit, dispatch, state }, user) {
       return new Promise((resolve, reject) => {
         commit("AUTH_REQUEST");
-        axios.post(`${APIURL}/auth`, user)
+        axios
+          .post(`${APIURL}/auth`, user)
           .then(response => {
             if (response.status >= 400) {
               if (response.data.type === "not-verified") {
@@ -97,7 +107,8 @@ export default new Vuex.Store({
             // eslint-disable-next-line no-console
             console.log(greeting(user.nickname));
             resolve(response);
-          }).catch(error => {
+          })
+          .catch(error => {
             commit("AUTH_ERROR");
             localStorage.removeItem("token");
             reject(error);
@@ -105,13 +116,11 @@ export default new Vuex.Store({
       });
     },
 
-    register({
-      commit,
-      dispatch
-    }, user) {
+    register({ commit, dispatch }, user) {
       return new Promise((resolve, reject) => {
         commit("AUTH_REQUEST");
-        axios.post(`${APIURL}/users/`, user)
+        axios
+          .post(`${APIURL}/users/`, user)
           .then(response => {
             if (response.status >= 400) {
               if (response.type === "not-verified") {
@@ -122,7 +131,8 @@ export default new Vuex.Store({
             }
 
             resolve(response.data);
-          }).catch(error => {
+          })
+          .catch(error => {
             commit("AUTH_ERROR");
             localStorage.removeItem("token");
             reject(error);
@@ -130,18 +140,18 @@ export default new Vuex.Store({
       });
     },
 
-    getUserData({
-      commit
-    }) {
+    getUserData({ commit }) {
       return new Promise((resolve, reject) => {
         commit("AUTH_REQUEST");
         const token = axios.defaults.headers.common["x-auth-token"];
-        axios.get(`${APIURL}/users/me`)
+        axios
+          .get(`${APIURL}/users/me`)
           .then(response => {
             const user = response.data.user;
             commit("AUTH_SUCCESS", token);
             resolve(response);
-          }).catch(error => {
+          })
+          .catch(error => {
             commit("AUTH_ERROR");
             localStorage.removeItem("token");
             reject(error);
@@ -149,10 +159,7 @@ export default new Vuex.Store({
       });
     },
 
-    renewTokenTask({
-      dispatch,
-      state
-    }) {
+    renewTokenTask({ dispatch, state }) {
       let now = state.now;
       if (!now) now = new Date();
       now = now.getTime() / 1000;
@@ -164,14 +171,11 @@ export default new Vuex.Store({
       return timer;
     },
 
-    renewToken({
-      commit,
-      dispatch,
-      state
-    }) {
+    renewToken({ commit, dispatch, state }) {
       return new Promise((resolve, reject) => {
         commit("AUTH_REQUEST");
-        axios.get(`${APIURL}/auth/renew`)
+        axios
+          .get(`${APIURL}/auth/renew`)
           .then(response => {
             const token = response.data;
             window.clearInterval(state.updateTimer);
@@ -187,7 +191,8 @@ export default new Vuex.Store({
             axios.defaults.headers.common["x-auth-token"] = token;
             commit("AUTH_SUCCESS", token);
             resolve(response);
-          }).catch(error => {
+          })
+          .catch(error => {
             commit("AUTH_ERROR");
             localStorage.removeItem("token");
             reject(error);
@@ -195,20 +200,19 @@ export default new Vuex.Store({
       });
     },
 
-    logout({
-      commit
-    }) {
+    logout({ commit }) {
       return new Promise((resolve, reject) => {
         commit("logout");
         localStorage.removeItem("token");
         delete axios.defaults.headers.common["x-auth-token"];
         router.push("/login");
         resolve();
-      })
+      });
     }
   },
   getters: {
     isLoggedIn: state => !!state.token,
     authStatus: state => state.status
-  }
-})
+  },
+  plugins: [vuexLocal.plugin]
+});

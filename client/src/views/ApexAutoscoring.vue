@@ -16,6 +16,7 @@
       <v-btn v-show="this.matches.length" :disabled="!ids || recentlySent" @click="getMatches" text color="accent">Refresh</v-btn>
     </v-card-text>
     <v-card-actions>
+      <span class="warning--text caption" v-if="recentlySent"> You recently fetched matches. Please wait {{ cooldownCount }} seconds. </span>
       <v-spacer></v-spacer>
       <v-btn color="accent" text @click="ids = ''"> Clear </v-btn>
       <v-btn color="accent" text @click="getMatches" :disabled="!ids || recentlySent"> Send </v-btn>
@@ -66,11 +67,19 @@ export default {
       fetching: false,
       matches: [],
       selectedMatch: null,
-      recentlySent: false,
-      changedPlayers: []
+      recentlySent: this.$moment().diff(this.$moment(this.$store.state.autoscoring.lastUpdate), "seconds") < 60,
+      cooldownCount: 0,
+      cooldownTimer: null
     };
   },
+  computed: {
+    changedPlayers() {
+      return this.$store.state.autoscoring.changedPlayers;
+    }
+  },
   mounted() {
+    const cooldown = this.$moment().diff(this.$moment(this.$store.state.autoscoring.lastUpdate), "seconds");
+    if (this.recentlySent) this.handleCooldown(60 - cooldown);
     this.$http
       .get(`${this.APIURL}/codes/my`)
       .then(response => {
@@ -86,11 +95,22 @@ export default {
       });
   },
   methods: {
+    handleCooldown(cooldown) {
+      this.cooldownCount = cooldown || 60;
+      this.recentlySent = true;
+      if (!cooldown) this.$store.commit("fetchedApexMatches");
+      this.cooldownTimer = window.setInterval(() => {
+        if (this.cooldownCount < 1) {
+          this.recentlySent = false;
+          this.cooldownCount = 0;
+          window.clearInterval(this.cooldownTimer);
+          this.cooldownTimer = null;
+        } else this.cooldownCount--;
+      }, 1000);
+    },
     async getMatches() {
       this.fetching = true;
-      this.recentlySent = true;
       this.selectedMatch = null;
-      window.setTimeout(() => (this.recentlySent = false), 1000 * 60);
       const ids = this.ids.split("-");
       const promises = [];
       const responseMatches = [];
@@ -123,12 +143,13 @@ export default {
       }
 
       responseMatches.sort((a, b) => new Date(a.date) - new Date(b.date));
-      this.matches.push(...responseMatches.slice(this.matches.length));
+      this.matches = responseMatches;
       this.changedPlayers.forEach(player => {
-        this.renamePlayersInMatches(this.matches, player.nickname, player.alternativeName);
+        this.renamePlayersInMatches(player.nickname, player.alternativeName);
       });
 
       this.fetching = false;
+      this.handleCooldown();
     },
     selectMatch(index) {
       this.selectedMatch = this.matches[index];
@@ -145,7 +166,7 @@ export default {
         message: "Copied to clipboard!."
       });
     },
-    renamePlayersInMatches(matches, nickname, value) {
+    renamePlayersInMatches(nickname, value) {
       this.matches.forEach(match => {
         const players = match.teams.flat();
         const player = players.find(player => player.name === nickname);
@@ -155,13 +176,8 @@ export default {
       });
     },
     changePlayerName(nickname, value) {
-      const matches = this.matches.filter(match => this.$moment().diff(this.$moment(match.date), "hours") < 24);
-      this.changedPlayers = this.changedPlayers.filter(player => player.nickname !== nickname);
-      if (value.length) {
-        this.changedPlayers.push({ nickname, alternativeName: value });
-      }
-
-      this.renamePlayersInMatches(matches, nickname, value);
+      this.$store.commit("changePlayerName", { nickname, alternativeName: value });
+      this.renamePlayersInMatches(nickname, value);
     }
   }
 };
