@@ -1,0 +1,10 @@
+{
+  "stylelintIntegration": true,
+  "eslintIntegration": true,
+  "printWidth": 150,
+  "arrowParens": "avoid",
+  "trailingComma": "none",
+  "bracketSpacing": true,
+  "htmlWhitespaceSensitivity": "css",
+  "singleQuote": false
+}
