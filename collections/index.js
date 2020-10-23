@@ -3,5 +3,6 @@ module.exports = {
   regions: require("./regions"),
   roles: require("./roles"),
   recurrences: require("./recurrences"),
-  presets: require("./presets")
-}
+  presets: require("./presets"),
+  permissions: require("./permissions")
+};

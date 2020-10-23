@@ -1,42 +1,44 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import Login from '../views/Login.vue'
-import PasswordReset from '../views/PasswordReset'
-import ForgotPassword from '../views/ForgotPassword'
-import EmailVerification from '../views/EmailVerification'
-import Register from '../views/Register.vue'
-import Calendar from '../views/Calendar.vue'
-import Schedule from '../views/Schedule.vue'
-import Teamkills from '../views/Teamkills.vue'
-import ApexAutoscoring from '../views/ApexAutoscoring.vue'
-import AboutMe from '../views/AboutMe.vue'
-import Accounts from '../views/Accounts.vue'
-import Codes from '../views/Codes.vue'
-import Articles from '../views/Articles.vue'
-import ArticlesCreate from '../views/ArticlesCreate.vue'
-import Data from '../views/Data.vue'
-import DataMonthPage from '../views/generic/DataMonthPage.vue'
-import Series from '../views/Series.vue'
-import SeriesPage from '../views/generic/SeriesPage.vue'
-import Tournaments from '../views/Tournaments.vue'
-import TournamentPage from '../views/generic/TournamentPage.vue'
-import ArticlePage from '../views/generic/ArticlePage.vue'
-import Page404 from '../views/generic/Page404.vue'
-import Page403 from '../views/generic/Page403.vue'
-import ConfirmUsers from '../views/admin/ConfirmUsers.vue'
-import Users from '../views/admin/Users.vue'
-import Admin from '../views/admin/Admin.vue'
-import TournamentCreate from '../views/admin/TournamentCreate.vue'
-import SeriesCreate from '../views/admin/SeriesCreate.vue'
-import DataCreate from '../views/admin/DataCreate.vue'
-import AccountCreate from '../views/admin/AccountCreate.vue'
-import CodeCreate from '../views/admin/CodeCreate.vue'
-import store from "../store"
+import Vue from "vue";
+import VueRouter from "vue-router";
+import Home from "../views/Home.vue";
+import Login from "../views/Login.vue";
+import PasswordReset from "../views/PasswordReset";
+import ForgotPassword from "../views/ForgotPassword";
+import EmailVerification from "../views/EmailVerification";
+import Register from "../views/Register.vue";
+import Calendar from "../views/Calendar.vue";
+import Schedule from "../views/Schedule.vue";
+import Teamkills from "../views/Teamkills.vue";
+import ApexAutoscoring from "../views/ApexAutoscoring.vue";
+import AboutMe from "../views/AboutMe.vue";
+import Accounts from "../views/Accounts.vue";
+import Codes from "../views/Codes.vue";
+import Articles from "../views/Articles.vue";
+import ArticlesCreate from "../views/ArticlesCreate.vue";
+import Data from "../views/Data.vue";
+import DataMonthPage from "../views/generic/DataMonthPage.vue";
+import Series from "../views/Series.vue";
+import SeriesPage from "../views/generic/SeriesPage.vue";
+import Tournaments from "../views/Tournaments.vue";
+import TournamentPage from "../views/generic/TournamentPage.vue";
+import ArticlePage from "../views/generic/ArticlePage.vue";
+import Page404 from "../views/generic/Page404.vue";
+import Page403 from "../views/generic/Page403.vue";
+import ConfirmUsers from "../views/admin/ConfirmUsers.vue";
+import Users from "../views/admin/Users.vue";
+import Admin from "../views/admin/Admin.vue";
+import TournamentCreate from "../views/admin/TournamentCreate.vue";
+import SeriesCreate from "../views/admin/SeriesCreate.vue";
+import DataCreate from "../views/admin/DataCreate.vue";
+import AccountCreate from "../views/admin/AccountCreate.vue";
+import CodeCreate from "../views/admin/CodeCreate.vue";
+import Roles from "../views/admin/Roles.vue";
+import store from "../store";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
-const routes = [{
+const routes = [
+  {
     path: "/",
     name: "Home",
     component: Home,
@@ -215,7 +217,8 @@ const routes = [{
       requiredRole: "admin"
     },
     component: Admin,
-    children: [{
+    children: [
+      {
         path: "unconfirmed",
         name: "Confirm",
         component: ConfirmUsers
@@ -244,6 +247,10 @@ const routes = [{
       {
         path: "codes/create",
         component: CodeCreate
+      },
+      {
+        path: "roles",
+        component: Roles
       }
     ]
   },
@@ -260,13 +267,14 @@ const routes = [{
 ];
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: "history",
   base: process.env.BASE_URL,
   routes
 });
 
 router.beforeEach((to, from, next) => {
-  if (store.getters.isLoggedIn && (to.name === "Login" || to.name === "Register" || to.name === "Password reset" || to.name === "Forgot password")) return next("/");
+  if (store.getters.isLoggedIn && (to.name === "Login" || to.name === "Register" || to.name === "Password reset" || to.name === "Forgot password"))
+    return next("/");
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (store.getters.isLoggedIn) {
       return next();
@@ -282,9 +290,7 @@ router.beforeEach((to, from, next) => {
   const user = Vue.$jwt.decode();
   if (to.matched.some(record => record.meta.requiredRole)) {
     const {
-      meta: {
-        requiredRole
-      }
+      meta: { requiredRole }
     } = to.matched.find(m => m.meta.requiredRole);
     if (user.roles.includes(requiredRole)) {
       return next();
@@ -296,4 +302,4 @@ router.beforeEach((to, from, next) => {
   }
 });
 
-export default router
+export default router;

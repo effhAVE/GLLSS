@@ -2,16 +2,10 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 const validateAccess = require("../middleware/validateAccess");
-const https = require('https');
+const https = require("https");
 const axios = require("axios");
 const moment = require("moment");
-const {
-  roles,
-  games,
-  regions,
-  recurrences,
-  presets
-} = require("../collections");
+const { roles, games, regions, recurrences, presets, permissions } = require("../collections");
 
 router.get("/roles", auth, async (req, res) => {
   res.send(roles);
@@ -33,10 +27,15 @@ router.get("/presets", auth, async (req, res) => {
   res.send(presets);
 });
 
+router.get("/permissions", auth, async (req, res) => {
+  res.send(permissions);
+});
+
 router.get("/apex", auth, validateAccess("host"), async (req, res) => {
   const apiID = req.query.id;
   if (!apiID) return res.status(400).send("No ID provided.");
-  axios.get(`https://apex.seatlon.eu/api/match/${apiID}`)
+  axios
+    .get(`https://apex.seatlon.eu/api/match/${apiID}`)
     .then(response => {
       if (response.status < 400) {
         const results = Object.values(response.data)
@@ -44,14 +43,16 @@ router.get("/apex", auth, validateAccess("host"), async (req, res) => {
           .map(match => {
             return {
               date: match.data.time.date,
-              teams: match.data.rosters.map(roster => roster.rosterPlayers.map(player => {
-                return {
-                  kills: player.kills,
-                  name: player.playerName,
-                  teamPlacement: player.teamPlacement
-                }
-              }))
-            }
+              teams: match.data.rosters.map(roster =>
+                roster.rosterPlayers.map(player => {
+                  return {
+                    kills: player.kills,
+                    name: player.playerName,
+                    teamPlacement: player.teamPlacement
+                  };
+                })
+              )
+            };
           });
 
         return res.send(results);
@@ -73,17 +74,17 @@ router.get("/teamkills", auth, validateAccess("host"), async (req, res) => {
     host: "api.pubg.com",
     path: `/shards/steam/matches/${matchID}`,
     headers: {
-      "Accept": "application/vnd.api+json"
+      Accept: "application/vnd.api+json"
     }
   };
 
   https.get(options, response => {
     let body = "";
-    response.on("data", function(chunk) {
+    response.on("data", function (chunk) {
       body += chunk;
     });
 
-    response.on("end", function() {
+    response.on("end", function () {
       if (response.statusCode === 200) {
         try {
           const data = JSON.parse(body);
@@ -101,6 +102,5 @@ router.get("/teamkills", auth, validateAccess("host"), async (req, res) => {
     });
   });
 });
-
 
 module.exports = router;

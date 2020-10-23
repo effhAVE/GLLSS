@@ -16,6 +16,7 @@
   "author": "Grzegorz Kowalczyk",
   "license": "ISC",
   "dependencies": {
+    "acl": "^0.4.11",
     "axios": "^0.19.2",
     "bcrypt": "^3.0.6",
     "config": "^1.29.4",

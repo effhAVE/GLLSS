@@ -2,6 +2,10 @@
 @import '~mavon-editor/dist/markdown/github-markdown.min.css';
 @import '~mavon-editor/dist/css/index.css';
 
+.visually-hidden {
+  visibility: hidden;
+}
+
 .hidden-xxs-only {
   @media screen and (max-width: 360px) {
     display: none;

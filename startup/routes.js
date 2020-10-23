@@ -10,14 +10,17 @@ const schedules = require("../routes/schedules");
 const gameaccounts = require("../routes/gameaccounts");
 const accountcodes = require("../routes/accountcodes");
 const articles = require("../routes/articles");
+const roles = require("../routes/roles");
 const error = require("../middleware/error");
 const cors = require("cors");
 
-module.exports = function(app) {
+module.exports = function (app) {
   app.use(express.json());
-  app.use(cors({
-    exposedHeaders: ["x-auth-token", "Date"],
-  }));
+  app.use(
+    cors({
+      exposedHeaders: ["x-auth-token", "Date"]
+    })
+  );
   app.use("/api/users", users);
   app.use("/api/series", series);
   app.use("/api/tournaments", tournaments);
@@ -29,5 +32,6 @@ module.exports = function(app) {
   app.use("/api/accounts", gameaccounts);
   app.use("/api/codes", accountcodes);
   app.use("/api/articles", articles);
+  app.use("/api/roles", roles);
   app.use(error);
-}
+};
