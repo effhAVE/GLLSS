@@ -85,9 +85,7 @@
         </div>
       </template>
       <template v-slot:header.data-table-expand>
-        <v-btn color="accent" class="black--text hidden-sm-and-down" x-small @click.stop="expandAll">
-          Expand all
-        </v-btn>
+        <v-btn color="accent" class="black--text hidden-sm-and-down" x-small @click.stop="expandAll"> Expand all </v-btn>
         <v-btn color="accent" class="hidden-md-and-up" icon x-small @click.stop="expandAll"><v-icon>mdi-arrow-down</v-icon></v-btn>
       </template>
       <template v-slot:item.rounds="{ item }">
@@ -170,9 +168,7 @@
       <template v-slot:footer>
         <div class="v-data-footer">
           <v-spacer></v-spacer>
-          <v-btn class="accent--text" text tile @click="getNextTournamentPage" :disabled="allLoaded">
-            Load more
-          </v-btn>
+          <v-btn class="accent--text" text tile @click="getNextTournamentPage" :disabled="allLoaded"> Load more </v-btn>
         </div>
       </template>
     </v-data-table>
@@ -182,7 +178,6 @@
 <script>
 export default {
   props: {
-    user: Object,
     gameFilters: Array,
     regionFilters: Array
   },
@@ -286,7 +281,7 @@ export default {
       return this.$moment(round.endDate).isSameOrBefore(this.$store.state.now);
     },
     checkAvailability(round) {
-      return round.available.includes(this.user._id);
+      return round.available.includes(this.$store.state.user._id);
     },
     tournamentColor(rounds) {
       return rounds.some(round => round.isLeading) ? "blue" : "accent";
@@ -295,10 +290,10 @@ export default {
       return round.isLeading ? "blue" : "accent";
     },
     isHosting(round) {
-      return round.hosts.some(hostObj => hostObj.host === this.user._id);
+      return round.hosts.some(hostObj => hostObj.host === this.$store.state.user._id);
     },
     isLeading(round) {
-      return round.teamLeads.some(TLObj => TLObj.host === this.user._id);
+      return round.teamLeads.some(TLObj => TLObj.host === this.$store.state.user._id);
     },
     isHostingTournament(rounds) {
       return rounds.some(round => round.isHosting || round.isLeading);

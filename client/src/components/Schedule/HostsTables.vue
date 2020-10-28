@@ -37,9 +37,7 @@
                 <v-tooltip bottom v-if="item.lostHosting" color="warning">
                   <template v-slot:activator="{ on }">
                     <span v-on="on">
-                      <v-icon color="warning" small>
-                        mdi-account-off
-                      </v-icon>
+                      <v-icon color="warning" small> mdi-account-off </v-icon>
                     </span>
                   </template>
                   <span>Lost hosting</span>
@@ -47,9 +45,7 @@
                 <v-tooltip bottom v-else-if="item.ready" color="success">
                   <template v-slot:activator="{ on }">
                     <span v-on="on">
-                      <v-icon color="success" small>
-                        mdi-account-check
-                      </v-icon>
+                      <v-icon color="success" small> mdi-account-check </v-icon>
                     </span>
                   </template>
                   <span>Ready</span>
@@ -57,9 +53,7 @@
                 <v-tooltip bottom v-else color="error">
                   <template v-slot:activator="{ on }">
                     <span v-on="on">
-                      <v-icon color="error" small>
-                        mdi-account-remove
-                      </v-icon>
+                      <v-icon color="error" small> mdi-account-remove </v-icon>
                     </span>
                   </template>
                   <span>Not ready</span>
@@ -85,9 +79,7 @@
                       <v-container>
                         <v-row>
                           <v-spacer></v-spacer>
-                          <v-btn text class="mr-4" color="accent" @click.prevent="$emit('userUpdate', item)">
-                            Save
-                          </v-btn>
+                          <v-btn text class="mr-4" color="accent" @click.prevent="$emit('userUpdate', item)"> Save </v-btn>
                         </v-row>
                       </v-container>
                     </v-form>
@@ -111,9 +103,7 @@
       <template v-slot:body.append>
         <v-menu bottom left max-height="300px">
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" color="success" width="100%" x-small tile :disabled="isPast">
-              Add
-            </v-btn>
+            <v-btn v-on="on" color="success" width="100%" x-small tile :disabled="isPast"> Add </v-btn>
           </template>
           <v-list v-if="round.available.length">
             <v-list-item v-for="(host, i) in round.available" :key="i" @click="addHostToRound(round, host)">
@@ -154,9 +144,7 @@
                 <v-tooltip bottom v-if="item.lostLeading" color="warning">
                   <template v-slot:activator="{ on }">
                     <span v-on="on">
-                      <v-icon color="warning" small>
-                        mdi-account-off
-                      </v-icon>
+                      <v-icon color="warning" small> mdi-account-off </v-icon>
                     </span>
                   </template>
                   <span>Lost leading</span>
@@ -164,9 +152,7 @@
                 <v-tooltip bottom v-else-if="item.ready" color="success">
                   <template v-slot:activator="{ on }">
                     <span v-on="on">
-                      <v-icon color="success" small>
-                        mdi-account-check
-                      </v-icon>
+                      <v-icon color="success" small> mdi-account-check </v-icon>
                     </span>
                   </template>
                   <span>Ready</span>
@@ -174,9 +160,7 @@
                 <v-tooltip bottom v-else color="error">
                   <template v-slot:activator="{ on }">
                     <span v-on="on">
-                      <v-icon color="error" small>
-                        mdi-account-remove
-                      </v-icon>
+                      <v-icon color="error" small> mdi-account-remove </v-icon>
                     </span>
                   </template>
                   <span>Not ready</span>
@@ -199,9 +183,7 @@
                       <v-container>
                         <v-row>
                           <v-spacer></v-spacer>
-                          <v-btn text class="mr-4" color="accent" @click.prevent="$emit('userUpdate', item)">
-                            Save
-                          </v-btn>
+                          <v-btn text class="mr-4" color="accent" @click.prevent="$emit('userUpdate', item)"> Save </v-btn>
                         </v-row>
                       </v-container>
                     </v-form>
@@ -225,9 +207,7 @@
       <template v-slot:body.append>
         <v-menu bottom left max-height="300px">
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" color="success" width="100%" x-small tile :disabled="isPast">
-              Add
-            </v-btn>
+            <v-btn v-on="on" color="success" width="100%" x-small tile :disabled="isPast"> Add </v-btn>
           </template>
           <v-list v-if="availableTLs.length">
             <v-list-item v-for="(host, i) in availableTLs" :key="i" @click="addTLToRound(round, host)">
@@ -278,7 +258,7 @@ export default {
   },
   computed: {
     availableTLs() {
-      return this.round.available.filter(host => host.roles.includes("teamleader"));
+      return this.round.available.filter(host => host.roles.some(role => role.permissions.includes("hosting.canLead")));
     }
   },
   methods: {

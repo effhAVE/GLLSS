@@ -4,25 +4,15 @@ const validateObjectId = require("../middleware/validateObjectId");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const _ = require("lodash");
-const {
-  User,
-  validate
-} = require("../models/user");
-const {
-  Tournament
-} = require("../models/tournament");
-const {
-  Token
-} = require("../models/token");
+const { User, validate } = require("../models/user");
+const { Role } = require("../models/role");
+const { Tournament } = require("../models/tournament");
+const { Token } = require("../models/token");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
-const roles = require("../collections/roles");
 const crypto = require("crypto");
-const {
-  smtpTransport,
-  mailerEmail
-} = require("../startup/nodemailer");
+const { smtpTransport, mailerEmail } = require("../startup/nodemailer");
 
 async function prepareVerificationEmail(user) {
   const token = new Token({
@@ -46,18 +36,19 @@ async function prepareVerificationEmail(user) {
   return data;
 }
 
-router.get("/", auth, validateAccess("admin"), async (req, res) => {
+router.get("/", auth, validateAccess("users.view"), async (req, res) => {
+  /* await User.updateMany({}, { $set: { roles: [] } }); */
   const users = await User.find({
-      roles: {
-        $ne: "guest"
-      }
-    })
+    roles: {
+      $ne: []
+    }
+  })
     .select("-tournamentsHosted")
     .sort("_id");
   return res.send(users);
 });
 
-router.delete("/", auth, validateAccess("masteradmin"), async (req, res) => {
+router.delete("/", auth, validateAccess("users.delete"), async (req, res) => {
   const usersToDelete = req.body;
   if (!Array.isArray(usersToDelete)) return res.status(400).send("Request must be an array of users.");
   for (const user of usersToDelete) {
@@ -76,7 +67,7 @@ router.delete("/", auth, validateAccess("masteradmin"), async (req, res) => {
           round.teamLeads = round.teamLeads.filter(TLObject => !TLObject.host.equals(foundUser._id));
         });
         await tournament.save();
-      };
+      }
 
       await foundUser.remove();
     } else {
@@ -87,12 +78,12 @@ router.delete("/", auth, validateAccess("masteradmin"), async (req, res) => {
   return res.send(usersToDelete);
 });
 
-router.get("/list", auth, validateAccess("teamleader"), async (req, res) => {
+router.get("/list", auth, validateAccess("users.view"), async (req, res) => {
   const users = await User.find({
-      roles: {
-        $ne: "guest"
-      }
-    })
+    roles: {
+      $gt: []
+    }
+  })
     .select("nickname roles")
     .collation({
       locale: "en"
@@ -100,12 +91,11 @@ router.get("/list", auth, validateAccess("teamleader"), async (req, res) => {
     .sort("nickname");
 
   return res.send(users);
-})
+});
 
 router.get("/admins", auth, async (req, res) => {
-  const admins = await User.find({
-    roles: "admin"
-  }).select("nickname");
+  const users = await User.find({}).select("_id nickname roles").populate("roles", "permissions");
+  const admins = users.filter(user => user.roles.some(role => role.permissions.includes("users.confirm"))).map(user => user.nickname);
 
   return res.send(admins);
 });
@@ -117,18 +107,19 @@ router.get("/me", auth, async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const {
-    error
-  } = validate(req.body);
+  const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
   req.body.email = req.body.email.toLowerCase();
   let user = await User.findOne({
-    $or: [{
-      email: req.body.email
-    }, {
-      nickname: req.body.nickname
-    }]
+    $or: [
+      {
+        email: req.body.email
+      },
+      {
+        nickname: req.body.nickname
+      }
+    ]
   });
 
   if (user) return res.status(400).send("User already registered.");
@@ -138,7 +129,7 @@ router.post("/", async (req, res) => {
   await user.save();
 
   const data = await prepareVerificationEmail(user);
-  smtpTransport.sendMail(data, function(err) {
+  smtpTransport.sendMail(data, function (err) {
     if (!err) {
       return res.send("Verification email sent!");
     } else {
@@ -175,7 +166,7 @@ router.post("/resend-verification", async (req, res) => {
   if (!user) return res.status(400).send("No user with such email.");
   if (user.isVerified) return res.status(400).send("This user is already verified!");
   const data = await prepareVerificationEmail(user);
-  smtpTransport.sendMail(data, function(err) {
+  smtpTransport.sendMail(data, function (err) {
     if (!err) {
       return res.send("Email sent!");
     } else {
@@ -185,41 +176,32 @@ router.post("/resend-verification", async (req, res) => {
   });
 });
 
-router.put("/:id/roles", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
+router.put("/:id/roles", auth, validateAccess("roles.update"), validateObjectId, async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).send("No user found.");
-  if (user._id.equals(req.user._id)) return res.status(400).send("Cannot change own role!");
-
-  const newRole = req.body.role;
-  if (!newRole || !roles.includes(newRole)) return res.status(400).send("Bad request.");
-  const rolesIndex = roles.indexOf(newRole);
-  const currentRoleIndex = req.user.roles.indexOf(newRole);
-  if (!req.user.roles.includes("masteradmin") && (currentRoleIndex === -1 || currentRoleIndex === 0)) return res.status(400).send("Cannot set a role to the same or higher value than yours.");
-
-  if (newRole === "guest") {
-    user.roles = ["guest"];
-  } else {
-    user.roles = roles.filter(role => role !== "guest").slice(rolesIndex);
-  }
+  /* if (user._id.equals(req.user._id)) return res.status(400).send("Cannot change own role!"); */
+  const rolesList = await Role.find({});
+  const roles = req.body;
+  if (!roles || roles.every(role => rolesList.find(r => r.equals(role._id)))) return res.status(400).send("Bad request.");
+  user.roles = roles;
 
   await user.save();
   return res.send(user);
 });
 
-router.post("/:id/confirm", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
+router.post("/:id/confirm", auth, validateAccess("users.confirm"), validateObjectId, async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).send("No user found.");
-  if (!user.roles.includes("guest")) return res.status(400).send("User already confirmed.");
-  user.roles = user.roles.filter(role => role !== "guest");
+  if (user.roles.length) return res.status(400).send("User already confirmed.");
   user.roles.push("host");
   await user.save();
 
   return res.send(true);
 });
 
-router.get("/unconfirmed", auth, validateAccess("admin"), async (req, res) => {
+router.get("/unconfirmed", auth, validateAccess("users.confirm"), async (req, res) => {
   const unconfirmedUsers = await User.find({
-    roles: "guest"
+    roles: []
   }).select("nickname isVerified createdAt");
 
   return res.send(unconfirmedUsers);

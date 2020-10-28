@@ -1,16 +1,10 @@
 <template>
-  <v-card height="100%" color="transparent" v-if="user">
-    <v-card-title>
-      Overview
-    </v-card-title>
+  <v-card height="100%" color="transparent" v-if="$store.state.user">
+    <v-card-title> Overview </v-card-title>
     <v-card-text>
-      <div v-if="user.roles.includes('guest')">
-        <p>
-          Thank you for signing up. Before you continue, you must be confirmed by an admin.
-        </p>
-        <p>
-          Here is the list of current admins:
-        </p>
+      <div v-if="!$store.state.user.roles.length">
+        <p>Thank you for signing up. Before you continue, you must be confirmed by an admin.</p>
+        <p>Here is the list of current admins:</p>
         <ul v-for="admin in admins" :key="admin._id">
           <li>{{ admin.nickname }}</li>
         </ul>
@@ -28,7 +22,7 @@
           </v-row>
           <v-row no-gutters>
             <v-col>
-              <ActiveHosted ref="activeHosted" :redirect="redirect" :showPastRounds="showPastRounds" :user="user" :now="now" />
+              <ActiveHosted ref="activeHosted" :redirect="redirect" :showPastRounds="showPastRounds" :now="now" />
             </v-col>
           </v-row>
           <v-row>
@@ -38,7 +32,7 @@
           </v-row>
         </v-col>
         <v-col lg="3" cols="12">
-          <UsefulLinks :isTeamleader="user.roles.includes('teamleader')" />
+          <UsefulLinks :isTeamleader="$store.getters.hasPermission('hosting.canLead')" />
         </v-col>
       </v-row>
     </v-card-text>
@@ -51,11 +45,6 @@ import PastHosted from "../components/Home/PastHosted";
 import ActiveHosted from "../components/Home/ActiveHosted";
 
 export default {
-  props: {
-    user: {
-      type: Object
-    }
-  },
   components: {
     UsefulLinks,
     PastHosted,
@@ -76,7 +65,7 @@ export default {
     }
   },
   mounted() {
-    if (this.user.roles.includes("guest")) {
+    if (!this.$store.state.user.roles.length) {
       this.$http.get(`${this.APIURL}/users/admins`).then(response => {
         this.admins = response.data;
       });

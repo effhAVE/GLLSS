@@ -1,26 +1,22 @@
 const auth = require("../middleware/auth");
 const validateAccess = require("../middleware/validateAccess");
 const moment = require("moment");
-const {
-  Tournament
-} = require("../models/tournament");
-const {
-  Data
-} = require("../models/data");
+const { Tournament } = require("../models/tournament");
+const { Data } = require("../models/data");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const logDir = "dataLogs";
-const sortKeysRecursive = require('sort-keys-recursive');
+const sortKeysRecursive = require("sort-keys-recursive");
 const balanceTournaments = require("../helpers/balanceTournaments");
-const gridfs = require('gridfs-stream');
+const gridfs = require("gridfs-stream");
 const schedule = require("node-schedule");
 const dataCalculation = require("../helpers/dataCalculation");
 gridfs.mongo = mongoose.mongo;
 const connection = mongoose.connection;
 let gfs;
-connection.once('open', function() {
+connection.once("open", function () {
   gfs = gridfs(connection.db);
 });
 
@@ -41,10 +37,16 @@ async function getRecentGameValues() {
   return data.calculation.gameValues;
 }
 
-router.get("/schedule/teamleads", auth, validateAccess("teamleader"), async (req, res) => {
+router.get("/schedule/teamleads", auth, validateAccess("schedule.TLBalance"), async (req, res) => {
   const weekNumber = req.query.week || 0;
-  const previousWeekStart = moment().add(weekNumber - 1, "weeks").startOf("isoWeek").toDate();
-  const previousWeekEnd = moment().add(weekNumber - 1, "weeks").endOf("isoWeek").toDate();
+  const previousWeekStart = moment()
+    .add(weekNumber - 1, "weeks")
+    .startOf("isoWeek")
+    .toDate();
+  const previousWeekEnd = moment()
+    .add(weekNumber - 1, "weeks")
+    .endOf("isoWeek")
+    .toDate();
   const currentWeekStart = moment().add(weekNumber, "weeks").startOf("isoWeek").toDate();
   const currentWeekEnd = moment().add(weekNumber, "weeks").endOf("isoWeek").toDate();
 
@@ -52,10 +54,7 @@ router.get("/schedule/teamleads", auth, validateAccess("teamleader"), async (req
     total: {}
   };
 
-  const {
-    previousWeekTournaments,
-    currentWeekTournaments
-  } = await balanceTournaments({
+  const { previousWeekTournaments, currentWeekTournaments } = await balanceTournaments({
     previousWeekStart,
     previousWeekEnd,
     currentWeekStart,
@@ -106,7 +105,10 @@ router.get("/schedule/teamleads", auth, validateAccess("teamleader"), async (req
             timeSlot[i] = timeSlot[i - 1];
           }
 
-          if (moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) && moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)) {
+          if (
+            moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) &&
+            moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)
+          ) {
             timeSlot[i + 1].skipped = true;
           } else if (moment(timeSlot[i].endDate).isSameOrAfter(timeSlot[i + 1].startDate)) {
             timeSlot[i + 1].startDate = moment.min(moment(timeSlot[i + 1].startDate), moment(timeSlot[i].startDate));
@@ -168,7 +170,10 @@ router.get("/schedule/teamleads", auth, validateAccess("teamleader"), async (req
             timeSlot[i] = timeSlot[i - 1];
           }
 
-          if (moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) && moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)) {
+          if (
+            moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) &&
+            moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)
+          ) {
             timeSlot[i + 1].skipped = true;
           } else if (moment(timeSlot[i].endDate).isSameOrAfter(timeSlot[i + 1].startDate)) {
             timeSlot[i + 1].startDate = moment.min(moment(timeSlot[i + 1].startDate), moment(timeSlot[i].startDate));
@@ -192,7 +197,6 @@ router.get("/schedule/teamleads", auth, validateAccess("teamleader"), async (req
       previousWeekCollisions[id][game].push(...mergedTimeSlots);
     }
   }
-
 
   for (let [id, games] of Object.entries(previousWeekCollisions)) {
     if (!balanceCalculation.total[id]) {
@@ -237,7 +241,7 @@ router.get("/schedule/teamleads", auth, validateAccess("teamleader"), async (req
       }
 
       const TLTime = previousWeekCollisions[id][game].reduce((total, timeSlot) => {
-        return timeSlot.lostLeading ? total += moment(timeSlot.endDate).diff(timeSlot.startDate, "minutes") : total;
+        return timeSlot.lostLeading ? (total += moment(timeSlot.endDate).diff(timeSlot.startDate, "minutes")) : total;
       }, 0);
 
       const value = Math.ceil((TLTime / 60) * 100);
@@ -294,7 +298,10 @@ router.get("/schedule/teamleads", auth, validateAccess("teamleader"), async (req
             timeSlot[i] = timeSlot[i - 1];
           }
 
-          if (moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) && moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)) {
+          if (
+            moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) &&
+            moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)
+          ) {
             timeSlot[i + 1].skipped = true;
           } else if (moment(timeSlot[i].endDate).isSameOrAfter(timeSlot[i + 1].startDate)) {
             timeSlot[i + 1].startDate = moment.min(moment(timeSlot[i + 1].startDate), moment(timeSlot[i].startDate));
@@ -328,10 +335,16 @@ router.get("/schedule/teamleads", auth, validateAccess("teamleader"), async (req
   return res.send(sortedCalculation);
 });
 
-router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => {
+router.get("/schedule", auth, validateAccess("schedule.hostsBalance"), async (req, res) => {
   const weekNumber = req.query.week || 0;
-  const previousWeekStart = moment().add(weekNumber - 1, "weeks").startOf("isoWeek").toDate();
-  const previousWeekEnd = moment().add(weekNumber - 1, "weeks").endOf("isoWeek").toDate();
+  const previousWeekStart = moment()
+    .add(weekNumber - 1, "weeks")
+    .startOf("isoWeek")
+    .toDate();
+  const previousWeekEnd = moment()
+    .add(weekNumber - 1, "weeks")
+    .endOf("isoWeek")
+    .toDate();
   const currentWeekStart = moment().add(weekNumber, "weeks").startOf("isoWeek").toDate();
   const currentWeekEnd = moment().add(weekNumber, "weeks").endOf("isoWeek").toDate();
 
@@ -339,10 +352,7 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
     total: {}
   };
   const gameValues = await getRecentGameValues();
-  const {
-    previousWeekTournaments,
-    currentWeekTournaments
-  } = await balanceTournaments({
+  const { previousWeekTournaments, currentWeekTournaments } = await balanceTournaments({
     previousWeekStart,
     previousWeekEnd,
     currentWeekStart,
@@ -429,7 +439,7 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
             balanceCalculation[game][nickname].current += gameValues[game] * (round.bestOf + hostObject.timeBalance);
           }
         }
-      })
+      });
     });
   });
 
@@ -440,17 +450,17 @@ router.get("/schedule", auth, validateAccess("teamleader"), async (req, res) => 
   return res.send(sortedCalculation);
 });
 
-router.get("/", auth, validateAccess("host"), async (req, res) => {
+router.get("/", auth, validateAccess("data.view"), async (req, res) => {
   const data = await Data.find({}).select("-calculation").sort("-date");
   return res.send(data);
 });
 
-router.get("/gamevalues", auth, validateAccess("host"), async (req, res) => {
+router.get("/gamevalues", auth, validateAccess("data.view"), async (req, res) => {
   const values = await getRecentGameValues();
   return res.send(values);
 });
 
-router.post("/", auth, validateAccess("admin"), async (req, res) => {
+router.post("/", auth, validateAccess("data.create"), async (req, res) => {
   const monthData = new Data({
     date: req.body.date
   });
@@ -459,7 +469,7 @@ router.post("/", auth, validateAccess("admin"), async (req, res) => {
   return res.send(monthData);
 });
 
-router.get("/:date/my", auth, validateAccess("host"), async (req, res) => {
+router.get("/:date/my", auth, validateAccess("data.view"), async (req, res) => {
   const data = await Data.findOne({
     date: req.params.date
   });
@@ -488,7 +498,7 @@ router.get("/:date/my", auth, validateAccess("host"), async (req, res) => {
   return res.send(data);
 });
 
-router.get("/:date", auth, validateAccess("admin"), async (req, res) => {
+router.get("/:date", auth, validateAccess("data.viewAll"), async (req, res) => {
   const data = await Data.findOne({
     date: req.params.date
   });
@@ -501,24 +511,27 @@ router.get("/:date", auth, validateAccess("admin"), async (req, res) => {
   });
 });
 
-router.get("/:date/log", auth, validateAccess("admin"), async (req, res) => {
+router.get("/:date/log", auth, validateAccess("data.viewLogs"), async (req, res) => {
   const fileName = `${req.params.date}-log.log`;
-  gfs.exist({
-    filename: fileName
-  }, function(err, file) {
-    if (err || !file) {
-      return res.send("File Not Found");
-    } else {
-      const readstream = gfs.createReadStream({
-        filename: fileName
-      });
+  gfs.exist(
+    {
+      filename: fileName
+    },
+    function (err, file) {
+      if (err || !file) {
+        return res.send("File Not Found");
+      } else {
+        const readstream = gfs.createReadStream({
+          filename: fileName
+        });
 
-      readstream.pipe(res);
+        readstream.pipe(res);
+      }
     }
-  });
+  );
 });
 
-router.post("/:date/calculate", auth, validateAccess("admin"), async (req, res) => {
+router.post("/:date/calculate", auth, validateAccess("data.update"), async (req, res) => {
   try {
     const data = await dataCalculation(req.params.date, req.body.gameValues, req.body.TLRatio);
     return res.send(data);

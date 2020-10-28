@@ -4,14 +4,14 @@
     :items="round.hosts"
     v-bind="tableSettings"
     class="table-background table-shrinked overflow-hidden"
-    :class="{ 'not-editable': !user.roles.includes('teamleader') }"
+    :class="{ 'not-editable': !$store.getters.hasPermission('hosts.update') }"
     no-data-text="No hosts set."
   >
     <template v-slot:item.host="{ item }">
       <v-menu bottom left offset-y max-height="300px">
         <template v-slot:activator="{ on }">
           <div class="px-4" v-on="on">
-            <v-btn icon color="error" @click.stop="changeRoundHost(round, item.host, '')" v-if="user.roles.includes('teamleader')">
+            <v-btn icon color="error" @click.stop="changeRoundHost(round, item.host, '')" v-if="$store.getters.hasPermission('hosts.remove')">
               <v-icon>mdi-skull-crossbones</v-icon>
             </v-btn>
             <v-tooltip bottom color="secondary">
@@ -30,7 +30,7 @@
             </div>
             <div class="ml-auto">
               <v-btn
-                v-if="!item.ready && !item.lostHosting && item.host._id === user._id"
+                v-if="!item.ready && !item.lostHosting && item.host._id === $store.state.user._id"
                 icon
                 class="ml-auto"
                 @click.stop="$emit('ready', item)"
@@ -41,16 +41,10 @@
               <div v-if="+item.timeBalance" class="icon-size" :class="item.timeBalance > 0 ? 'success--text' : 'error--text'">
                 <span v-if="item.timeBalance > 0">+</span>{{ item.timeBalance }}
               </div>
-              <v-icon v-if="item.lostHosting" color="warning">
-                mdi-account-off
-              </v-icon>
-              <v-icon v-else-if="item.ready" color="success">
-                mdi-account-check
-              </v-icon>
-              <v-icon v-else color="error">
-                mdi-account-remove
-              </v-icon>
-              <v-menu bottom right offset-x v-model="item.menu" :close-on-content-click="false" v-if="user.roles.includes('teamleader')">
+              <v-icon v-if="item.lostHosting" color="warning"> mdi-account-off </v-icon>
+              <v-icon v-else-if="item.ready" color="success"> mdi-account-check </v-icon>
+              <v-icon v-else color="error"> mdi-account-remove </v-icon>
+              <v-menu bottom right offset-x v-model="item.menu" :close-on-content-click="false" v-if="$store.getters.hasPermission('hosts.update')">
                 <template v-slot:activator="{ on }">
                   <v-btn icon v-on="on">
                     <v-icon>mdi-pencil</v-icon>
@@ -59,16 +53,16 @@
                 <v-list>
                   <div class="text-center">{{ item.host.nickname }}</div>
                   <v-form>
-                    <v-list-item v-if="user.roles.includes('admin')">
+                    <v-list-item v-if="$store.getters.hasPermission('hostsProps.ready')">
                       <v-checkbox v-model="item.ready" label="Ready" color="accent"></v-checkbox>
                     </v-list-item>
-                    <v-list-item>
+                    <v-list-item v-if="$store.getters.hasPermission('hostsProps.lostHosting')">
                       <v-checkbox v-model="item.lostHosting" label="Lost hosting" color="accent"></v-checkbox>
                     </v-list-item>
-                    <v-list-item>
+                    <v-list-item v-if="$store.getters.hasPermission('hostsProps.balance')">
                       <v-text-field label="Round balance" v-model="item.timeBalance" type="number" color="accent"></v-text-field>
                     </v-list-item>
-                    <v-list-item>
+                    <v-list-item v-if="$store.getters.hasPermission('hostsProps.group')">
                       <v-text-field label="Group name" v-model="item.groupName" color="accent"></v-text-field>
                     </v-list-item>
                     <v-container>
@@ -93,24 +87,24 @@
             </div>
           </div>
         </template>
-        <v-list v-if="user.roles.includes('teamleader') && isPast">
+        <v-list v-if="$store.getters.hasPermission('hosts.add') && isPast">
           <v-list-item v-for="(host, i) in availableEdited" :key="i" @click="changeRoundHost(round, item.host, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
-        <v-list v-else-if="user.roles.includes('teamleader') && round.available.length">
+        <v-list v-else-if="$store.getters.hasPermission('hosts.add') && round.available.length">
           <v-list-item v-for="(host, i) in round.available" :key="i" @click="changeRoundHost(round, item.host, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
-        <v-list v-else-if="user.roles.includes('teamleader')">
+        <v-list v-else-if="$store.getters.hasPermission('hosts.add')">
           <v-list-item>
             <v-list-item-title>No hosts available.</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
     </template>
-    <template v-slot:body.append v-if="user.roles.includes('teamleader')">
+    <template v-slot:body.append v-if="$store.getters.hasPermission('hosts.add')">
       <v-menu bottom left max-height="300px">
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" color="success" width="100%">
@@ -143,7 +137,6 @@ export default {
     round: Object,
     game: String,
     tableSettings: Object,
-    user: Object,
     usersAvailable: Array,
     isPast: Boolean
   },

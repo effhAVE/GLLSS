@@ -162,8 +162,8 @@ export default {
   },
   created() {
     this.$http.get(`${this.APIURL}/users/list`).then(response => {
-      this.teamLeads = response.data.filter(user => user.roles.includes("teamleader") && user.nickname !== "hAVE");
-      this.hosts = response.data.filter(user => !user.roles.includes("teamleader") || user.nickname === "hAVE");
+      this.teamLeads = response.data.filter(user => user.roles.some(role => role.permission.includes("general.isTL")));
+      this.hosts = response.data.filter(user => !user.roles.some(role => role.permission.includes("general.isHost")));
     });
   },
   watch: {

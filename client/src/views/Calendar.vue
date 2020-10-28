@@ -39,33 +39,24 @@
         </v-date-picker>
       </v-menu>
     </v-card-title>
-    <CalendarTable :week="relativeWeek" :user="user" />
+    <CalendarTable :week="relativeWeek" />
   </v-card>
 </template>
 <script>
 import CalendarTable from "../components/Calendar/Overview";
 export default {
-  props: {
-    user: Object
-  },
   components: {
     CalendarTable
   },
   data() {
     return {
-      selectedWeek: this.$moment
-        .utc()
-        .startOf("isoWeek")
-        .format("YYYY-MM-DD"),
+      selectedWeek: this.$moment.utc().startOf("isoWeek").format("YYYY-MM-DD"),
       weekMenu: false
     };
   },
   computed: {
     relativeWeek() {
-      return this.$moment
-        .utc(this.selectedWeek)
-        .startOf("isoWeek")
-        .diff(this.$moment.utc().startOf("isoWeek"), "weeks");
+      return this.$moment.utc(this.selectedWeek).startOf("isoWeek").diff(this.$moment.utc().startOf("isoWeek"), "weeks");
     }
   },
   methods: {

@@ -20,7 +20,7 @@
         <v-simple-checkbox
           color="accent"
           readonly
-          :value="item.haveAccess.includes(user._id)"
+          :value="item.haveAccess.includes($store.state.user._id)"
           :ripple="false"
           @input="setAccess(item, $event)"
         ></v-simple-checkbox>
@@ -28,15 +28,20 @@
       <template v-slot:item.claimedBy="{ item }">
         <div class="d-flex align-center">
           <span v-if="item.locked" class="error--text px-3"><strong>LOCKED</strong></span>
-          <v-btn small text color="success" v-else-if="!item.claimedBy" @click="claimAccount(item, user, false)">Claim</v-btn>
-          <v-btn small text color="warning" v-else-if="user._id === item.claimedBy._id" @click="claimAccount(item, user, true)">Unclaim</v-btn>
+          <v-btn small text color="success" v-else-if="!item.claimedBy" @click="claimAccount(item, $store.state.user, false)">Claim</v-btn>
+          <v-btn
+            small
+            text
+            color="warning"
+            v-else-if="$store.state.user._id === item.claimedBy._id"
+            @click="claimAccount(item, $store.state.user, true)"
+            >Unclaim</v-btn
+          >
           <span v-else class="px-3 subtitle-2">{{ item.claimedBy.nickname }}</span>
-          <v-menu bottom offset-y max-height="300px" v-if="user.roles.includes('teamleader') && !item.locked">
+          <v-menu bottom offset-y max-height="300px" v-if="$store.getters.hasPermission('accountsProps.claimedBy') && !item.locked">
             <template v-slot:activator="{ on }">
               <v-btn small icon v-on="on">
-                <v-icon small>
-                  mdi-account-details
-                </v-icon>
+                <v-icon small> mdi-account-details </v-icon>
               </v-btn>
             </template>
             <v-list>
@@ -64,12 +69,10 @@
       </template>
       <template v-slot:item.actions="{ item }">
         <div class="d-flex">
-          <v-dialog v-model="item.menu" persistent max-width="600px" v-if="user.roles.includes('teamleader')">
+          <v-dialog v-model="item.menu" persistent max-width="600px" v-if="$store.getters.hasPermission('accounts.update')">
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
-                <v-icon small>
-                  mdi-pencil
-                </v-icon>
+                <v-icon small> mdi-pencil </v-icon>
               </v-btn>
             </template>
             <v-card class="primary">
@@ -78,7 +81,6 @@
                   <AccountForm
                     :account="item"
                     :presets="presets"
-                    :user="user"
                     @cancel="item.menu = false"
                     @submit="
                       editAccount($event);
@@ -89,15 +91,11 @@
               </v-card-text>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="item.lockModal" max-width="500px" overlay-color="primary" v-if="user.roles.includes('teamleader')">
+          <v-dialog v-model="item.lockModal" max-width="500px" overlay-color="primary" v-if="$store.getters.hasPermission('accountsProps.locked')">
             <template v-slot:activator="{ on }">
               <v-btn icon :color="item.locked ? 'success' : 'error'" v-on="on">
-                <v-icon small v-if="!item.locked">
-                  mdi-lock
-                </v-icon>
-                <v-icon small v-else>
-                  mdi-lock-open
-                </v-icon>
+                <v-icon small v-if="!item.locked"> mdi-lock </v-icon>
+                <v-icon small v-else> mdi-lock-open </v-icon>
               </v-btn>
             </template>
 
@@ -108,22 +106,16 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error" text @click="lockAccount(item)">
-                  Yes
-                </v-btn>
-                <v-btn color="success" text @click="item.lockModal = false">
-                  Cancel
-                </v-btn>
+                <v-btn color="error" text @click="lockAccount(item)"> Yes </v-btn>
+                <v-btn color="success" text @click="item.lockModal = false"> Cancel </v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
 
           <v-dialog v-model="item.deleteModal" max-width="500px" overlay-color="primary">
             <template v-slot:activator="{ on }">
-              <v-btn icon color="error" v-if="user.roles.includes('admin')" v-on="on">
-                <v-icon small>
-                  mdi-minus
-                </v-icon>
+              <v-btn icon color="error" v-if="$store.getters.hasPermission('accounts.delete')" v-on="on">
+                <v-icon small> mdi-minus </v-icon>
               </v-btn>
             </template>
 
@@ -134,12 +126,8 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error" text @click="deleteAccount(item)">
-                  Yes
-                </v-btn>
-                <v-btn color="success" text @click="item.deleteModal = false">
-                  Cancel
-                </v-btn>
+                <v-btn color="error" text @click="deleteAccount(item)"> Yes </v-btn>
+                <v-btn color="success" text @click="item.deleteModal = false"> Cancel </v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -151,9 +139,6 @@
 <script>
 import AccountForm from "../components/Forms/AccountForm";
 export default {
-  props: {
-    user: Object
-  },
   components: {
     AccountForm
   },
@@ -213,9 +198,9 @@ export default {
       this.presets = response.data;
     });
 
-    if (this.user.roles.includes("teamleader")) {
+    if (this.$store.getters.hasPermission("accountsProps.claimedBy")) {
       this.$http.get(`${this.APIURL}/users/list`).then(response => {
-        this.usersList = response.data.filter(user => user._id !== this.user._id);
+        this.usersList = response.data.filter(user => user._id !== this.$store.state.user._id);
       });
     }
   },

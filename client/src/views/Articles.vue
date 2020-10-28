@@ -3,7 +3,7 @@
     <v-card-title>
       Articles
       <v-spacer></v-spacer>
-      <v-btn text color="accent" v-if="user.roles.includes('teamleader')"><router-link to="articles/create">Create</router-link></v-btn>
+      <v-btn text color="accent" v-if="$store.getters.hasPermission('articles.create')"><router-link to="articles/create">Create</router-link></v-btn>
     </v-card-title>
     <List :articles="articles" />
   </v-card>
@@ -11,9 +11,6 @@
 <script>
 import List from "../components/Articles/ArticlesList";
 export default {
-  props: {
-    user: Object
-  },
   components: {
     List
   },

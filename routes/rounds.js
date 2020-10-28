@@ -2,16 +2,9 @@ const auth = require("../middleware/auth");
 const validateAccess = require("../middleware/validateAccess");
 const validateObjectId = require("../middleware/validateObjectId");
 const _ = require("lodash");
-const {
-  Round,
-  validate
-} = require("../models/round");
-const {
-  Tournament
-} = require("../models/tournament");
-const {
-  User
-} = require("../models/user");
+const { Round, validate } = require("../models/round");
+const { Tournament } = require("../models/tournament");
+const { User } = require("../models/user");
 const mongoose = require("mongoose");
 const moment = require("moment");
 const express = require("express");
@@ -19,40 +12,41 @@ const router = express.Router({
   mergeParams: true
 });
 
-router.post("/", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
-  const {
-    error
-  } = validate(req.body);
+router.post("/", auth, validateAccess("rounds.create"), validateObjectId, async (req, res) => {
+  const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  Tournament.findByIdAndUpdate(req.params.id, {
-      "$push": {
-        "rounds": {
-          "$each": [new Round(_.pick(req.body, ["name", "startDate", "endDate", "bestOf", "prepTime"]))],
-          "$sort": {
-            "startDate": 1
+  Tournament.findByIdAndUpdate(
+    req.params.id,
+    {
+      $push: {
+        rounds: {
+          $each: [new Round(_.pick(req.body, ["name", "startDate", "endDate", "bestOf", "prepTime"]))],
+          $sort: {
+            startDate: 1
           }
         }
       }
-    }, {
+    },
+    {
       new: true
-    })
-    .exec(async (error, data) => {
-      if (error) {
-        console.error(error);
-        return res.status(500).send("Something failed.");
-      } else {
-        data.startDate = data.rounds[0].startDate;
-        data.endDate = data.rounds[data.rounds.length - 1].endDate;
-        await data.save();
-        return res.send(data);
-      }
-    });
+    }
+  ).exec(async (error, data) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).send("Something failed.");
+    } else {
+      data.startDate = data.rounds[0].startDate;
+      data.endDate = data.rounds[data.rounds.length - 1].endDate;
+      await data.save();
+      return res.send(data);
+    }
+  });
 });
 
-router.get("/", auth, validateAccess("host"), validateObjectId, async (req, res) => {
+router.get("/", auth, validateAccess("rounds.view"), validateObjectId, async (req, res) => {
   const tournament = await Tournament.findById(req.params.id).populate({
-    path: "rounds.hosts",
+    path: "rounds.hosts rounds.teamLeads",
     select: "name"
   });
   if (!tournament) return res.status(400).send("No tournament found.");
@@ -60,7 +54,7 @@ router.get("/", auth, validateAccess("host"), validateObjectId, async (req, res)
   return res.send(tournament.rounds);
 });
 
-router.get("/:rid", auth, validateAccess("host"), validateObjectId, async (req, res) => {
+router.get("/:rid", auth, validateAccess("rounds.view"), validateObjectId, async (req, res) => {
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return res.status(400).send("No tournament found.");
 
@@ -69,7 +63,7 @@ router.get("/:rid", auth, validateAccess("host"), validateObjectId, async (req, 
   return res.send(round);
 });
 
-router.delete("/:rid", auth, validateAccess("admin"), validateObjectId, async (req, res) => {
+router.delete("/:rid", auth, validateAccess("rounds.delete"), validateObjectId, async (req, res) => {
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return res.status(400).send("No tournament found.");
 
@@ -79,21 +73,24 @@ router.delete("/:rid", auth, validateAccess("admin"), validateObjectId, async (r
 
   [round.hosts, round.teamLeads].forEach(array => {
     for (const hostObject of array) {
-      (async function() {
+      (async function () {
         for (const round of otherRounds) {
           if (round.hosts.some(host => host.host.equals(hostObject.host)) || round.teamLeads.some(TL => TL.host.equals(hostObject.host))) return;
         }
 
-        await User.findByIdAndUpdate(hostObject.host, {
-            "$pull": {
-              "tournamentsHosted": tournament._id
+        await User.findByIdAndUpdate(
+          hostObject.host,
+          {
+            $pull: {
+              tournamentsHosted: tournament._id
             }
-          }, {
+          },
+          {
             new: true
-          })
-          .exec((error, data) => data);
+          }
+        ).exec((error, data) => data);
       })();
-    };
+    }
   });
 
   await round.remove();
@@ -108,7 +105,7 @@ router.delete("/:rid", auth, validateAccess("admin"), validateObjectId, async (r
   return res.send(round);
 });
 
-router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async (req, res) => {
+router.put("/:rid", auth, validateAccess("rounds.update"), validateObjectId, async (req, res) => {
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return res.status(400).send("No tournament found.");
 
@@ -117,9 +114,7 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
 
   const excluded = req.body.excluded;
   if (!excluded) return res.status(400).send("Missing 'excluded' field!");
-  const {
-    error
-  } = validate(_.pick(req.body.round, ["name", "startDate", "endDate", "bestOf", "prepTime", "hosts", "teamLeads", "available"]));
+  const { error } = validate(_.pick(req.body.round, ["name", "startDate", "endDate", "bestOf", "prepTime", "hosts", "teamLeads", "available"]));
   if (error) return res.status(400).send(error.details[0].message);
 
   round.set({
@@ -134,44 +129,50 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
   });
 
   try {
-    const {
-      hosts,
-      available,
-      teamLeads
-    } = req.body.round;
+    const { hosts, available, teamLeads } = req.body.round;
     if (Array.isArray(hosts) && Array.isArray(available) && Array.isArray(teamLeads) && Array.isArray(excluded)) {
       [hosts, teamLeads].forEach(array => {
         if (array.some(hostObject => typeof hostObject.host === "undefined")) return res.status(400).send("Bad request.");
-      })
+      });
     } else {
       return res.status(400).send("Bad request.");
     }
 
     [round.hosts, round.teamLeads].forEach(array => {
       array.forEach(async hostObject => {
-        await User.findByIdAndUpdate(hostObject.host, {
-            "$addToSet": {
-              "tournamentsHosted": tournament._id
+        await User.findByIdAndUpdate(
+          hostObject.host,
+          {
+            $addToSet: {
+              tournamentsHosted: tournament._id
             }
-          }, {
+          },
+          {
             new: true
-          })
-          .exec((error, data) => data);
+          }
+        ).exec((error, data) => data);
       });
     });
 
     excluded.forEach(async hostObject => {
       for (const round of tournament.rounds) {
-        if (round.hosts.some(hostObj => hostObj.host.equals(hostObject._id)) || round.teamLeads.some(TLObject => TLObject.host.equals(hostObject._id))) return;
+        if (
+          round.hosts.some(hostObj => hostObj.host.equals(hostObject._id)) ||
+          round.teamLeads.some(TLObject => TLObject.host.equals(hostObject._id))
+        )
+          return;
       }
-      await User.findByIdAndUpdate(hostObject, {
-          "$pull": {
-            "tournamentsHosted": tournament._id
+      await User.findByIdAndUpdate(
+        hostObject,
+        {
+          $pull: {
+            tournamentsHosted: tournament._id
           }
-        }, {
+        },
+        {
           new: true
-        })
-        .exec((error, data) => data);
+        }
+      ).exec((error, data) => data);
     });
 
     tournament.rounds.sort((a, b) => a.startDate - b.startDate);
@@ -185,7 +186,7 @@ router.put("/:rid", auth, validateAccess("teamleader"), validateObjectId, async 
   }
 });
 
-router.put("/", auth, validateAccess("teamleader"), validateObjectId, async (req, res) => {
+router.put("/", auth, validateAccess("rounds.update"), validateObjectId, async (req, res) => {
   for (const roundRequest of req.body) {
     const tournament = await Tournament.findById(req.params.id);
     if (!tournament) return res.status(400).send("No tournament found.");
@@ -195,9 +196,7 @@ router.put("/", auth, validateAccess("teamleader"), validateObjectId, async (req
 
     const excluded = roundRequest.excluded;
     if (!excluded) return res.status(400).send("Missing 'excluded' field!");
-    const {
-      error
-    } = validate(_.pick(roundRequest.round, ["name", "startDate", "endDate", "bestOf", "prepTime", "hosts", "teamLeads", "available"]));
+    const { error } = validate(_.pick(roundRequest.round, ["name", "startDate", "endDate", "bestOf", "prepTime", "hosts", "teamLeads", "available"]));
     if (error) return res.status(400).send(error.details[0].message);
 
     round.set({
@@ -212,44 +211,50 @@ router.put("/", auth, validateAccess("teamleader"), validateObjectId, async (req
     });
 
     try {
-      const {
-        hosts,
-        available,
-        teamLeads
-      } = roundRequest.round;
+      const { hosts, available, teamLeads } = roundRequest.round;
       if (Array.isArray(hosts) && Array.isArray(available) && Array.isArray(teamLeads) && Array.isArray(excluded)) {
         [hosts, teamLeads].forEach(array => {
           if (array.some(hostObject => typeof hostObject.host === "undefined")) return res.status(400).send("Bad request.");
-        })
+        });
       } else {
         return res.status(400).send("Bad request.");
       }
 
       [round.hosts, round.teamLeads].forEach(array => {
         array.forEach(async hostObject => {
-          await User.findByIdAndUpdate(hostObject.host, {
-              "$addToSet": {
-                "tournamentsHosted": tournament._id
+          await User.findByIdAndUpdate(
+            hostObject.host,
+            {
+              $addToSet: {
+                tournamentsHosted: tournament._id
               }
-            }, {
+            },
+            {
               new: true
-            })
-            .exec((error, data) => data);
+            }
+          ).exec((error, data) => data);
         });
       });
 
       excluded.forEach(async hostObject => {
         for (const round of tournament.rounds) {
-          if (round.hosts.some(hostObj => hostObj.host.equals(hostObject._id)) || round.teamLeads.some(TLObject => TLObject.host.equals(hostObject._id))) return;
+          if (
+            round.hosts.some(hostObj => hostObj.host.equals(hostObject._id)) ||
+            round.teamLeads.some(TLObject => TLObject.host.equals(hostObject._id))
+          )
+            return;
         }
-        await User.findByIdAndUpdate(hostObject, {
-            "$pull": {
-              "tournamentsHosted": tournament._id
+        await User.findByIdAndUpdate(
+          hostObject,
+          {
+            $pull: {
+              tournamentsHosted: tournament._id
             }
-          }, {
+          },
+          {
             new: true
-          })
-          .exec((error, data) => data);
+          }
+        ).exec((error, data) => data);
       });
 
       tournament.rounds.sort((a, b) => a.startDate - b.startDate);
@@ -263,10 +268,9 @@ router.put("/", auth, validateAccess("teamleader"), validateObjectId, async (req
   }
 
   return res.send(true);
-
 });
 
-router.put("/:rid/availability", auth, validateAccess("host"), validateObjectId, async (req, res) => {
+router.put("/:rid/availability", auth, validateAccess("hosting.fillAvailability"), validateObjectId, async (req, res) => {
   const value = req.body.value;
   const id = req.user._id;
   if (typeof value === "undefined" || typeof id === "undefined" || !mongoose.Types.ObjectId.isValid(id)) {
@@ -279,7 +283,7 @@ router.put("/:rid/availability", auth, validateAccess("host"), validateObjectId,
   const round = tournament.rounds.id(req.params.rid);
   if (!round) return res.status(400).send("No round found.");
   if (value === true) {
-    round.available.push(id)
+    round.available.push(id);
   } else {
     round.available = round.available.filter(user => {
       return !user.equals(id);
@@ -290,7 +294,7 @@ router.put("/:rid/availability", auth, validateAccess("host"), validateObjectId,
   return res.send(round);
 });
 
-router.post("/:rid/ready", auth, validateAccess("host"), validateObjectId, async (req, res) => {
+router.post("/:rid/ready", auth, validateAccess(["hosting.canHost", "hosting.canLead"]), validateObjectId, async (req, res) => {
   const source = req.body.source;
   if (!source) return res.status(400).send("Bad request.");
   const tournament = await Tournament.findById(req.params.id).select("rounds");

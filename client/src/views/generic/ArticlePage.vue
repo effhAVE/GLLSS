@@ -8,7 +8,7 @@
           <div>
             <v-dialog v-model="editArticleModal" persistent>
               <template v-slot:activator="{ on }">
-                <v-btn class="accent mr-4" icon v-if="user.roles.includes('admin')" v-on="on">
+                <v-btn class="accent mr-4" icon v-if="$store.getters.hasPermission('articles.update')" v-on="on">
                   <v-icon color="black">mdi-pencil</v-icon>
                 </v-btn>
               </template>
@@ -20,7 +20,7 @@
             </v-dialog>
             <v-dialog v-model="deleteArticleModal" persistent max-width="600px">
               <template v-slot:activator="{ on }">
-                <v-btn class="error" icon v-if="user.roles.includes('admin')" v-on="on">
+                <v-btn class="error" icon v-if="$store.getters.hasPermission('articles.delete')" v-on="on">
                   <v-icon color="black">mdi-delete</v-icon>
                 </v-btn>
               </template>
@@ -31,12 +31,8 @@
 
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="error" text @click="deleteArticle">
-                    Yes
-                  </v-btn>
-                  <v-btn color="success" text @click="deleteArticleModal = false">
-                    Cancel
-                  </v-btn>
+                  <v-btn color="error" text @click="deleteArticle"> Yes </v-btn>
+                  <v-btn color="success" text @click="deleteArticleModal = false"> Cancel </v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -73,9 +69,6 @@
 import VueMarkdown from "vue-markdown";
 import ArticleForm from "../../components/Forms/ArticleForm";
 export default {
-  props: {
-    user: Object
-  },
   data() {
     return {
       id: this.$route.params.articleID,

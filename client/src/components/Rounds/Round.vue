@@ -6,7 +6,7 @@
         <v-spacer></v-spacer>
         <v-dialog v-model="editRoundModal" persistent max-width="600px">
           <template v-slot:activator="{ on }">
-            <v-btn icon v-if="user.roles.includes('admin')" v-on="on">
+            <v-btn icon v-if="$store.getters.hasPermission('rounds.update')" v-on="on">
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
           </template>
@@ -20,7 +20,7 @@
         </v-dialog>
         <v-dialog v-model="deleteRoundModal" persistent max-width="600px">
           <template v-slot:activator="{ on }">
-            <v-btn icon v-if="user.roles.includes('admin')" v-on="on">
+            <v-btn icon v-if="$store.getters.hasPermission('rounds.delete')" v-on="on">
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </template>
@@ -31,12 +31,8 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="error" text @click="deleteRound()">
-                Yes
-              </v-btn>
-              <v-btn color="success" text @click="deleteRoundModal = false">
-                Cancel
-              </v-btn>
+              <v-btn color="error" text @click="deleteRound()"> Yes </v-btn>
+              <v-btn color="success" text @click="deleteRoundModal = false"> Cancel </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -50,7 +46,6 @@
     <v-card-text>
       <HostsTable
         :round="round"
-        :user="user"
         :tableSettings="tableSettings"
         :usersAvailable="usersAvailableFiltered"
         :game="game"
@@ -61,10 +56,10 @@
         @userUpdate="changesMade = true"
         @excludedAdd="onExcludedAdd"
         @excludedRemove="onExcludedRemove"
+        v-if="$store.getters.hasPermission('hosts.view')"
       />
       <TLTable
         :round="round"
-        :user="user"
         :tableSettings="tableSettings"
         :usersAvailable="usersAvailableFiltered"
         :isPast="isPast"
@@ -74,6 +69,7 @@
         @userUpdate="changesMade = true"
         @excludedAdd="onExcludedAdd"
         @excludedRemove="onExcludedRemove"
+        v-if="$store.getters.hasPermission('teamLeads.view')"
       />
       <Details :round="round" />
     </v-card-text>
@@ -111,8 +107,7 @@ export default {
     isPast: {
       type: Boolean,
       default: false
-    },
-    user: Object
+    }
   },
   data() {
     return {
@@ -132,8 +127,8 @@ export default {
       return this.usersAvailable.filter(
         user =>
           !(
-            this.round.hosts.some(hostObject => hostObject.host._id === user._id) ||
-            this.round.teamLeads.some(TLObject => TLObject.host._id === user._id)
+            this.round.hosts.some(hostObject => hostObject.host._id === this.$store.state.user._id) ||
+            this.round.teamLeads.some(TLObject => TLObject.host._id === this.$store.state.user._id)
           )
       );
     }

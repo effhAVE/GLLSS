@@ -31,6 +31,7 @@ export default new Vuex.Store({
     now: new Date(),
     status: "",
     token: localStorage.getItem("token"),
+    user: Vue.$jwt.decode(localStorage.getItem("token")),
     tokenExpiry: null,
     tokenTimer: null,
     updateTimer: null,
@@ -54,6 +55,7 @@ export default new Vuex.Store({
     AUTH_SUCCESS(state, token) {
       state.status = "success";
       state.token = token;
+      state.user = Vue.$jwt.decode(token);
     },
     AUTH_ERROR(state) {
       state.status = "error";
@@ -67,6 +69,7 @@ export default new Vuex.Store({
     logout(state) {
       state.status = "";
       state.token = "";
+      state.user = null;
       clearInterval(state.tokenTimer);
       state.tokenTimer = null;
     },
@@ -212,7 +215,14 @@ export default new Vuex.Store({
   },
   getters: {
     isLoggedIn: state => !!state.token,
-    authStatus: state => state.status
+    authStatus: state => state.status,
+    permissions: state => (state.user ? [...new Set(state.user.roles.map(role => role.permissions).flat())] : []),
+    hasPermission: (state, getters) => permissionRequired => {
+      return getters.permissions.includes(permissionRequired);
+    },
+    hasAnyPermission: (state, getters) => permissionsArray => {
+      return permissionsArray.some(permission => getters.hasPermission(permission));
+    }
   },
   plugins: [vuexLocal.plugin]
 });

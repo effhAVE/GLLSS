@@ -23,7 +23,7 @@
         </tr>
         <tr>
           <td :colspan="headers.length" class="pa-0 pa-sm-2">
-            <table style="table-layout: fixed;" class="header-borders px-0 pt-2 pa-sm-2 d-flex d-md-table">
+            <table style="table-layout: fixed" class="header-borders px-0 pt-2 pa-sm-2 d-flex d-md-table">
               <thead class="accent--text">
                 <th class="hidden-md-and-down d-md-table-cell">Round name</th>
                 <th class="hidden-xs-only d-sm-flex align-center justify-center d-md-table-cell">Start date</th>
@@ -43,12 +43,8 @@
                   </td>
                   <td class="d-flex align-center justify-center d-md-table-cell"><span class="hidden-sm-and-up">BO </span>{{ round.bestOf }}</td>
                   <td class="hidden-md-and-down d-md-table-cell">
-                    <span v-if="isLeading(round)" class="blue--text">
-                      teamlead
-                    </span>
-                    <span v-else>
-                      host
-                    </span>
+                    <span v-if="isLeading(round)" class="blue--text"> teamlead </span>
+                    <span v-else> host </span>
                   </td>
                   <td class="d-flex align-center justify-center d-md-table-cell">
                     <div v-if="!isLeading(round)">
@@ -70,19 +66,13 @@
                   </td>
                   <td class="d-flex align-center justify-center d-md-table-cell">
                     <v-btn icon v-if="lostLeadingOrHosting(round)">
-                      <v-icon color="warning">
-                        mdi-account-off
-                      </v-icon>
+                      <v-icon color="warning"> mdi-account-off </v-icon>
                     </v-btn>
                     <v-btn icon v-else-if="!isReady(round)" @click="onReady(item._id, round)" :disabled="readyDisabled(round)">
-                      <v-icon color="error">
-                        mdi-account-off
-                      </v-icon>
+                      <v-icon color="error"> mdi-account-off </v-icon>
                     </v-btn>
                     <v-btn icon v-else>
-                      <v-icon color="success">
-                        mdi-account-check
-                      </v-icon>
+                      <v-icon color="success"> mdi-account-check </v-icon>
                     </v-btn>
                   </td>
                   <td class="hidden-md-and-down d-md-table-cell">
@@ -97,9 +87,7 @@
       <template v-slot:footer>
         <div class="v-data-footer">
           <v-spacer></v-spacer>
-          <v-btn class="accent--text" text tile @click="getNextTournamentsPage" :disabled="allLoaded">
-            Load more
-          </v-btn>
+          <v-btn class="accent--text" text tile @click="getNextTournamentsPage" :disabled="allLoaded"> Load more </v-btn>
         </div>
       </template>
     </v-data-table>
@@ -111,7 +99,6 @@ export default {
   props: {
     redirect: Function,
     showPastRounds: Boolean,
-    user: Object,
     now: Date
   },
   data() {
@@ -143,13 +130,13 @@ export default {
       return this.$moment(round.startDate).diff(this.now, "minutes") > checkInStart || this.$moment(round.startDate).diff(this.now, "minutes") < 30;
     },
     isLeading(round) {
-      return round.teamLeads.some(TLObject => TLObject.host === this.user._id);
+      return round.teamLeads.some(TLObject => TLObject.host === this.$store.state.user._id);
     },
     myHost(round) {
-      return round.hosts.find(hostObject => hostObject.host === this.user._id);
+      return round.hosts.find(hostObject => hostObject.host === this.$store.state.user._id);
     },
     myLead(round) {
-      return round.teamLeads.find(TLObject => TLObject.host === this.user._id);
+      return round.teamLeads.find(TLObject => TLObject.host === this.$store.state.user._id);
     },
     lostLeadingOrHosting(round) {
       const host = this.myHost(round);
@@ -165,10 +152,10 @@ export default {
       let host;
       let source;
       if (isLeading) {
-        host = round.teamLeads.find(TLObject => TLObject.host === this.user._id);
+        host = round.teamLeads.find(TLObject => TLObject.host === this.$store.state.user._id);
         source = "TL";
       } else {
-        host = round.hosts.find(hostObject => hostObject.host === this.user._id);
+        host = round.hosts.find(hostObject => hostObject.host === this.$store.state.user._id);
         source = "host";
       }
 
@@ -190,7 +177,7 @@ export default {
       if (myHost) {
         return myHost.ready;
       } else {
-        const myTL = round.teamLeads.find(TLObject => TLObject.host === this.user._id);
+        const myTL = round.teamLeads.find(TLObject => TLObject.host === this.$store.state.user._id);
         return myTL.ready;
       }
     },

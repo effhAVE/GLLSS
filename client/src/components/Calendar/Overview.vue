@@ -13,7 +13,7 @@
           <div v-for="(rounds, day) in gameObject.rounds" :key="day">
             <h4 class="subtitle">{{ day | moment("LL") }} - {{ day | moment("dddd") }}</h4>
             <div class="d-flex overflow-x-auto mb-2">
-              <Round v-for="round in rounds" :key="round._id" :round="round" :user="user" :game="gameObject.game" />
+              <Round v-for="round in rounds" :key="round._id" :round="round" :game="gameObject.game" />
             </div>
           </div>
         </div>
@@ -23,7 +23,7 @@
         <div v-for="(rounds, day) in gameObject.rounds" :key="day">
           <h4 class="subtitle">{{ day | moment("LL") }} - {{ day | moment("dddd") }}</h4>
           <div class="d-flex overflow-x-auto mb-2">
-            <Round v-for="round in rounds" :key="round._id" :round="round" :user="user" :game="gameObject.game" />
+            <Round v-for="round in rounds" :key="round._id" :round="round" :game="gameObject.game" />
           </div>
         </div>
       </v-tab-item>
@@ -35,8 +35,7 @@
 import Round from "./CalendarRound";
 export default {
   props: {
-    week: Number,
-    user: Object
+    week: Number
   },
   components: {
     Round

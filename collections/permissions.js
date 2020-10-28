@@ -1,6 +1,93 @@
 module.exports = {
   users: {
-    profiles: [],
+    general: [
+      {
+        value: "general.isHost",
+        name: "Host tools access",
+        description: "Access to calendar and hosts' helpers"
+      },
+      {
+        value: "general.isTL",
+        name: "TL tools access",
+        description: "Access to schedule view"
+      }
+    ],
+    roles: [
+      {
+        value: "roles.create",
+        name: "Create roles",
+        description: "Create new roles"
+      },
+      {
+        value: "roles.view",
+        name: "View roles",
+        description: "View roles and their permissions"
+      },
+      {
+        value: "roles.update",
+        name: "Update roles",
+        description: "Modify properties of an existing role",
+        props: [
+          {
+            value: "rolesProps.name",
+            name: "Name"
+          },
+          {
+            value: "rolesProps.color",
+            name: "Color"
+          },
+          {
+            value: "rolesProps.importance",
+            name: "Importance"
+          },
+          {
+            value: "rolesProps.editable",
+            name: "Editable"
+          },
+          {
+            value: "rolesProps.permissions",
+            name: "Permissions"
+          }
+        ]
+      },
+      {
+        value: "roles.delete",
+        name: "Delete roles",
+        description: "Delete roles with editable property set to true"
+      }
+    ],
+    profiles: [
+      {
+        value: "users.permanent",
+        name: "Permament user",
+        description: "User with this role cannot be deleted"
+      },
+      {
+        value: "users.view",
+        name: "View users",
+        description: "View user profiles"
+      },
+      {
+        value: "users.confirm",
+        name: "Confirm users",
+        description: "Confirm newly registered users"
+      },
+      {
+        value: "users.update",
+        name: "Update users",
+        description: "Modify properties of existing users"
+      },
+      {
+        value: "users.delete",
+        name: "Delete users",
+        description: "Completely remove users from the database"
+      },
+      {
+        value: "users.modifyRoles",
+        name: "Grant/revoke roles",
+        description: "Change roles of an existing user"
+      }
+    ],
     data: [
       {
         value: "data.create",
@@ -45,23 +132,6 @@ module.exports = {
         value: "hosting.canLead",
         name: "Can lead",
         description: "Can be chosen as a team leader"
-      }
-    ],
-    scheduling: [
-      {
-        value: "schedule.view",
-        name: "View schedule",
-        description: "Access to schedule tab"
-      },
-      {
-        value: "schedule.hostsBalance",
-        name: "View hosts balance",
-        description: "Access to hosts balance tab"
-      },
-      {
-        value: "schedule.TLBalance",
-        name: "View teamleads balance",
-        description: "Access to teamleads balance tab"
       }
     ],
     rounds: [
@@ -287,6 +357,18 @@ module.exports = {
     ]
   },
   misc: {
+    scheduling: [
+      {
+        value: "schedule.hostsBalance",
+        name: "View hosts balance",
+        description: "Access to hosts balance tab"
+      },
+      {
+        value: "schedule.TLBalance",
+        name: "View teamleads balance",
+        description: "Access to teamleads balance tab"
+      }
+    ],
     accounts: [
       {
         value: "accounts.create",
@@ -312,8 +394,8 @@ module.exports = {
             name: "Password"
           },
           {
-            value: "accountsProps.preset",
-            name: "Preset"
+            value: "accountsProps.presets",
+            name: "Presets"
           },
           {
             value: "accountsProps.notes",
@@ -412,7 +494,33 @@ module.exports = {
       {
         value: "articles.update",
         name: "Update articles",
-        description: "Modify properties of an existing article"
+        description: "Modify properties of an existing article",
+        props: [
+          {
+            value: "articlesProps.title",
+            name: "Title"
+          },
+          {
+            value: "articlesProps.contentShort",
+            name: "Content short"
+          },
+          {
+            value: "articlesProps.content",
+            name: "Content"
+          },
+          {
+            value: "articlesProps.notes",
+            name: "Notes"
+          },
+          {
+            value: "articlesProps.previewImageURL",
+            name: "Preview image URL"
+          },
+          {
+            value: "articlesProps.category",
+            name: "Category"
+          }
+        ]
       },
       {
         value: "articles.delete",

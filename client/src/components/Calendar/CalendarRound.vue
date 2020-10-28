@@ -19,7 +19,7 @@
       </v-card-subtitle>
     </div>
     <v-card-text class="pa-0">
-      <HostsTables :round="round" :user="user" :game="game" />
+      <HostsTables :round="round" :game="game" />
     </v-card-text>
   </v-card>
 </template>
@@ -35,7 +35,6 @@ export default {
       type: Object,
       required: true
     },
-    user: Object,
     game: String
   }
 };

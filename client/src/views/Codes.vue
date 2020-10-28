@@ -27,14 +27,12 @@
       </template>
       <template v-slot:item.assignedUser1="{ item, value }">
         <div class="d-flex justify-space-between align-center px-1">
-          <span v-if="value" :class="value._id === user._id ? 'accent--text font-weight-black' : ''">{{ value.nickname }}</span>
+          <span v-if="value" :class="value._id === $store.state.user._id ? 'accent--text font-weight-black' : ''">{{ value.nickname }}</span>
           <span v-else class="grey--text caption">none</span>
-          <v-menu bottom offset-y max-height="300px" v-if="user.roles.includes('admin')">
+          <v-menu bottom offset-y max-height="300px" v-if="$store.getters.hasPermission('codesProps.assignedUser')">
             <template v-slot:activator="{ on }">
               <v-btn small icon v-on="on">
-                <v-icon small>
-                  mdi-account-details
-                </v-icon>
+                <v-icon small> mdi-account-details </v-icon>
               </v-btn>
             </template>
             <v-list>
@@ -50,14 +48,12 @@
       </template>
       <template v-slot:item.assignedUser2="{ item, value }">
         <div class="d-flex justify-space-between align-center px-1">
-          <span v-if="value" :class="value._id === user._id ? 'accent--text font-weight-black' : ''">{{ value.nickname }}</span>
+          <span v-if="value" :class="value._id === $store.state.user._id ? 'accent--text font-weight-black' : ''">{{ value.nickname }}</span>
           <span v-else class="grey--text caption">none</span>
-          <v-menu bottom offset-y max-height="300px" v-if="user.roles.includes('admin')">
+          <v-menu bottom offset-y max-height="300px" v-if="$store.getters.hasPermission('codesProps.assignedUser')">
             <template v-slot:activator="{ on }">
               <v-btn small icon v-on="on">
-                <v-icon small>
-                  mdi-account-details
-                </v-icon>
+                <v-icon small> mdi-account-details </v-icon>
               </v-btn>
             </template>
             <v-list>
@@ -73,12 +69,10 @@
       </template>
       <template v-slot:item.actions="{ item }">
         <div class="d-flex">
-          <v-dialog v-model="item.menu" persistent max-width="600px" v-if="user.roles.includes('admin')">
+          <v-dialog v-model="item.menu" persistent max-width="600px" v-if="$store.getters.hasPermission('codes.update')">
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
-                <v-icon small>
-                  mdi-pencil
-                </v-icon>
+                <v-icon small> mdi-pencil </v-icon>
               </v-btn>
             </template>
             <v-card class="primary">
@@ -86,7 +80,6 @@
                 <v-container>
                   <CodeForm
                     :code="item"
-                    :user="user"
                     @cancel="item.menu = false"
                     @submit="
                       editCode($event);
@@ -100,10 +93,8 @@
 
           <v-dialog v-model="item.deleteModal" max-width="500px" overlay-color="primary">
             <template v-slot:activator="{ on }">
-              <v-btn icon color="error" v-if="user.roles.includes('admin')" v-on="on">
-                <v-icon small>
-                  mdi-minus
-                </v-icon>
+              <v-btn icon color="error" v-if="$store.getters.hasPermission('codes.delete')" v-on="on">
+                <v-icon small> mdi-minus </v-icon>
               </v-btn>
             </template>
 
@@ -114,12 +105,8 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error" text @click="deleteCode(item)">
-                  Yes
-                </v-btn>
-                <v-btn color="success" text @click="item.deleteModal = false">
-                  Cancel
-                </v-btn>
+                <v-btn color="error" text @click="deleteCode(item)"> Yes </v-btn>
+                <v-btn color="success" text @click="item.deleteModal = false"> Cancel </v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -131,9 +118,6 @@
 <script>
 import CodeForm from "../components/Forms/CodeForm";
 export default {
-  props: {
-    user: Object
-  },
   components: {
     CodeForm
   },
@@ -181,7 +165,7 @@ export default {
   },
   created() {
     this.getCodes();
-    if (this.user.roles.includes("admin")) {
+    if (this.$store.getters.hasPermission("codesProps.assignedUser")) {
       this.$http.get(`${this.APIURL}/users/list`).then(response => {
         this.usersList = response.data;
       });
@@ -194,7 +178,11 @@ export default {
       });
     },
     displayAdminTokenButton(code) {
-      return code.assignedUser1 && code.assignedUser1._id === this.user._id || code.assignedUser2 && code.assignedUser2._id === this.user._id || this.user.roles.includes("admin");
+      return (
+        (code.assignedUser1 && code.assignedUser1._id === this.$store.state.user._id) ||
+        (code.assignedUser2 && code.assignedUser2._id === this.$store.state.user._id) ||
+        this.$store.getters.hasPermission("codes.viewAnyAdminToken")
+      );
     },
     getAdminToken(code) {
       this.$http

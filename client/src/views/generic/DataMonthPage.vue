@@ -8,28 +8,22 @@
     <v-card-title>
       {{ dataObject.date | moment("MMMM YYYY") }} data
       <v-spacer></v-spacer>
-      <div v-if="user.roles.includes('admin')">
-        <v-btn color="accent" class="black--text mr-4" @click="calculateDialog = true">(Re)Calculate</v-btn>
-        <v-btn color="accent" class="black--text" @click="downloadLog">
+      <div>
+        <v-btn color="accent" class="black--text mr-4" @click="calculateDialog = true" v-if="$store.getters.hasPermission('data.update')"
+          >(Re)Calculate</v-btn
+        >
+        <v-btn color="accent" class="black--text" @click="downloadLog" v-if="$store.getters.hasPermission('data.viewLogs')">
           <v-icon left dark>mdi-download</v-icon>
           Download logs
         </v-btn>
       </div>
     </v-card-title>
     <v-tabs fixed-tabs v-model="tab" background-color="secondary" v-if="dataObject.calculation && dataObject.calculation.hosts">
-      <v-tab>
-        Overview
-      </v-tab>
-      <v-tab>
-        Games summary
-      </v-tab>
-      <v-tab v-if="user.roles.includes('admin')">
-        Stats
-      </v-tab>
+      <v-tab> Overview </v-tab>
+      <v-tab> Games summary </v-tab>
+      <v-tab> Stats </v-tab>
     </v-tabs>
-    <v-alert outlined type="warning" color="accent" v-else>
-      No calculation available at the moment.
-    </v-alert>
+    <v-alert outlined type="warning" color="accent" v-else> No calculation available at the moment. </v-alert>
     <v-tabs-items v-model="tab" class="transparent" v-if="dataObject.calculation && dataObject.calculation.hosts" touchless>
       <v-tab-item>
         <v-card flat color="transparent">
@@ -43,7 +37,7 @@
             disable-pagination
           >
             <template v-slot:item.name="{ value }">
-              <strong class="username" v-if="value !== user.nickname">{{ value }}</strong>
+              <strong class="username" v-if="value !== $store.state.user.nickname">{{ value }}</strong>
               <strong class="username" v-else>
                 <span class="accent--text font-weight-bold">
                   <v-icon color="accent" small>mdi-account-arrow-left</v-icon>
@@ -71,7 +65,7 @@
                 disable-pagination
               >
                 <template v-slot:item.name="{ value }">
-                  <strong class="username" v-if="value !== user.nickname">{{ value }}</strong>
+                  <strong class="username" v-if="value !== $store.state.user.nickname">{{ value }}</strong>
                   <strong class="username" v-else>
                     <span class="accent--text font-weight-bold">
                       <v-icon color="accent" small>mdi-account-arrow-left</v-icon>
@@ -177,27 +171,19 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <th>
-                        Games hosted
-                      </th>
+                      <th>Games hosted</th>
                       <td>{{ dataObject.calculation.total.gamesHosted }}</td>
                     </tr>
                     <tr>
-                      <th>
-                        Hosting
-                      </th>
+                      <th>Hosting</th>
                       <td>{{ dataObject.calculation.total.hostingValue }}</td>
                     </tr>
                     <tr>
-                      <th>
-                        Leading
-                      </th>
+                      <th>Leading</th>
                       <td>{{ dataObject.calculation.total.leadingValue }}</td>
                     </tr>
                     <tr>
-                      <th>
-                        Total
-                      </th>
+                      <th>Total</th>
                       <td>{{ dataObject.calculation.total.totalValue }}</td>
                     </tr>
                   </tbody>
@@ -213,9 +199,6 @@
 <script>
 import ValuesForm from "../../components/Forms/DataValuesForm";
 export default {
-  props: {
-    user: Object
-  },
   components: {
     ValuesForm
   },
@@ -253,34 +236,38 @@ export default {
       return array;
     },
     getData(date) {
-      if (this.user.roles.includes("admin")) {
+      if (this.$store.getters.hasPermission("data.viewAll")) {
         this.$http
           .get(`${this.APIURL}/data/${date}`)
           .then(response => {
+            if (response.status >= 400) throw new Error(response.data);
             this.dataObject = response.data.data;
-            if (!this.dataObject.calculation) return;
+            if (!this.dataObject.calculation || !this.dataObject.calculation.hosts) return;
             const { ["summary"]: _, ...games } = this.dataObject.calculation.hosts;
 
             this.gameSpecificValues = games;
           })
           .catch(error => {
-            if (error.response.status === 400) {
-              this.$router.push("/notfound");
-            }
+            this.$store.commit("snackbarMessage", {
+              type: "error",
+              message: error
+            });
           });
       } else {
         this.$http
           .get(`${this.APIURL}/data/${date}/my`)
           .then(response => {
+            if (response.status >= 400) throw new Error(response.data);
             this.dataObject = response.data;
             if (!this.dataObject.calculation) return;
             const { ["summary"]: _, ...games } = this.dataObject.calculation.hosts;
             this.gameSpecificValues = games;
           })
           .catch(error => {
-            if (error.response.status === 400) {
-              this.$router.push("/notfound");
-            }
+            this.$store.commit("snackbarMessage", {
+              type: "error",
+              message: error
+            });
           });
       }
     },

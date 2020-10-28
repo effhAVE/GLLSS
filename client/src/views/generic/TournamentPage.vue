@@ -2,18 +2,14 @@
   <v-card height="100%" color="transparent" v-if="tournament">
     <v-snackbar v-model="changedRounds.length" color="secondary border--accent" bottom right multi-line :timeout="0">
       Do you want to save the changes?
-      <v-btn text color="accent" @click="saveRoundsChanges">
-        Save
-      </v-btn>
+      <v-btn text color="accent" @click="saveRoundsChanges"> Save </v-btn>
     </v-snackbar>
     <v-card-title>
       {{ tournament.name }}
       <v-spacer></v-spacer>
       <v-dialog v-model="addRoundModal" persistent max-width="600px">
         <template v-slot:activator="{ on }">
-          <v-btn class="success mr-4" v-if="user.roles.includes('admin')" v-on="on">
-            Add round
-          </v-btn>
+          <v-btn class="success mr-4" v-if="$store.getters.hasPermission('rounds.create')" v-on="on"> Add round </v-btn>
         </template>
         <v-card class="primary">
           <v-card-text>
@@ -30,9 +26,7 @@
       </v-dialog>
       <v-dialog v-model="editModal" persistent max-width="600px">
         <template v-slot:activator="{ on }">
-          <v-btn class="success mr-4" v-if="user.roles.includes('admin')" v-on="on">
-            Edit tournament
-          </v-btn>
+          <v-btn class="success mr-4" v-if="$store.getters.hasPermission('tournaments.update')" v-on="on"> Edit tournament </v-btn>
         </template>
         <v-card class="primary">
           <v-card-text>
@@ -44,9 +38,7 @@
       </v-dialog>
       <v-dialog v-model="copyModal" persistent max-width="600px">
         <template v-slot:activator="{ on }">
-          <v-btn class="accent darken-1 mr-4" v-if="user.roles.includes('admin')" v-on="on">
-            Copy tournament
-          </v-btn>
+          <v-btn class="accent darken-1 mr-4" v-if="$store.getters.hasPermission('tournaments.copy')" v-on="on"> Copy tournament </v-btn>
         </template>
         <v-card class="primary">
           <v-card-text>
@@ -58,9 +50,7 @@
       </v-dialog>
       <v-dialog v-model="deleteModal" max-width="500px" overlay-color="primary">
         <template v-slot:activator="{ on }">
-          <v-btn class="error" v-if="user.roles.includes('admin')" v-on="on">
-            Delete tournament
-          </v-btn>
+          <v-btn class="error" v-if="$store.getters.hasPermission('tournaments.delete')" v-on="on"> Delete tournament </v-btn>
         </template>
 
         <v-card>
@@ -70,18 +60,14 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="error" text @click="deleteTournament(tournament._id)">
-              Yes
-            </v-btn>
-            <v-btn color="success" text @click="deleteModal = false">
-              Cancel
-            </v-btn>
+            <v-btn color="error" text @click="deleteTournament(tournament._id)"> Yes </v-btn>
+            <v-btn color="success" text @click="deleteModal = false"> Cancel </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
     </v-card-title>
     <TournamentTable :tournament="tournament" :cost="tournamentCost" />
-    <div class="rounds d-flex align-start flex-wrap">
+    <div class="rounds d-flex align-start flex-wrap" v-if="$store.getters.hasPermission('rounds.view')">
       <Round
         v-for="round in tournament.rounds"
         :round="round"
@@ -187,7 +173,7 @@ export default {
         .get(`${this.APIURL}/tournaments/${id}`)
         .then(response => {
           this.tournament = response.data.tournament;
-          if (this.user.roles.includes("teamleader")) {
+          if (this.$store.getters.hasAnyPermission(["hosts.add", "teamLeads.add"])) {
             this.$http.get(`${this.APIURL}/users/list`).then(response => {
               this.usersAvailable = response.data;
             });

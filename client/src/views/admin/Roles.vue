@@ -44,8 +44,8 @@ export default {
     });
   },
   methods: {
-    createRole(role) {
-      this.$http.post(`${this.APIURL}/roles`, role).then(response => {
+    createRole(roles) {
+      this.$http.post(`${this.APIURL}/roles`, roles).then(response => {
         if (response.status >= 400) {
           throw new Error(response.data);
         }

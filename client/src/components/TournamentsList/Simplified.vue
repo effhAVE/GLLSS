@@ -25,9 +25,7 @@
       <template v-slot:footer>
         <div class="v-data-footer">
           <v-spacer></v-spacer>
-          <v-btn class="accent--text" text tile @click="$emit('getNextPage')" :disabled="allLoaded">
-            Load more
-          </v-btn>
+          <v-btn class="accent--text" text tile @click="$emit('getNextPage')" :disabled="allLoaded"> Load more </v-btn>
         </div>
       </template>
     </v-data-table>
@@ -37,7 +35,6 @@
 <script>
 export default {
   props: {
-    user: Object,
     tournaments: {
       type: Array,
       default: () => []

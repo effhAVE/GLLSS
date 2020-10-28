@@ -1,5 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import store from "../store";
+
 import Home from "../views/Home.vue";
 import Login from "../views/Login.vue";
 import PasswordReset from "../views/PasswordReset";
@@ -33,7 +35,6 @@ import DataCreate from "../views/admin/DataCreate.vue";
 import AccountCreate from "../views/admin/AccountCreate.vue";
 import CodeCreate from "../views/admin/CodeCreate.vue";
 import Roles from "../views/admin/Roles.vue";
-import store from "../store";
 
 Vue.use(VueRouter);
 
@@ -51,8 +52,7 @@ const routes = [
     name: "Teamkills",
     component: Teamkills,
     meta: {
-      requiresAuth: true,
-      requiredRole: "host"
+      requiresAuth: true
     }
   },
   {
@@ -61,7 +61,7 @@ const routes = [
     component: ApexAutoscoring,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "general.isHost"
     }
   },
   {
@@ -75,7 +75,7 @@ const routes = [
     component: Schedule,
     meta: {
       requiresAuth: true,
-      requiredRole: "teamleader"
+      requiredPermission: "general.isTL"
     }
   },
   {
@@ -84,7 +84,7 @@ const routes = [
     component: Accounts,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "accounts.view"
     }
   },
   {
@@ -93,7 +93,7 @@ const routes = [
     component: Codes,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "codes.view"
     }
   },
   {
@@ -102,7 +102,7 @@ const routes = [
     component: Articles,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "articles.view"
     }
   },
   {
@@ -111,7 +111,7 @@ const routes = [
     component: ArticlesCreate,
     meta: {
       requiresAuth: true,
-      requiredRole: "teamleader"
+      requiredPermission: "articles.create"
     }
   },
   {
@@ -120,7 +120,7 @@ const routes = [
     component: Data,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "data.view"
     }
   },
   {
@@ -129,7 +129,7 @@ const routes = [
     component: Calendar,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "general.isHost"
     }
   },
   {
@@ -138,7 +138,7 @@ const routes = [
     component: DataMonthPage,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "data.view"
     }
   },
   {
@@ -147,7 +147,7 @@ const routes = [
     component: Series,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "series.view"
     }
   },
   {
@@ -155,7 +155,7 @@ const routes = [
     component: SeriesPage,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "series.view"
     }
   },
   {
@@ -164,7 +164,7 @@ const routes = [
     component: Tournaments,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "tournaments.view"
     }
   },
   {
@@ -173,7 +173,7 @@ const routes = [
     component: TournamentPage,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "tournaments.view"
     }
   },
   {
@@ -182,7 +182,7 @@ const routes = [
     component: ArticlePage,
     meta: {
       requiresAuth: true,
-      requiredRole: "host"
+      requiredPermission: "articles.view"
     }
   },
   {
@@ -213,44 +213,67 @@ const routes = [
   {
     path: "/admin",
     meta: {
-      requiresAuth: true,
-      requiredRole: "admin"
+      requiresAuth: true
     },
     component: Admin,
     children: [
       {
         path: "unconfirmed",
         name: "Confirm",
-        component: ConfirmUsers
+        component: ConfirmUsers,
+        meta: {
+          requiredPermission: "users.confirm"
+        }
       },
       {
         path: "users",
         name: "Users",
-        component: Users
+        component: Users,
+        meta: {
+          requiredPermission: "users.update"
+        }
       },
       {
-        path: "tournaments/create",
-        component: TournamentCreate
+        path: "tournaments",
+        component: TournamentCreate,
+        meta: {
+          requiredPermission: "tournaments.create"
+        }
       },
       {
-        path: "accounts/create",
-        component: AccountCreate
+        path: "accounts",
+        component: AccountCreate,
+        meta: {
+          requiredPermission: "accounts.create"
+        }
       },
       {
-        path: "series/create",
-        component: SeriesCreate
+        path: "series",
+        component: SeriesCreate,
+        meta: {
+          requiredPermission: "series.create"
+        }
       },
       {
-        path: "data/create",
-        component: DataCreate
+        path: "data",
+        component: DataCreate,
+        meta: {
+          requiredPermission: "data.create"
+        }
       },
       {
-        path: "codes/create",
-        component: CodeCreate
+        path: "codes",
+        component: CodeCreate,
+        meta: {
+          requiredPermission: "codes.create"
+        }
       },
       {
         path: "roles",
-        component: Roles
+        component: Roles,
+        meta: {
+          requiredPermission: "roles.view"
+        }
       }
     ]
   },
@@ -287,12 +310,12 @@ router.beforeEach((to, from, next) => {
 });
 
 router.beforeEach((to, from, next) => {
-  const user = Vue.$jwt.decode();
-  if (to.matched.some(record => record.meta.requiredRole)) {
+  if (to.matched.some(record => record.meta.requiredPermission)) {
     const {
-      meta: { requiredRole }
-    } = to.matched.find(m => m.meta.requiredRole);
-    if (user.roles.includes(requiredRole)) {
+      meta: { requiredPermission }
+    } = to.matched.find(m => m.meta.requiredPermission);
+
+    if (store.getters.hasPermission(requiredPermission)) {
       return next();
     }
 

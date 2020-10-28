@@ -2,12 +2,10 @@
   <v-app>
     <v-snackbar v-model="snackbar.show" :color="snackbar.type" bottom right multi-line>
       {{ snackbar.message }}
-      <v-btn text @click="snackbar.show = false">
-        Close
-      </v-btn>
+      <v-btn text @click="snackbar.show = false"> Close </v-btn>
     </v-snackbar>
     <v-navigation-drawer v-model="drawer" app clipped color="primary lighten-1" touchless v-if="user">
-      <Navigation :user="user" />
+      <Navigation />
     </v-navigation-drawer>
 
     <v-app-bar app clipped-left flat color="secondary">
@@ -18,17 +16,13 @@
       <span v-if="user" class="accent--text font-weight-bold mx-4">
         {{ user.nickname }}
       </span>
-      <v-btn text v-if="isLoggedIn" @click="logout" class="hidden-xs-only">
-        Logout
-      </v-btn>
-      <v-btn text v-else @click="$router.push('/login')">
-        Log in
-      </v-btn>
+      <v-btn text v-if="isLoggedIn" @click="logout" class="hidden-xs-only"> Logout </v-btn>
+      <v-btn text v-else @click="$router.push('/login')"> Log in </v-btn>
     </v-app-bar>
 
     <v-content class="primary">
       <keep-alive include="Home, Article">
-        <router-view class="pa-md-8 pa-sm-4 pa-0" :user="user"></router-view>
+        <router-view class="pa-md-8 pa-sm-4 pa-0"></router-view>
       </keep-alive>
     </v-content>
     <v-bottom-navigation class="d-sm-none" background-color="primary" color="accent" app shift hide-on-scroll>
@@ -67,7 +61,7 @@ export default {
       message: ""
     }
   }),
-  created: function() {
+  created: function () {
     if (this.isLoggedIn) {
       this.$store.dispatch("renewTokenTask");
     }
@@ -95,18 +89,18 @@ export default {
     });
   },
   computed: {
-    isLoggedIn: function() {
+    isLoggedIn: function () {
       return this.$store.getters.isLoggedIn;
     },
     token() {
       return this.$store.state.token;
     },
     user() {
-      return this.$jwt.decode(this.token);
+      return this.$store.state.user;
     }
   },
   methods: {
-    logout: function() {
+    logout: function () {
       this.$store.dispatch("logout");
     }
   }

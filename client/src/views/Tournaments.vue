@@ -2,17 +2,13 @@
   <v-card height="100%" color="transparent">
     <v-snackbar color="secondary border--accent" bottom right multi-line :timeout="0" :value="availableQueue.length">
       You have {{ availableQueue.length }} availability change <span v-if="availableQueue.length !== 1"> s </span>. Do you want to save them?
-      <v-btn text color="accent" @click="onAvailabilitySubmit">
-        Save
-      </v-btn>
+      <v-btn text color="accent" @click="onAvailabilitySubmit"> Save </v-btn>
     </v-snackbar>
-    <v-card-title>
-      Tournaments
-    </v-card-title>
+    <v-card-title> Tournaments </v-card-title>
     <v-card-text>
       <v-switch v-model="showPastTournaments" label="Show past tournaments" color="accent" dense></v-switch>
-      <ActiveTournaments :user="user" @availabilityChange="onAvailabilityChange" :gameFilters="gamesList" :regionFilters="regionsList" />
-      <PastTournaments :user="user" v-show="showPastTournaments" :gameFilters="gamesList" :regionFilters="regionsList" />
+      <ActiveTournaments @availabilityChange="onAvailabilityChange" :gameFilters="gamesList" :regionFilters="regionsList" />
+      <PastTournaments v-show="showPastTournaments" :gameFilters="gamesList" :regionFilters="regionsList" />
     </v-card-text>
   </v-card>
 </template>
@@ -22,9 +18,6 @@ import ActiveTournaments from "../components/TournamentsList/Active";
 import PastTournaments from "../components/TournamentsList/Past";
 
 export default {
-  props: {
-    user: Object
-  },
   components: {
     ActiveTournaments,
     PastTournaments

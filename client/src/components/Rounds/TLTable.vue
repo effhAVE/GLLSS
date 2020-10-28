@@ -4,14 +4,14 @@
     :items="round.teamLeads"
     v-bind="tableSettings"
     class="mt-8 table-background table-shrinked overflow-hidden"
-    :class="{ 'not-editable': !user.roles.includes('teamleader') }"
+    :class="{ 'not-editable': !$store.getters.hasPermission('teamLeads.update') }"
     no-data-text="No team leads set."
   >
     <template v-slot:item.teamLeads="{ item }">
       <v-menu bottom left offset-y max-height="300px">
         <template v-slot:activator="{ on }">
           <div class="px-4" v-on="on">
-            <v-btn icon color="error" @click.stop="changeRoundTL(round, item.host, '')" v-if="user.roles.includes('teamleader')">
+            <v-btn icon color="error" @click.stop="changeRoundTL(round, item.host, '')" v-if="$store.getters.hasPermission('teamLeads.remove')">
               <v-icon>mdi-skull-crossbones</v-icon>
             </v-btn>
             <div class="oneline-text" style="max-width: 100px">
@@ -19,7 +19,7 @@
             </div>
             <div class="ml-auto">
               <v-btn
-                v-if="!item.ready && !item.lostLeading && item.host._id === user._id"
+                v-if="!item.ready && !item.lostLeading && item.host._id === $store.state.user._id"
                 icon
                 class="ml-auto"
                 @click.stop="$emit('ready', item)"
@@ -30,16 +30,17 @@
               <div v-if="+item.timeBalance" class="icon-size" :class="item.timeBalance > 0 ? 'success--text' : 'error--text'">
                 <span v-if="item.timeBalance > 0">+</span>{{ item.timeBalance }}
               </div>
-              <v-icon v-if="item.lostLeading" color="warning">
-                mdi-account-off
-              </v-icon>
-              <v-icon v-else-if="item.ready" color="success">
-                mdi-account-check
-              </v-icon>
-              <v-icon class="ml-auto" v-else color="error">
-                mdi-account-remove
-              </v-icon>
-              <v-menu bottom right offset-x v-model="item.menu" :close-on-content-click="false" v-if="user.roles.includes('teamleader')">
+              <v-icon v-if="item.lostLeading" color="warning"> mdi-account-off </v-icon>
+              <v-icon v-else-if="item.ready" color="success"> mdi-account-check </v-icon>
+              <v-icon class="ml-auto" v-else color="error"> mdi-account-remove </v-icon>
+              <v-menu
+                bottom
+                right
+                offset-x
+                v-model="item.menu"
+                :close-on-content-click="false"
+                v-if="$store.getters.hasPermission('teamLeads.update')"
+              >
                 <template v-slot:activator="{ on }">
                   <v-btn icon v-on="on">
                     <v-icon>mdi-pencil</v-icon>
@@ -48,14 +49,30 @@
                 <v-list>
                   <div class="text-center">{{ item.host.nickname }}</div>
                   <v-form>
-                    <v-list-item v-if="user.roles.includes('admin')">
-                      <v-checkbox v-model="item.ready" label="Ready" color="accent"></v-checkbox>
+                    <v-list-item>
+                      <v-checkbox
+                        v-model="item.ready"
+                        label="Ready"
+                        color="accent"
+                        :disabled="!$store.getters.hasPermission('teamLeadsProps.ready')"
+                      ></v-checkbox>
                     </v-list-item>
                     <v-list-item>
-                      <v-checkbox v-model="item.lostLeading" label="Lost leading" color="accent"></v-checkbox>
+                      <v-checkbox
+                        v-model="item.lostLeading"
+                        label="Lost leading"
+                        color="accent"
+                        :disabled="!$store.getters.hasPermission('teamLeadsProps.lostLeading')"
+                      ></v-checkbox>
                     </v-list-item>
                     <v-list-item>
-                      <v-text-field label="Time balance" v-model="item.timeBalance" type="number" color="accent"></v-text-field>
+                      <v-text-field
+                        label="Time balance"
+                        v-model="item.timeBalance"
+                        type="number"
+                        color="accent"
+                        :disabled="!$store.getters.hasPermission('teamLeadsProps.balance')"
+                      ></v-text-field>
                     </v-list-item>
                     <v-container>
                       <v-row>
@@ -79,24 +96,24 @@
             </div>
           </div>
         </template>
-        <v-list v-if="user.roles.includes('teamleader') && isPast">
+        <v-list v-if="$store.getters.hasPermission('teamLeads.add') && isPast">
           <v-list-item v-for="(host, i) in availableEdited" :key="i" @click="changeRoundTL(round, item.host, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
-        <v-list v-else-if="user.roles.includes('teamleader') && availableTLs.length">
+        <v-list v-else-if="$store.getters.hasPermission('teamLeads.add') && availableTLs.length">
           <v-list-item v-for="(host, i) in availableTLs" :key="i" @click="changeRoundTL(round, item.host, host)">
             <v-list-item-title>{{ host.nickname }}</v-list-item-title>
           </v-list-item>
         </v-list>
-        <v-list v-else-if="user.roles.includes('teamleader')">
+        <v-list v-else-if="$store.getters.hasPermission('teamLeads.add')">
           <v-list-item>
             <v-list-item-title>No teamleaders available.</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
     </template>
-    <template v-slot:body.append v-if="user.roles.includes('teamleader')">
+    <template v-slot:body.append v-if="$store.getters.hasPermission('teamLeads.add')">
       <v-menu bottom left max-height="300px">
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" color="success" width="100%">
@@ -128,7 +145,6 @@ export default {
   props: {
     round: Object,
     tableSettings: Object,
-    user: Object,
     usersAvailable: Array,
     isPast: Boolean
   },
@@ -147,7 +163,7 @@ export default {
   },
   computed: {
     availableTLs() {
-      return this.round.available.filter(host => host.roles.includes("teamleader"));
+      return this.round.available.filter(host => host.roles.some(role => role.permissions.includes("hosting.canLead")));
     }
   },
   methods: {

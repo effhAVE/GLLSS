@@ -10,12 +10,8 @@
     </div>
     <v-row>
       <v-spacer></v-spacer>
-      <v-btn color="accent black--text" class="mt-8" text @click="onEmit">
-        Save
-      </v-btn>
-      <v-btn color="accent black--text" class="mt-8" text @click="$emit('cancel')" v-if="code">
-        Cancel
-      </v-btn>
+      <v-btn color="accent black--text" class="mt-8" text @click="onEmit"> Save </v-btn>
+      <v-btn color="accent black--text" class="mt-8" text @click="$emit('cancel')" v-if="code"> Cancel </v-btn>
     </v-row>
   </v-form>
 </template>
@@ -23,8 +19,7 @@
 <script>
 export default {
   props: {
-    code: Object,
-    user: Object
+    code: Object
   },
   data() {
     return {

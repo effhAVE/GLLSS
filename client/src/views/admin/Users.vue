@@ -21,7 +21,7 @@
           :ripple="false"
           @input="select"
           :value="isSelected"
-          :disabled="item.nickname === user.nickname || item.roles.includes(`masteradmin`)"
+          :disabled="item.nickname === $store.state.user.nickname || item.roles.some(role => role.permissions.includes(`users.permanent`))"
         ></v-simple-checkbox>
       </template>
       <template v-slot:item.createdAt="{ item }">
@@ -30,30 +30,30 @@
       <template v-slot:item.roles="{ item }">
         <v-select
           :items="selectableRoles"
-          :disabled="isDisabled(item) || user._id === item._id"
-          :value="item.roles[0]"
+          item-text="role.name"
+          item-value="role._id"
+          item-color="accent"
+          :value="item.roles.map(role => role._id)"
           @input="saveRole(item._id, $event)"
           background-color="transparent"
           color="accent"
           solo
           flat
           hide-details
+          multiple
         >
         </v-select>
       </template>
     </v-data-table>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn class="error" @click="deleteUsers" :disabled="!selected.length || !user.roles.includes('masteradmin')">Delete users</v-btn>
+      <v-btn class="error" @click="deleteUsers" :disabled="!selected.length || !$store.getters.hasPermission('users.delete')">Delete users</v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
 export default {
-  props: {
-    user: Object
-  },
   data() {
     return {
       search: "",
@@ -77,23 +77,16 @@ export default {
     selectableRoles() {
       return this.roles.map(role => {
         return {
-          text: role,
+          role,
           disabled: this.disabledRoles.includes(role)
         };
       });
     }
   },
   methods: {
-    isSelectable(role) {
-      if (this.user.roles.includes("masteradmin")) return false;
-      return !this.user.roles.includes(role) || this.user.roles[0] === role;
-    },
-    isDisabled(item) {
-      return this.isSelectable(item.roles[0]);
-    },
     saveRole(userID, value) {
       this.$http
-        .put(`${this.APIURL}/users/${userID}/roles`, { role: value })
+        .put(`${this.APIURL}/users/${userID}/roles`, value)
         .then(response => {
           this.$store.commit("snackbarMessage", {
             message: "Role saved!",
@@ -127,9 +120,9 @@ export default {
     }
   },
   mounted() {
-    this.$http.get(`${this.APIURL}/collections/roles`).then(response => {
+    this.$http.get(`${this.APIURL}/roles`).then(response => {
       this.roles = response.data;
-      this.disabledRoles = this.roles.filter(role => this.isSelectable(role)).filter(role => role !== "guest");
+      this.disabledRoles = this.roles.filter(role => this.$store.state.user.roles[0].importance <= role.importance);
     });
     this.$http
       .get(`${this.APIURL}/users/`)

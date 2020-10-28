@@ -2,18 +2,14 @@ const auth = require("../middleware/auth");
 const validateAccess = require("../middleware/validateAccess");
 const validateObjectId = require("../middleware/validateObjectId");
 const _ = require("lodash");
-const {
-  Tournament
-} = require("../models/tournament");
-const {
-  User
-} = require("../models/user");
+const { Tournament } = require("../models/tournament");
+const { User } = require("../models/user");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
 const moment = require("moment");
 
-router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
+router.put("/", auth, validateAccess("general.isTL"), async (req, res) => {
   const collisions = [];
   for (const roundRequest of req.body) {
     const tournament = await Tournament.findById(roundRequest.tournamentID);
@@ -29,17 +25,13 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
     });
 
     try {
-      const {
-        hosts,
-        available,
-        teamLeads
-      } = roundRequest.round;
+      const { hosts, available, teamLeads } = roundRequest.round;
       const excluded = roundRequest.excluded;
 
       if (Array.isArray(hosts) && Array.isArray(available) && Array.isArray(teamLeads) && Array.isArray(excluded)) {
         [hosts, teamLeads].forEach(array => {
           if (array.some(hostObject => typeof hostObject.host === "undefined")) return res.status(400).send("Bad request.");
-        })
+        });
       } else {
         return res.status(400).send("Bad request.");
       }
@@ -50,7 +42,8 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
             const host = await User.findById(hostObject.host).populate({
               path: "tournamentsHosted",
               match: {
-                $and: [{
+                $and: [
+                  {
                     "rounds.startDate": {
                       $lt: round.endDate
                     }
@@ -61,7 +54,7 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
                     }
                   },
                   {
-                    "name": {
+                    name: {
                       $ne: tournament.name
                     }
                   }
@@ -71,9 +64,12 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
             });
 
             host.tournamentsHosted = host.tournamentsHosted.filter(tournament => {
-              tournament.rounds = tournament.rounds.filter(tournamentRound => moment(tournamentRound.startDate).isBefore(moment(round.endDate)) &&
-                moment(tournamentRound.endDate).isAfter(moment(round.startDate)) &&
-                tournamentRound.hosts.some(hostObject => hostObject.host.equals(host._id)));
+              tournament.rounds = tournament.rounds.filter(
+                tournamentRound =>
+                  moment(tournamentRound.startDate).isBefore(moment(round.endDate)) &&
+                  moment(tournamentRound.endDate).isAfter(moment(round.startDate)) &&
+                  tournamentRound.hosts.some(hostObject => hostObject.host.equals(host._id))
+              );
               return !!tournament.rounds.length;
             });
 
@@ -90,29 +86,39 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
             }
           }
 
-          await User.findByIdAndUpdate(hostObject.host, {
-              "$addToSet": {
-                "tournamentsHosted": tournament._id
+          await User.findByIdAndUpdate(
+            hostObject.host,
+            {
+              $addToSet: {
+                tournamentsHosted: tournament._id
               }
-            }, {
+            },
+            {
               new: true
-            })
-            .exec((error, data) => data);
-        };
-      };
+            }
+          ).exec((error, data) => data);
+        }
+      }
 
       excluded.forEach(async hostObject => {
         for (const round of tournament.rounds) {
-          if (round.hosts.some(hostObj => hostObj.host.equals(hostObject._id)) || round.teamLeads.some(TLObject => TLObject.host.equals(hostObject._id))) return;
+          if (
+            round.hosts.some(hostObj => hostObj.host.equals(hostObject._id)) ||
+            round.teamLeads.some(TLObject => TLObject.host.equals(hostObject._id))
+          )
+            return;
         }
-        await User.findByIdAndUpdate(hostObject, {
-            "$pull": {
-              "tournamentsHosted": tournament._id
+        await User.findByIdAndUpdate(
+          hostObject,
+          {
+            $pull: {
+              tournamentsHosted: tournament._id
             }
-          }, {
+          },
+          {
             new: true
-          })
-          .exec((error, data) => data);
+          }
+        ).exec((error, data) => data);
       });
 
       await tournament.save();
@@ -125,76 +131,78 @@ router.put("/", auth, validateAccess("teamleader"), async (req, res) => {
   return res.send(collisions);
 });
 
-router.get("/", auth, validateAccess("host"), async (req, res) => {
+router.get("/", auth, validateAccess("general.isHost"), async (req, res) => {
   const weekNumber = req.query.week || 0;
   const rangeStart = moment.utc().add(weekNumber, "weeks").startOf("isoWeek").toDate();
   const rangeEnd = moment.utc().add(weekNumber, "weeks").endOf("isoWeek").toDate();
-  const aggregated = await Tournament
-    .aggregate([{
-        $match: {
-          $and: [{
-              endDate: {
-                $gte: rangeStart
-              }
-            },
-            {
-              localStartDate: {
-                $lte: rangeEnd
-              }
+  const aggregated = await Tournament.aggregate([
+    {
+      $match: {
+        $and: [
+          {
+            endDate: {
+              $gte: rangeStart
             }
-          ]
-
-        }
-      },
-      {
-        $unwind: "$rounds"
-      },
-      {
-        $match: {
-          $and: [{
+          },
+          {
+            localStartDate: {
+              $lte: rangeEnd
+            }
+          }
+        ]
+      }
+    },
+    {
+      $unwind: "$rounds"
+    },
+    {
+      $match: {
+        $and: [
+          {
             "rounds.localStartDate": {
               $lte: rangeEnd
             }
-          }, {
+          },
+          {
             "rounds.localStartDate": {
               $gte: rangeStart
             }
-          }]
-
-        }
-      },
-      {
-        $sort: {
-          "rounds.startDate": 1
-        }
-      },
-      {
-        $addFields: {
-          "rounds.tournamentName": "$name",
-          "rounds.tournamentID": "$_id"
-        }
-      },
-      {
-        $group: {
-          "_id": "$game",
-          "rounds": {
-            "$push": "$rounds"
           }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          game: "$_id",
-          rounds: 1
-        }
-      },
-      {
-        $sort: {
-          game: 1
+        ]
+      }
+    },
+    {
+      $sort: {
+        "rounds.startDate": 1
+      }
+    },
+    {
+      $addFields: {
+        "rounds.tournamentName": "$name",
+        "rounds.tournamentID": "$_id"
+      }
+    },
+    {
+      $group: {
+        _id: "$game",
+        rounds: {
+          $push: "$rounds"
         }
       }
-    ]);
+    },
+    {
+      $project: {
+        _id: 0,
+        game: "$_id",
+        rounds: 1
+      }
+    },
+    {
+      $sort: {
+        game: 1
+      }
+    }
+  ]);
 
   const rounds = await Tournament.populate(aggregated, {
     path: "rounds.hosts.host rounds.teamLeads.host rounds.available",

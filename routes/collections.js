@@ -31,7 +31,7 @@ router.get("/permissions", auth, async (req, res) => {
   res.send(permissions);
 });
 
-router.get("/apex", auth, validateAccess("host"), async (req, res) => {
+router.get("/apex", auth, validateAccess("general.isHost"), async (req, res) => {
   const apiID = req.query.id;
   if (!apiID) return res.status(400).send("No ID provided.");
   axios
@@ -66,7 +66,7 @@ router.get("/apex", auth, validateAccess("host"), async (req, res) => {
     });
 });
 
-router.get("/teamkills", auth, validateAccess("host"), async (req, res) => {
+router.get("/teamkills", auth, validateAccess(["general.isHost", "general.isTL"]), async (req, res) => {
   const matchID = req.query.match;
   if (!matchID) return res.status(400).send("No match ID provided.");
 

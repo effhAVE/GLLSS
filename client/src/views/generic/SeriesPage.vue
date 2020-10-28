@@ -5,9 +5,7 @@
       <v-spacer></v-spacer>
       <v-dialog v-model="editModal" persistent max-width="600px">
         <template v-slot:activator="{ on }">
-          <v-btn class="success mr-4" v-if="user.roles.includes('admin')" v-on="on">
-            Edit series
-          </v-btn>
+          <v-btn class="success mr-4" v-if="$store.getters.hasPermission('series.update')" v-on="on"> Edit series </v-btn>
         </template>
         <v-card class="primary">
           <v-card-text>
@@ -19,7 +17,7 @@
       </v-dialog>
       <v-dialog v-model="deleteModal" max-width="500px" overlay-color="primary">
         <template v-slot:activator="{ on }">
-          <v-btn class="error" v-if="user.roles.includes('admin')" v-on="on" :disabled="!!series.tournaments.length">
+          <v-btn class="error" v-if="$store.getters.hasPermission('series.delete')" v-on="on" :disabled="!!series.tournaments.length">
             {{ series.tournaments.length ? "Cannot be deleted" : "Delete series" }}
           </v-btn>
         </template>
@@ -31,17 +29,13 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="error" text @click="deleteSeries(series._id)">
-              Yes
-            </v-btn>
-            <v-btn color="success" text @click="deleteModal = false">
-              Cancel
-            </v-btn>
+            <v-btn color="error" text @click="deleteSeries(series._id)"> Yes </v-btn>
+            <v-btn color="success" text @click="deleteModal = false"> Cancel </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
     </v-card-title>
-    <span class="warning--text mb-4" v-if="series.tournaments.length && user.roles.includes('admin')"
+    <span class="warning--text mb-4" v-if="series.tournaments.length && $store.getters.hasPermission('series.delete')"
       >Warning: Series cannot be deleted if they include tournaments.</span
     >
     <SeriesTable :series="series" />
