@@ -164,6 +164,7 @@ export default {
     showAdminSubdir() {
       return this.$store.getters.hasAnyPermission([
         "users.update",
+        "roles.view",
         "users.confirm",
         "tournaments.create",
         "series.create",

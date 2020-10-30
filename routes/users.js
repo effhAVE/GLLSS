@@ -38,7 +38,6 @@ async function prepareVerificationEmail(user) {
 }
 
 router.get("/", auth, validateAccess("users.view"), async (req, res) => {
-  /* await User.updateMany({}, { $set: { roles: [] } }); */
   const users = await User.find({
     roles: {
       $ne: []

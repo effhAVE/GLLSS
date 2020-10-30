@@ -9,7 +9,7 @@
           required
           outlined
           dense
-          :disabled="!$store.getters.hasPermission('rolesProps.name')"
+          :disabled="!$store.getters.hasPermission('rolesProps.name') || (role && !role.editable)"
         ></v-text-field>
       </v-row>
       <v-row align="center" no-gutters>
@@ -20,7 +20,7 @@
           color="accent"
           true-value="transparent"
           false-value="#FF0000"
-          :disabled="!$store.getters.hasPermission('rolesProps.color')"
+          :disabled="!$store.getters.hasPermission('rolesProps.color') || (role && !role.editable)"
         ></v-switch>
         <v-menu offset-y :close-on-content-click="false" v-if="draft.color !== 'transparent'">
           <template v-slot:activator="{ on }">
@@ -43,7 +43,7 @@
           :rules="[v => (v >= 1 && v <= 5) || 'Cannot be higher than 5 and lower than 1!']"
           hint="Specifies color used when having multiple roles"
           persistent-hint
-          :disabled="!$store.getters.hasPermission('rolesProps.importance')"
+          :disabled="!$store.getters.hasPermission('rolesProps.importance') || (role && !role.editable)"
         ></v-text-field>
       </v-row>
       <v-row align="center" no-gutters>
@@ -56,7 +56,10 @@
         ></v-switch>
       </v-row>
       <p class="title accent--text">Permissions</p>
-      <PermissionsList :rolePermissions.sync="draft.permissions" :disabled="!$store.getters.hasPermission('rolesProps.permissions')" />
+      <PermissionsList
+        :rolePermissions.sync="draft.permissions"
+        :disabled="!$store.getters.hasPermission('rolesProps.permissions') || (role && !role.editable)"
+      />
     </v-card-text>
 
     <v-row>

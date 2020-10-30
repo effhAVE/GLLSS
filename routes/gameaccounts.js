@@ -48,7 +48,6 @@ router.put("/:id", auth, validateAccess("accounts.update"), validateObjectId, pr
   if (!account) return res.status(400).send("No account found.");
 
   request = req.body.filteredProps;
-  console.log(request);
   if (request.presets) {
     request.presets = request.presets.map(preset => {
       return preset.name || preset;
