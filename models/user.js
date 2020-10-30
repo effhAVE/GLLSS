@@ -32,7 +32,11 @@ const userSchema = new mongoose.Schema(
     roles: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }],
       default: [],
-      autopopulate: true
+      autopopulate: {
+        options: {
+          sort: "-importance name"
+        }
+      }
     },
     tournamentsHosted: [
       {

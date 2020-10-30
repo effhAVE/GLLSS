@@ -123,7 +123,7 @@ export default {
   mounted() {
     this.$http.get(`${this.APIURL}/roles`).then(response => {
       this.roles = response.data;
-      this.disabledRoles = this.roles.filter(role => this.$store.state.user.roles[0].importance <= role.importance);
+      this.disabledRoles = this.roles.filter(role => this.$store.state.user.roles[0].importance < role.importance);
     });
     this.$http
       .get(`${this.APIURL}/users/`)

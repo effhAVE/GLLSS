@@ -171,13 +171,13 @@ router.post("/resend-verification", async (req, res) => {
   });
 });
 
-router.put("/:id/roles", auth, validateAccess("roles.update"), validateObjectId, async (req, res) => {
+router.put("/:id/roles", auth, validateAccess("users.modifyRoles"), validateObjectId, async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).send("No user found.");
   /* if (user._id.equals(req.user._id)) return res.status(400).send("Cannot change own role!"); */
   const rolesList = await Role.find({});
   const roles = req.body;
-  if (!roles || roles.every(role => rolesList.find(r => r.equals(role._id)))) return res.status(400).send("Bad request.");
+  if (!roles || !roles.every(role => !!rolesList.find(r => r.equals(role)))) return res.status(400).send("Bad request.");
   user.roles = roles;
 
   await user.save();
