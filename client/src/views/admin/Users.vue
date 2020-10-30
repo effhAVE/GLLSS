@@ -34,6 +34,7 @@
           item-value="role._id"
           item-color="accent"
           :value="item.roles.map(role => role._id)"
+          :disabled="!$store.getters.hasPermission('users.modifyRoles')"
           @input="saveRole(item._id, $event)"
           background-color="transparent"
           color="accent"

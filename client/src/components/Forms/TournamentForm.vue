@@ -9,10 +9,11 @@
       required
       persistent-hint
       :rules="validations.name"
+      :disabled="!!tournament && !$store.getters.hasPermission('tournamentsProps.name')"
     ></v-text-field>
     <v-select
       :items="seriesList"
-      :disabled="tournament"
+      :disabled="!!tournament || !$store.getters.hasPermission('tournamentsProps.series')"
       v-model="draft.series"
       label="Series"
       prepend-icon="mdi-view-list"
@@ -26,15 +27,35 @@
         {{ item.name }}
       </template>
     </v-select>
-    <v-text-field v-model="draft.gllURL" color="accent" label="Admin page URL" prepend-icon="mdi-share" :rules="validations.url"></v-text-field>
-    <DatetimePicker :date="draft.startDate" label="Start date" @input="draft.startDate = $event" :rules="validations.startDate" />
-    <DatetimePicker :date="draft.endDate" label="End date" @input="draft.endDate = $event" icon="mdi-calendar-check" :rules="validations.endDate" />
+    <v-text-field
+      v-model="draft.gllURL"
+      color="accent"
+      label="Admin page URL"
+      prepend-icon="mdi-share"
+      :rules="validations.url"
+      :disabled="!!tournament && !$store.getters.hasPermission('tournamentsProps.gllURL')"
+    ></v-text-field>
+    <DatetimePicker
+      :date="draft.startDate"
+      label="Start date"
+      @input="draft.startDate = $event"
+      :rules="validations.startDate"
+      :disabled="!!tournament && !$store.getters.hasPermission('tournamentsProps.dates')"
+    />
+    <DatetimePicker
+      :date="draft.endDate"
+      label="End date"
+      @input="draft.endDate = $event"
+      icon="mdi-calendar-check"
+      :rules="validations.endDate"
+      :disabled="!!tournament && !$store.getters.hasPermission('tournamentsProps.dates')"
+    />
     <v-select
       :items="gamesList"
       label="Game"
       prepend-icon="mdi-gamepad"
       color="accent"
-      :disabled="!!draft.series"
+      :disabled="(!!tournament && !!draft.series) || !$store.getters.hasPermission('tournamentsProps.game')"
       v-model="draft.game"
       :rules="validations.seriesInherited"
     ></v-select>
@@ -48,17 +69,20 @@
       persistent-hint
       v-model="draft.region"
       :rules="validations.required"
+      :disabled="!!tournament && !$store.getters.hasPermission('tournamentsProps.region')"
     ></v-select>
-    <v-checkbox v-model="draft.countedByRounds" label="Counted by rounds" prepend-icon="mdi-currency-usd" color="accent"></v-checkbox>
+    <v-checkbox
+      v-model="draft.countedByRounds"
+      label="Counted by rounds"
+      prepend-icon="mdi-currency-usd"
+      color="accent"
+      :disabled="!!tournament && !$store.getters.hasPermission('tournamentsProps.countedByRounds')"
+    ></v-checkbox>
     <v-checkbox v-if="copy" v-model="copyRounds" label="Copy rounds" prepend-icon="mdi-view-grid-plus" color="accent"></v-checkbox>
     <v-row>
       <v-spacer></v-spacer>
-      <v-btn color="accent black--text" class="mt-8" text @click="onSubmit" :disabled="!valid">
-        Save
-      </v-btn>
-      <v-btn color="accent black--text" class="mt-8" text @click="$emit('cancel')" v-if="tournament">
-        Cancel
-      </v-btn>
+      <v-btn color="accent black--text" class="mt-8" text @click="onSubmit" :disabled="!valid"> Save </v-btn>
+      <v-btn color="accent black--text" class="mt-8" text @click="$emit('cancel')" v-if="tournament"> Cancel </v-btn>
     </v-row>
   </v-form>
 </template>
@@ -79,14 +103,8 @@ export default {
       draft: {
         name: "Unnamed tournament",
         gllURL: "",
-        endDate: this.$moment()
-          .add(8, "hours")
-          .startOf("hour")
-          .toDate(),
-        startDate: this.$moment()
-          .add(1, "hours")
-          .startOf("hour")
-          .toDate(),
+        endDate: this.$moment().add(8, "hours").startOf("hour").toDate(),
+        startDate: this.$moment().add(1, "hours").startOf("hour").toDate(),
         series: null,
         game: "",
         region: "",

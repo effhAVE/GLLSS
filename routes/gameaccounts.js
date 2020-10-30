@@ -1,6 +1,7 @@
 const auth = require("../middleware/auth");
 const validateAccess = require("../middleware/validateAccess");
 const validateObjectId = require("../middleware/validateObjectId");
+const propsFilter = require("../middleware/propsFilter");
 const { User } = require("../models/user");
 const { Gameaccount, validate } = require("../models/gameaccount");
 const { Preset } = require("../models/preset");
@@ -39,31 +40,40 @@ router.get("/:id", auth, validateAccess("accounts.view"), validateObjectId, asyn
   return res.send(account);
 });
 
-router.put("/:id", auth, validateAccess("teamleader"), validateObjectId, async (req, res) => {
-  const request = _.pick(req.body, ["login", "password", "claimedBy", "presets", "claimExpiration", "locked", "notes", "haveAccess"]);
+router.put("/:id", auth, validateAccess("accounts.update"), validateObjectId, propsFilter("accountsProps"), async (req, res) => {
+  let request = _.pick(req.body, ["login", "password", "claimedBy", "presets", "claimExpiration", "locked", "notes", "haveAccess"]);
   const { error } = validate(request);
   if (error) return res.status(400).send(error.details[0].message);
   const account = await Gameaccount.findById(req.params.id);
   if (!account) return res.status(400).send("No account found.");
-  request.presets = request.presets.map(preset => {
-    return preset.name || preset;
-  });
-  account.presets = account.presets.filter(accountPreset => request.presets.some(preset => accountPreset.name === preset));
-  request.presets
-    .filter(preset => !account.presets.some(accountPreset => accountPreset.name === preset))
-    .forEach(preset => {
-      account.presets.push(
-        new Preset({
-          name: preset,
-          createdBy: req.user._id
-        })
-      );
+
+  request = req.body.filteredProps;
+  console.log(request);
+  if (request.presets) {
+    request.presets = request.presets.map(preset => {
+      return preset.name || preset;
     });
 
-  delete request.presets;
-  Object.assign(account, request);
-  await account.save();
-  return res.send(account);
+    account.presets = account.presets.filter(accountPreset => request.presets.some(preset => accountPreset.name === preset));
+    request.presets
+      .filter(preset => !account.presets.some(accountPreset => accountPreset.name === preset))
+      .forEach(preset => {
+        account.presets.push(
+          new Preset({
+            name: preset,
+            createdBy: req.user._id
+          })
+        );
+      });
+
+    delete request.presets;
+
+    await account.save();
+  }
+
+  await Gameaccount.findOneAndUpdate({ _id: req.params.id }, request, { new: true }, (err, account) => {
+    return err ? res.send(err) : res.send(account);
+  });
 });
 
 router.put("/:id/access", auth, validateAccess("accounts.markAccess"), validateObjectId, async (req, res) => {

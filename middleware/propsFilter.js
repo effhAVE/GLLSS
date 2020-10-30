@@ -9,7 +9,10 @@ module.exports = function (propsName) {
     allowedProps = [...new Set(allowedProps)];
     allowedProps.forEach(prop => {
       const propName = prop.split(".")[1];
-      returnObject[propName] = req.body[propName];
+      if (propName === "dates") {
+        returnObject.startDate = req.body.startDate;
+        returnObject.endDate = req.body.endDate;
+      } else returnObject[propName] = req.body[propName];
     });
 
     req.body.filteredProps = returnObject;

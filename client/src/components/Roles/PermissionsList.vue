@@ -18,6 +18,7 @@
                 persistent-hint
                 :value="permission.value"
                 @change="$emit('update:rolePermissions', selectedPermissions)"
+                :disabled="disabled"
               ></v-checkbox>
               <v-menu bottom left offset-y :close-on-content-click="false" open-on-focus open-on-hover v-if="permission.props">
                 <template v-slot:activator="{ on }">
@@ -35,6 +36,7 @@
                         :value="prop.value"
                         @change="$emit('update:rolePermissions', selectedPermissions)"
                         color="accent"
+                        :disabled="disabled"
                       ></v-checkbox>
                     </v-list-item>
                   </v-form>
@@ -53,6 +55,10 @@ export default {
     rolePermissions: {
       type: Array,
       required: true
+    },
+    disabled: {
+      type: Boolean,
+      default: true
     }
   },
   data() {

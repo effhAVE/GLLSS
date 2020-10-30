@@ -18,7 +18,7 @@
     ></v-text-field>
     <div v-if="account">
       <v-select
-        :items="draft.presets"
+        :items="presets"
         v-model="draft.presets"
         item-value="name"
         background-color="transparent"

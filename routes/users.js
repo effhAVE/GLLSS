@@ -13,6 +13,7 @@ const express = require("express");
 const router = express.Router();
 const crypto = require("crypto");
 const { smtpTransport, mailerEmail } = require("../startup/nodemailer");
+const hasPermission = require("../helpers/hasPermission");
 
 async function prepareVerificationEmail(user) {
   const token = new Token({
@@ -53,6 +54,7 @@ router.delete("/", auth, validateAccess("users.delete"), async (req, res) => {
   if (!Array.isArray(usersToDelete)) return res.status(400).send("Request must be an array of users.");
   for (const user of usersToDelete) {
     const foundUser = await User.findById(user._id);
+    if (hasPermission(foundUser, "users.permanent")) return res.status(400).send("User is permanent and cannot be deleted");
     if (foundUser) {
       const tournaments = await Tournament.find({
         _id: {
@@ -98,12 +100,6 @@ router.get("/admins", auth, async (req, res) => {
   const admins = users.filter(user => user.roles.some(role => role.permissions.includes("users.confirm"))).map(user => user.nickname);
 
   return res.send(admins);
-});
-
-router.get("/me", auth, async (req, res) => {
-  const user = await User.findById(req.user._id);
-  if (!user) return res.send(400).send("No user found.");
-  return res.send(user);
 });
 
 router.post("/", async (req, res) => {
@@ -193,7 +189,10 @@ router.post("/:id/confirm", auth, validateAccess("users.confirm"), validateObjec
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).send("No user found.");
   if (user.roles.length) return res.status(400).send("User already confirmed.");
-  user.roles.push("host");
+
+  const hostRole = await Role.findOne({ name: "Host" });
+  if (hostRole) user.roles.push(hostRole._id);
+  else return res.send(500).send("No Host role to assign.");
   await user.save();
 
   return res.send(true);
@@ -202,7 +201,9 @@ router.post("/:id/confirm", auth, validateAccess("users.confirm"), validateObjec
 router.get("/unconfirmed", auth, validateAccess("users.confirm"), async (req, res) => {
   const unconfirmedUsers = await User.find({
     roles: []
-  }).select("nickname isVerified createdAt");
+  })
+    .select("nickname isVerified createdAt")
+    .sort("-createdAt");
 
   return res.send(unconfirmedUsers);
 });

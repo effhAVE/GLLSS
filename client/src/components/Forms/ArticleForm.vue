@@ -1,19 +1,42 @@
 <template>
   <v-row justify="center">
     <v-col cols="11">
-      <v-form ref="form" style="min-width: 500px;" v-model="valid">
-        <v-text-field v-model="draft.title" color="accent" label="Title" :rules="validations.required"></v-text-field>
-        <v-text-field v-model="draft.previewImageURL" color="accent" label="Preview image URL" :rules="validations.url"></v-text-field>
-        <v-textarea v-model="draft.contentShort" label="Preview text" color="accent" outlined dense rows="4"></v-textarea>
-        <mavon-editor v-model="draft.content" language="en" :value="draft.content" placeholder="Main content" class="mt-4" />
+      <v-form ref="form" style="min-width: 500px" v-model="valid">
+        <v-text-field
+          v-model="draft.title"
+          color="accent"
+          label="Title"
+          :rules="validations.required"
+          :disabled="!!article && !$store.getters.hasPermission('articleProps.title')"
+        ></v-text-field>
+        <v-text-field
+          v-model="draft.previewImageURL"
+          color="accent"
+          label="Preview image URL"
+          :rules="validations.url"
+          :disabled="!!article && !$store.getters.hasPermission('articleProps.previewImageURL')"
+        ></v-text-field>
+        <v-textarea
+          v-model="draft.contentShort"
+          label="Preview text"
+          color="accent"
+          outlined
+          dense
+          rows="4"
+          :disabled="!!article && !$store.getters.hasPermission('articleProps.contentShort')"
+        ></v-textarea>
+        <mavon-editor
+          v-model="draft.content"
+          language="en"
+          :value="draft.content"
+          placeholder="Main content"
+          class="mt-4"
+          :disabled="!!article && !$store.getters.hasPermission('articleProps.content')"
+        />
         <v-row>
           <v-spacer></v-spacer>
-          <v-btn color="accent black--text" class="mt-8" text @click="$emit('submit', draft)" :disabled="!valid">
-            Save
-          </v-btn>
-          <v-btn color="accent black--text" class="mt-8" text @click="$emit('cancel')" v-if="article">
-            Cancel
-          </v-btn>
+          <v-btn color="accent black--text" class="mt-8" text @click="$emit('submit', draft)" :disabled="!valid"> Save </v-btn>
+          <v-btn color="accent black--text" class="mt-8" text @click="$emit('cancel')" v-if="article"> Cancel </v-btn>
         </v-row>
       </v-form>
     </v-col>
@@ -43,7 +66,7 @@ export default {
     if (this.article) {
       this.draft = Object.assign({}, this.article);
 
-      this._keyListener = function(event) {
+      this._keyListener = function (event) {
         if (event.key === "s" && (event.ctrlKey || event.metaKey)) {
           event.preventDefault();
           if (this.valid) {

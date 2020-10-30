@@ -1,12 +1,42 @@
 <template>
   <v-form ref="form" style="min-width: 500px">
     <v-text-field v-if="!code" v-model.trim="splitField" color="accent" label="Combined fields" outlined></v-text-field>
-    <v-text-field v-model="draft.expiration" color="accent" label="Expiration" required></v-text-field>
-    <v-text-field v-model="draft.statsToken" color="accent" label="Stats token" required></v-text-field>
-    <v-text-field v-model="draft.adminToken" color="accent" label="Admin token" required></v-text-field>
-    <v-text-field v-model="draft.playerToken" color="accent" label="Player token" required></v-text-field>
+    <v-text-field
+      v-model="draft.expiration"
+      color="accent"
+      label="Expiration"
+      required
+      :disabled="!!code && !$store.getters.hasPermission('codesProps.expiration')"
+    ></v-text-field>
+    <v-text-field
+      v-model="draft.statsToken"
+      color="accent"
+      label="Stats token"
+      required
+      :disabled="!!code && !$store.getters.hasPermission('codesProps.statsToken')"
+    ></v-text-field>
+    <v-text-field
+      v-model="draft.adminToken"
+      color="accent"
+      label="Admin token"
+      required
+      :disabled="!!code && !$store.getters.hasPermission('codesProps.adminToken')"
+    ></v-text-field>
+    <v-text-field
+      v-model="draft.playerToken"
+      color="accent"
+      label="Player token"
+      required
+      :disabled="!!code && !$store.getters.hasPermission('codesProps.playerToken')"
+    ></v-text-field>
     <div v-if="code">
-      <v-textarea color="accent" label="Notes" :value="code.notes" v-model="draft.notes"></v-textarea>
+      <v-textarea
+        color="accent"
+        label="Notes"
+        :value="code.notes"
+        v-model="draft.notes"
+        :disabled="!$store.getters.hasPermission('codesProps.notes')"
+      ></v-textarea>
     </div>
     <v-row>
       <v-spacer></v-spacer>

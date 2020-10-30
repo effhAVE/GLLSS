@@ -1,6 +1,7 @@
 const auth = require("../middleware/auth");
 const validateAccess = require("../middleware/validateAccess");
 const validateObjectId = require("../middleware/validateObjectId");
+const propsFilter = require("../middleware/propsFilter");
 const _ = require("lodash");
 const { Tournament, validate } = require("../models/tournament");
 const { Round } = require("../models/round");
@@ -223,15 +224,15 @@ router.get("/:id", auth, validateObjectId, validateAccess("tournaments.view"), a
   });
 });
 
-router.put("/:id", auth, validateObjectId, validateAccess("tournaments.update"), async (req, res) => {
+router.put("/:id", auth, validateObjectId, validateAccess("tournaments.update"), propsFilter("tournamentsProps"), async (req, res) => {
   const { error } = validate(_.pick(req.body, ["name", "series", "game", "startDate", "endDate", "region", "countedByRounds", "gllURL"]));
   if (error) return res.status(400).send(error.details[0].message);
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return res.status(400).send("No tournament found.");
 
-  Object.assign(tournament, _.pick(req.body, ["name", "game", "startDate", "endDate", "region", "countedByRounds", "gllURL"]));
-  await tournament.save();
-  return res.send(tournament);
+  Tournament.findOneAndUpdate({ _id: req.params.id }, req.body.filteredProps, { new: true }, (err, tournament) => {
+    return err ? res.send(err) : res.send(tournament);
+  });
 });
 
 router.delete("/:id", auth, validateObjectId, validateAccess("tournaments.delete"), async (req, res) => {

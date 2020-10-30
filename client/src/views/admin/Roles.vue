@@ -5,7 +5,9 @@
       <v-spacer></v-spacer>
     </v-card-title>
     <v-tabs vertical background-color="transparent" color="accent" v-model="tab">
-      <v-tab> <v-icon left> mdi-plus </v-icon> <span class="grey--text">New role</span> </v-tab>
+      <v-tab :disabled="!$store.getters.hasPermission('roles.create')">
+        <v-icon left> mdi-plus </v-icon> <span class="grey--text">New role</span>
+      </v-tab>
       <v-tab v-for="(role, index) in roles" :key="index">
         <span :class="{ 'grey--text': role.color === 'transparent' }" :style="{ color: role.color }">{{ role.name }}</span>
       </v-tab>
@@ -41,6 +43,7 @@ export default {
   mounted() {
     this.$http.get(`${this.APIURL}/roles`).then(response => {
       this.roles = response.data;
+      if (this.roles.length) this.tab = 1;
     });
   },
   methods: {

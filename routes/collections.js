@@ -5,11 +5,7 @@ const validateAccess = require("../middleware/validateAccess");
 const https = require("https");
 const axios = require("axios");
 const moment = require("moment");
-const { roles, games, regions, recurrences, presets, permissions } = require("../collections");
-
-router.get("/roles", auth, async (req, res) => {
-  res.send(roles);
-});
+const { games, regions, recurrences, presets, permissions } = require("../collections");
 
 router.get("/games", auth, async (req, res) => {
   res.send(games);

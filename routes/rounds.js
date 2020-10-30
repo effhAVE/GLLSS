@@ -1,6 +1,7 @@
 const auth = require("../middleware/auth");
 const validateAccess = require("../middleware/validateAccess");
 const validateObjectId = require("../middleware/validateObjectId");
+const hasPermission = require("../helpers/hasPermission");
 const _ = require("lodash");
 const { Round, validate } = require("../models/round");
 const { Tournament } = require("../models/tournament");
@@ -112,21 +113,28 @@ router.put("/:rid", auth, validateAccess("rounds.update"), validateObjectId, asy
   const round = tournament.rounds.id(req.params.rid);
   if (!round) return res.status(400).send("No round found.");
 
-  const excluded = req.body.excluded;
+  const excluded = hasPermission(req.user, [`teamLeads.add`, `teamLeads.remove`, `hosts.add`, `hosts.remove`]) ? req.body.excluded : [];
   if (!excluded) return res.status(400).send("Missing 'excluded' field!");
   const { error } = validate(_.pick(req.body.round, ["name", "startDate", "endDate", "bestOf", "prepTime", "hosts", "teamLeads", "available"]));
   if (error) return res.status(400).send(error.details[0].message);
 
-  round.set({
-    name: req.body.round.name,
-    startDate: req.body.round.startDate,
-    endDate: req.body.round.endDate,
-    hosts: req.body.round.hosts,
-    teamLeads: req.body.round.teamLeads,
-    available: req.body.round.available,
-    bestOf: req.body.round.bestOf,
-    prepTime: req.body.round.prepTime
-  });
+  const updateObject = {};
+
+  for (let [key, value] of Object.entries(req.body.round)) {
+    if (
+      hasPermission(req.user, `roundsProps.${key}`) ||
+      (key === "hosts" && hasPermission(req.user, `hosts.add`)) ||
+      (key === "teamLeads" && hasPermission(req.user, `teamLeads.add`)) ||
+      (key === "available" && hasPermission(req.user, [`teamLeads.add`, `teamLeads.remove`, `hosts.add`, `hosts.remove`]))
+    ) {
+      updateObject[key] = value;
+    } else if (key === "startDate" || (key === "endDate" && hasPermission(req.user, `roundsProps.dates`))) {
+      if (key === "startDate") updateObject.startDate = value;
+      if (key === "endDate") updateObject.endDate = value;
+    }
+  }
+
+  round.set(updateObject);
 
   try {
     const { hosts, available, teamLeads } = req.body.round;
@@ -194,21 +202,28 @@ router.put("/", auth, validateAccess("rounds.update"), validateObjectId, async (
     const round = tournament.rounds.id(roundRequest.round._id);
     if (!round) return res.status(400).send("No round found.");
 
-    const excluded = roundRequest.excluded;
+    const excluded = hasPermission(req.user, [`teamLeads.add`, `teamLeads.remove`, `hosts.add`, `hosts.remove`]) ? roundRequest.excluded : [];
     if (!excluded) return res.status(400).send("Missing 'excluded' field!");
     const { error } = validate(_.pick(roundRequest.round, ["name", "startDate", "endDate", "bestOf", "prepTime", "hosts", "teamLeads", "available"]));
     if (error) return res.status(400).send(error.details[0].message);
 
-    round.set({
-      name: roundRequest.round.name,
-      startDate: roundRequest.round.startDate,
-      endDate: roundRequest.round.endDate,
-      hosts: roundRequest.round.hosts,
-      teamLeads: roundRequest.round.teamLeads,
-      available: roundRequest.round.available,
-      bestOf: roundRequest.round.bestOf,
-      prepTime: roundRequest.round.prepTime
-    });
+    const updateObject = {};
+
+    for (let [key, value] of Object.entries(roundRequest.round)) {
+      if (
+        hasPermission(req.user, `roundsProps.${key}`) ||
+        (key === "hosts" && hasPermission(req.user, `hosts.add`)) ||
+        (key === "teamLeads" && hasPermission(req.user, `teamLeads.add`)) ||
+        (key === "available" && hasPermission(req.user, [`teamLeads.add`, `teamLeads.remove`, `hosts.add`, `hosts.remove`]))
+      ) {
+        updateObject[key] = value;
+      } else if (key === "startDate" || (key === "endDate" && hasPermission(req.user, `roundsProps.dates`))) {
+        if (key === "startDate") updateObject.startDate = value;
+        if (key === "endDate") updateObject.endDate = value;
+      }
+    }
+
+    round.set(updateObject);
 
     try {
       const { hosts, available, teamLeads } = roundRequest.round;

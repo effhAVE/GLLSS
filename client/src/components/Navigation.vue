@@ -148,7 +148,7 @@
         </v-list-item-content>
       </v-list-item>
     </v-list-group>
-    <v-list-item link to="/logout" v-if="$store.state.user">
+    <v-list-item link v-if="$store.state.user" @click="$store.dispatch('logout')">
       <v-list-item-action>
         <v-icon>mdi-lock-open</v-icon>
       </v-list-item-action>

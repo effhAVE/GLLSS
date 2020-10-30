@@ -80,6 +80,7 @@
             :value="checkFilteredAvailability()"
             :ripple="false"
             @input="setFilteredAvailability($event)"
+            :disabled="!$store.getters.hasPermission('hosting.fillAvailability')"
           ></v-simple-checkbox>
           <p class="ma-0">Available / Hosting</p>
         </div>
@@ -96,6 +97,7 @@
             :value="checkTournamentAvailability(item)"
             @input="setTournamentAvailability($event, item)"
             :ripple="false"
+            :disabled="!$store.getters.hasPermission('hosting.fillAvailability')"
           ></v-simple-checkbox>
           <v-simple-checkbox
             :color="tournamentColor(item.rounds)"
@@ -130,7 +132,7 @@
                   <td width="50">
                     <v-simple-checkbox
                       v-model="round.myAvailability"
-                      :disabled="round.isHosting || round.isLeading || isPast(round)"
+                      :disabled="round.isHosting || round.isLeading || isPast(round) || !$store.getters.hasPermission('hosting.fillAvailability')"
                       color="accent"
                       :ripple="false"
                       @input="onAvailabilityChange($event, item, round)"
