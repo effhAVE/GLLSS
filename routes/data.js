@@ -28,8 +28,12 @@ schedule.scheduleJob("0 * * * *", async () => {
   const gameValues = await getRecentGameValues();
   const date = moment().format("YYYY-MM");
 
-  console.log(`Recalculated values for ${date} with following game values: ${JSON.stringify(gameValues)}`);
-  await dataCalculation(date, gameValues, 100);
+  try {
+    console.log(`Recalculated values for ${date} with following game values: ${JSON.stringify(gameValues)}`);
+    await dataCalculation(date, gameValues, 100);
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 async function getRecentGameValues() {

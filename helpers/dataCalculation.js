@@ -1,21 +1,17 @@
-const {
-  Tournament
-} = require("../models/tournament");
-const {
-  Data
-} = require("../models/data");
+const { Tournament } = require("../models/tournament");
+const { Data } = require("../models/data");
 const path = require("path");
 const mongoose = require("mongoose");
 const winston = require("winston");
 const moment = require("moment");
 const logDir = "dataLogs";
 const fs = require("fs");
-const sortKeysRecursive = require('sort-keys-recursive');
-const gridfs = require('gridfs-stream');
+const sortKeysRecursive = require("sort-keys-recursive");
+const gridfs = require("gridfs-stream");
 gridfs.mongo = mongoose.mongo;
 const connection = mongoose.connection;
 let gfs;
-connection.once('open', function() {
+connection.once("open", function () {
   gfs = gridfs(connection.db);
 });
 
@@ -25,9 +21,9 @@ function createLogger(filenameError, filenameInfo) {
     level: "info",
     format: winston.format.combine(
       winston.format.timestamp({
-        format: 'YYYY-MM-DD HH:mm:ss'
+        format: "YYYY-MM-DD HH:mm:ss"
       }),
-      winston.format.printf(info => `${info.timestamp}: ${info.message}`),
+      winston.format.printf(info => `${info.timestamp}: ${info.message}`)
     ),
     transports: [
       new winston.transports.File({
@@ -41,12 +37,20 @@ function createLogger(filenameError, filenameInfo) {
   });
 }
 
-module.exports = async function(date, gameValues, TLRatio) {
-  const data = await Data.findOne({
+module.exports = async function (date, gameValues, TLRatio) {
+  let data = await Data.findOne({
     date: date
   });
 
-  if (!data) throw new Error("No data object found.");
+  if (!data) {
+    console.log(`No data month for ${date}. Creating...`);
+    data = new Data({
+      date: date
+    });
+
+    await data.save();
+  }
+
   const routeStartTime = new Date().getTime();
   const rangeStart = moment(date).startOf("month").format("YYYY-MM-DD HH:mm");
   const rangeEnd = moment(date).endOf("month").format("YYYY-MM-DD HH:mm");
@@ -60,13 +64,16 @@ module.exports = async function(date, gameValues, TLRatio) {
   }
 
   let tournaments = await Tournament.find({
-    "endDate": {
+    endDate: {
       $gte: rangeStart
     },
-    "localStartDate": {
+    localStartDate: {
       $lte: rangeEnd
     }
-  }).select("-series").sort("startDate").populate("rounds.hosts.host rounds.teamLeads.host", "nickname");
+  })
+    .select("-series")
+    .sort("startDate")
+    .populate("rounds.hosts.host rounds.teamLeads.host", "nickname");
   logger.info(`Tournaments found: ${tournaments.length}`);
   const calculation = {
     gameValues: gameValues,
@@ -84,9 +91,13 @@ module.exports = async function(date, gameValues, TLRatio) {
   };
 
   tournaments = tournaments.filter(tournament => {
-    const notCalculated = (!tournament.countedByRounds && moment(tournament.endDate).isSameOrAfter(rangeEnd));
+    const notCalculated = !tournament.countedByRounds && moment(tournament.endDate).isSameOrAfter(rangeEnd);
     if (notCalculated) {
-      logger.notice(`Tournament skipped: ${tournament.name} (id: ${tournament._id}) because it's not counted by rounds and it's endDate is ${moment(tournament.endDate).format("YYYY-MM-DD HH:mm")}`);
+      logger.notice(
+        `Tournament skipped: ${tournament.name} (id: ${tournament._id}) because it's not counted by rounds and it's endDate is ${moment(
+          tournament.endDate
+        ).format("YYYY-MM-DD HH:mm")}`
+      );
     }
 
     return !notCalculated;
@@ -100,18 +111,17 @@ module.exports = async function(date, gameValues, TLRatio) {
           logger.notice(`Tournament: ${tournament.name} (id: ${tournament._id}). Round skipped: ${round.name} because it's not in the current month`);
         }
 
-        return !notCalculated
+        return !notCalculated;
       });
     } else {
-      logger.notice(`Tournament: ${tournament.name} (id: ${tournament._id}) counted all rounds as it's end date is in the current month and it is NOT counted by rounds`);
+      logger.notice(
+        `Tournament: ${tournament.name} (id: ${tournament._id}) counted all rounds as it's end date is in the current month and it is NOT counted by rounds`
+      );
     }
   });
 
   for (const tournament of tournaments) {
-    const {
-      game,
-      region
-    } = tournament;
+    const { game, region } = tournament;
 
     if (!calculation.hosts[game]) {
       calculation.hosts[game] = {
@@ -124,7 +134,7 @@ module.exports = async function(date, gameValues, TLRatio) {
       calculation.regions[region] = {
         gamesHosted: 0,
         totalValue: 0
-      }
+      };
     }
 
     if (!calculation.games[game]) {
@@ -135,7 +145,7 @@ module.exports = async function(date, gameValues, TLRatio) {
         totalHosting: 0,
         totalValue: 0,
         regions: {}
-      }
+      };
     }
 
     const calcGame = calculation.hosts[game];
@@ -148,7 +158,6 @@ module.exports = async function(date, gameValues, TLRatio) {
     }
 
     for (const round of tournament.rounds) {
-
       round.hosts.forEach(hostObject => {
         if (!hostObject.host) return;
         const hostID = hostObject.host.nickname;
@@ -174,7 +183,9 @@ module.exports = async function(date, gameValues, TLRatio) {
 
         if (!hostObject.lostHosting) {
           if (hostObject.timeBalance) {
-            logger.info(`Host: ${hostObject.host.nickname}, Round ${round.name} inside ${tournament.name} \n had timeBalance value of ${hostObject.timeBalance}`);
+            logger.info(
+              `Host: ${hostObject.host.nickname}, Round ${round.name} inside ${tournament.name} \n had timeBalance value of ${hostObject.timeBalance}`
+            );
           }
 
           const value = (round.bestOf + hostObject.timeBalance) * calcGame.gameValue;
@@ -185,17 +196,17 @@ module.exports = async function(date, gameValues, TLRatio) {
           calculation.games[game].totalHosting += value;
           calculation.games[game].totalValue += value;
 
-          calculation.hosts.summary[hostID].games += (round.bestOf + hostObject.timeBalance);
-          calcGame.total[hostID].games += (round.bestOf + hostObject.timeBalance);
-          calculation.regions[region].gamesHosted += (round.bestOf + hostObject.timeBalance);
-          calculation.games[game].gamesHosted += (round.bestOf + hostObject.timeBalance);
-          calculation.total.gamesHosted += (round.bestOf + hostObject.timeBalance);
+          calculation.hosts.summary[hostID].games += round.bestOf + hostObject.timeBalance;
+          calcGame.total[hostID].games += round.bestOf + hostObject.timeBalance;
+          calculation.regions[region].gamesHosted += round.bestOf + hostObject.timeBalance;
+          calculation.games[game].gamesHosted += round.bestOf + hostObject.timeBalance;
+          calculation.total.gamesHosted += round.bestOf + hostObject.timeBalance;
 
           calculation.total.hostingValue += value;
           calculation.total.totalValue += value;
           calculation.hosts.summary[hostID].totalValue += value;
           calcGame.total[hostID].totalValue = calcGame.total[hostID].hostValue;
-          calculation.games[game].regions[region] += (round.bestOf + hostObject.timeBalance);
+          calculation.games[game].regions[region] += round.bestOf + hostObject.timeBalance;
         } else {
           logger.info(`Host: ${hostObject.host.nickname} lost hosting of the following round - ${round.name} inside ${tournament.name}`);
         }
@@ -224,9 +235,8 @@ module.exports = async function(date, gameValues, TLRatio) {
           };
         }
       });
-    };
-  };
-
+    }
+  }
 
   let TLTimeSlots = {};
   tournaments.forEach(tournament => {
@@ -243,7 +253,9 @@ module.exports = async function(date, gameValues, TLRatio) {
 
         if (!TLObject.lostLeading) {
           if (round.prepTime || TLObject.timeBalance) {
-            logger.info(`TL: ${TLObject.host.nickname}, Round ${round.name} inside ${tournament.name} \n had following values: prepTime - ${round.prepTime}, timeBalance - ${TLObject.timeBalance}`);
+            logger.info(
+              `TL: ${TLObject.host.nickname}, Round ${round.name} inside ${tournament.name} \n had following values: prepTime - ${round.prepTime}, timeBalance - ${TLObject.timeBalance}`
+            );
           }
 
           TLTimeSlots[TLObject.host.nickname][tournament.game].push({
@@ -275,7 +287,10 @@ module.exports = async function(date, gameValues, TLRatio) {
             timeSlot[i] = timeSlot[i - 1];
           }
 
-          if (moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) && moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)) {
+          if (
+            moment(timeSlot[i + 1].startDate).isSameOrAfter(timeSlot[i].startDate) &&
+            moment(timeSlot[i + 1].endDate).isSameOrBefore(timeSlot[i].endDate)
+          ) {
             timeSlot[i + 1].skipped = true;
             logger.info(`   Skipped ${timeSlot[i + 1].name}, ${timeSlot[i + 1].tournament} (part of ${timeSlot[i].name}, ${timeSlot[i].tournament})`);
           } else if (moment(timeSlot[i].endDate).isSameOrAfter(timeSlot[i + 1].startDate)) {
@@ -303,7 +318,7 @@ module.exports = async function(date, gameValues, TLRatio) {
       const TLTime = TLTimeSlots[id][game].reduce((value, current) => value + current, 0);
       const value = Math.ceil((TLTime / 60) * TLRatio);
 
-      calculation.hosts.summary[id].TLTime += TLTime
+      calculation.hosts.summary[id].TLTime += TLTime;
       calculation.hosts[game].total[id].TLTime += TLTime;
       calculation.hosts.summary[id].TLValue += value;
       calculation.hosts[game].total[id].TLValue += value;
@@ -335,17 +350,20 @@ module.exports = async function(date, gameValues, TLRatio) {
     mode: "w"
   });
 
-  gfs.exist({
-    filename: `${data.date}-log.log`
-  }, function(err, file) {
-    if (file) {
-      gfs.remove({
-        filename: `${data.date}-log.log`
-      });
-    }
+  gfs.exist(
+    {
+      filename: `${data.date}-log.log`
+    },
+    function (err, file) {
+      if (file) {
+        gfs.remove({
+          filename: `${data.date}-log.log`
+        });
+      }
 
-    fs.createReadStream(`${logDir}/${data.date}-log.log`).pipe(writestream);
-  });
+      fs.createReadStream(`${logDir}/${data.date}-log.log`).pipe(writestream);
+    }
+  );
 
   return data;
-}
+};
