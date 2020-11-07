@@ -12,6 +12,9 @@
       :search="search"
       item-key="_id"
       show-select
+      :sort-by="['isVerified', 'roles', 'nickname']"
+      :sort-desc="[true, true, false]"
+      multi-sort
       class="table-background"
       hide-default-footer
       disable-pagination
@@ -70,7 +73,7 @@ export default {
         { text: "ID", value: "_id" },
         { text: "Registration date", value: "createdAt" },
         { text: "Verified", value: "isVerified" },
-        { text: "Role", value: "roles", width: 250, align: "center" }
+        { text: "Role", value: "roles", width: 250, align: "center", sort: (a, b) => a[0].importance - b[0].importance }
       ]
     };
   },
