@@ -27,7 +27,7 @@
         <a href="https://apex.seatlon.eu/">Apex Match Token Checker</a>
       </li>
     </ul>
-    <div v-if="isTeamleader">
+    <div v-if="$store.getters.hasPermission('hosting.canLead')">
       <h4 class="subtitle">Teamleaders:</h4>
       <ul>
         <li>
@@ -47,12 +47,3 @@
     </div>
   </div>
 </template>
-<script>
-export default {
-  props: {
-    isTeamleader: {
-      type: Boolean
-    }
-  }
-};
-</script>

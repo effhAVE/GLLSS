@@ -1,7 +1,7 @@
 <template>
   <v-card height="100%" color="transparent">
     <v-snackbar color="secondary border--accent" bottom right multi-line :timeout="0" :value="availableQueue.length">
-      You have {{ availableQueue.length }} availability change <span v-if="availableQueue.length !== 1"> s </span>. Do you want to save them?
+      <p>You have {{ availableQueue.length }} availability change<span v-if="availableQueue.length !== 1">s</span>. Do you want to save them?</p>
       <v-btn text color="accent" @click="onAvailabilitySubmit"> Save </v-btn>
     </v-snackbar>
     <v-card-title> Tournaments </v-card-title>

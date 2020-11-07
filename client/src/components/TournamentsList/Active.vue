@@ -58,6 +58,17 @@
           @keyup="searchTimeout"
         ></v-text-field>
       </v-col>
+      <v-col col="3" class="pa-1 my-2 d-flex d-sm-none align-center">
+        <v-simple-checkbox
+          color="accent"
+          :value="checkFilteredAvailability()"
+          :ripple="false"
+          @input="setFilteredAvailability($event)"
+          :disabled="!$store.getters.hasPermission('hosting.fillAvailability')"
+          label="Select all availabilities"
+        ></v-simple-checkbox>
+        <p class="ml-4 mb-0">Set all availabilities</p>
+      </v-col>
     </v-row>
     <v-data-table
       class="table-background"

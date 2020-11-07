@@ -9,7 +9,7 @@
           <li>{{ admin.nickname }}</li>
         </ul>
       </div>
-      <v-row v-else>
+      <v-row v-else-if="$store.getters.hasPermission('tournaments.view')">
         <v-col>
           <v-row class="flex-column flex-sm-row" no-gutters>
             <v-col>
@@ -32,7 +32,7 @@
           </v-row>
         </v-col>
         <v-col lg="3" cols="12">
-          <UsefulLinks :isTeamleader="$store.getters.hasPermission('hosting.canLead')" />
+          <UsefulLinks />
         </v-col>
       </v-row>
     </v-card-text>
@@ -70,8 +70,10 @@ export default {
         this.admins = response.data;
       });
     } else {
-      this.$refs.activeHosted.getActiveTournaments();
-      this.$refs.pastHosted.getPastTournaments();
+      if (this.$store.getters.hasPermission("tournaments.view")) {
+        this.$refs.activeHosted.getActiveTournaments();
+        this.$refs.pastHosted.getPastTournaments();
+      }
 
       this.$http.get(`${this.APIURL}/collections/games`).then(response => {
         this.gamesList = response.data;
