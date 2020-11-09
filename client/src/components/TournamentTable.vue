@@ -46,7 +46,7 @@
         </tr>
         <tr>
           <th>Tournament cost</th>
-          <td>{{ cost }} SEK</td>
+          <td>Team leaders: {{ cost.TL }} SEK. Hosts: {{ cost.host }} SEK. Total: {{ cost.TL + cost.host }} SEK</td>
         </tr>
       </tbody>
     </template>
@@ -57,7 +57,7 @@
 export default {
   props: {
     tournament: Object,
-    cost: Number
+    cost: Object
   }
 };
 </script>

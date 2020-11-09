@@ -9,15 +9,9 @@
       <v-icon>mdi-account-clock</v-icon>
     </v-btn>
     <v-tabs fixed-tabs v-model="tab" background-color="secondary">
-      <v-tab>
-        Scheduling
-      </v-tab>
-      <v-tab>
-        Hosts balance
-      </v-tab>
-      <v-tab>
-        Teamleads balance
-      </v-tab>
+      <v-tab> Scheduling </v-tab>
+      <v-tab> Hosts balance </v-tab>
+      <v-tab> Teamleads balance </v-tab>
     </v-tabs>
     <v-tabs-items v-model="tab" class="transparent" touchless>
       <v-tab-item>
@@ -32,9 +26,7 @@
     </v-tabs-items>
     <v-dialog v-model="modal" width="70%">
       <v-card color="primary">
-        <v-card-title class="headline secondary" primary-title>
-          Availability table
-        </v-card-title>
+        <v-card-title class="headline secondary" primary-title> Availability table </v-card-title>
         <AvailabilityTable :availableList="availableList" :showTeamleads="showTeamleads" :showHosts="showHosts" :selectedGames="availabilityGames" />
         <v-divider></v-divider>
 
@@ -59,12 +51,8 @@
             </template>
           </v-select>
           <v-spacer></v-spacer>
-          <v-btn color="accent" text @click="$refs.scheduling.getRounds(selectedWeek)">
-            Refresh
-          </v-btn>
-          <v-btn color="accent" text @click="modal = false">
-            Close
-          </v-btn>
+          <v-btn color="accent" text @click="$refs.scheduling.getRounds(selectedWeek)"> Refresh </v-btn>
+          <v-btn color="accent" text @click="modal = false"> Close </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -105,7 +93,6 @@ export default {
         0: null,
         1: null
       },
-      gameValues: {},
       games: [],
       availabilityGames: []
     };
@@ -140,23 +127,6 @@ export default {
     onAvailableList(list) {
       this.availableList = list;
     }
-  },
-  mounted() {
-    this.$http.get(`${this.APIURL}/collections/games`).then(response => {
-      this.games = this.availabilityGames = response.data;
-    });
-
-    this.$http
-      .get(`${this.APIURL}/data/gamevalues`)
-      .then(response => {
-        this.gameValues = response.data;
-      })
-      .catch(error => {
-        this.$store.commit("snackbarMessage", {
-          type: "error",
-          message: "No game values found. Balance won't be working."
-        });
-      });
   }
 };
 </script>

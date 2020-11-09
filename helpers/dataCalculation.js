@@ -43,7 +43,7 @@ module.exports = async function (date, gameValues, TLRatio) {
   });
 
   if (!data) {
-    console.log(`No data month for ${date}. Creating...`);
+    winston.notice(`No data month for ${date}. Creating...`);
     data = new Data({
       date: date
     });
@@ -338,6 +338,7 @@ module.exports = async function (date, gameValues, TLRatio) {
 
   data.calculation = sortedCalculation;
   data.calcHash = data.generateCalcHash(calculation);
+  data.TLRatio = TLRatio;
   data.markModified("calculation");
   await data.save();
   const routeEndTime = new Date().getTime();

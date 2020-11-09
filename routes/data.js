@@ -13,6 +13,7 @@ const balanceTournaments = require("../helpers/balanceTournaments");
 const gridfs = require("gridfs-stream");
 const schedule = require("node-schedule");
 const dataCalculation = require("../helpers/dataCalculation");
+const winston = require("winston");
 gridfs.mongo = mongoose.mongo;
 const connection = mongoose.connection;
 let gfs;
@@ -25,20 +26,21 @@ if (!fs.existsSync(logDir)) {
 }
 
 schedule.scheduleJob("0 * * * *", async () => {
-  const gameValues = await getRecentGameValues();
+  const values = await getRecentValues();
   const date = moment().format("YYYY-MM");
 
   try {
-    console.log(`Recalculated values for ${date} with following game values: ${JSON.stringify(gameValues)}`);
-    await dataCalculation(date, gameValues, 100);
+    winston.info(`Recalculated values for ${date} with following values: ${JSON.stringify(values)}`);
+    await dataCalculation(date, values.gameValues, values.TLRatio);
   } catch (err) {
-    console.log(err);
+    wiston.error(err);
   }
 });
 
-async function getRecentGameValues() {
+async function getRecentValues() {
   const data = await Data.findOne().sort("-updatedAt").select("calculation.gameValues");
-  return data.calculation.gameValues;
+  if (!data.TLRatio) data.TLRatio = 100;
+  return { gameValues: data.calculation.gameValues, TLRatio: data.TLRatio };
 }
 
 router.get("/schedule/teamleads", auth, validateAccess("schedule.TLBalance"), async (req, res) => {
@@ -53,6 +55,8 @@ router.get("/schedule/teamleads", auth, validateAccess("schedule.TLBalance"), as
     .toDate();
   const currentWeekStart = moment().add(weekNumber, "weeks").startOf("isoWeek").toDate();
   const currentWeekEnd = moment().add(weekNumber, "weeks").endOf("isoWeek").toDate();
+
+  const TLRatio = (await getRecentValues()).TLRatio;
 
   const balanceCalculation = {
     total: {}
@@ -248,7 +252,7 @@ router.get("/schedule/teamleads", auth, validateAccess("schedule.TLBalance"), as
         return timeSlot.lostLeading ? (total += moment(timeSlot.endDate).diff(timeSlot.startDate, "minutes")) : total;
       }, 0);
 
-      const value = Math.ceil((TLTime / 60) * 100);
+      const value = Math.ceil((TLTime / 60) * TLRatio);
       balanceCalculation.total[id].lost += value;
     }
   }
@@ -326,7 +330,7 @@ router.get("/schedule/teamleads", auth, validateAccess("schedule.TLBalance"), as
 
       timeSlot.splice(0, timeSlot.length, ...mergedTimeSlots);
       const TLTime = TLTimeSlots[id][game].reduce((value, current) => value + current, 0);
-      const value = Math.ceil((TLTime / 60) * 100);
+      const value = Math.ceil((TLTime / 60) * TLRatio);
       balanceCalculation[game][id] += value;
       balanceCalculation.total[id].current += value;
     }
@@ -355,7 +359,7 @@ router.get("/schedule", auth, validateAccess("schedule.hostsBalance"), async (re
   const balanceCalculation = {
     total: {}
   };
-  const gameValues = await getRecentGameValues();
+  const gameValues = (await getRecentValues()).gameValues;
   const { previousWeekTournaments, currentWeekTournaments } = await balanceTournaments({
     previousWeekStart,
     previousWeekEnd,
@@ -459,8 +463,8 @@ router.get("/", auth, validateAccess("data.view"), async (req, res) => {
   return res.send(data);
 });
 
-router.get("/gamevalues", auth, validateAccess("data.view"), async (req, res) => {
-  const values = await getRecentGameValues();
+router.get("/recentvalues", auth, validateAccess("data.view"), async (req, res) => {
+  const values = await getRecentValues();
   return res.send(values);
 });
 
@@ -540,7 +544,7 @@ router.post("/:date/calculate", auth, validateAccess("data.update"), async (req,
     const data = await dataCalculation(req.params.date, req.body.gameValues, req.body.TLRatio);
     return res.send(data);
   } catch (err) {
-    console.log(err);
+    winston.crit(err);
     return res.status(400).send(err);
   }
 });

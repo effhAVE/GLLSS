@@ -14,6 +14,7 @@ const router = express.Router();
 const crypto = require("crypto");
 const { smtpTransport, mailerEmail } = require("../startup/nodemailer");
 const hasPermission = require("../helpers/hasPermission");
+const winston = require("winston");
 
 async function prepareVerificationEmail(user) {
   const token = new Token({
@@ -128,7 +129,7 @@ router.post("/", async (req, res) => {
     if (!err) {
       return res.send("Verification email sent!");
     } else {
-      console.error(err);
+      winston.error(err);
       return res.status(500).send(err);
     }
   });
@@ -165,7 +166,7 @@ router.post("/resend-verification", async (req, res) => {
     if (!err) {
       return res.send("Email sent!");
     } else {
-      console.error(err);
+      winston.error(err);
       return res.status(500).send(err);
     }
   });

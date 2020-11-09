@@ -122,7 +122,7 @@ export default {
     tournamentCost() {
       let hostCost = 0;
       let TLCost = 0;
-      if (!this.gameValues) return 0;
+      if (!this.gameValues) return { TL: "Error", host: "Error" };
       this.tournament.rounds.forEach(round => {
         round.hosts.forEach(hostObject => {
           hostObject.lostHosting
@@ -144,14 +144,15 @@ export default {
         });
       });
 
-      return Number((hostCost + TLCost).toFixed(0));
+      return { TL: Number(TLCost.toFixed(0)), host: Number(hostCost.toFixed(0)) };
     }
   },
   mounted() {
     this.$http
-      .get(`${this.APIURL}/data/gamevalues`)
+      .get(`${this.APIURL}/data/recentvalues`)
       .then(response => {
-        this.gameValues = response.data;
+        this.gameValues = response.data.gameValues;
+        this.TLRatio = response.data.TLRatio || 100;
       })
       .catch(error => {
         this.$store.commit("snackbarMessage", {

@@ -1,8 +1,6 @@
 <template>
   <v-card color="primary" flat>
-    <v-card-title>
-      Calculation values
-    </v-card-title>
+    <v-card-title> Calculation values </v-card-title>
     <v-card-text>
       <v-form ref="form" v-model="valid">
         <v-text-field
@@ -17,19 +15,13 @@
         ></v-text-field>
         <v-text-field v-model="TLRatio" color="accent" label="Teamleads value" required type="number" :rules="TLRatioValidations"> </v-text-field>
       </v-form>
-      <span class="warning--text">
-        This operation is API intensive and may take up to a few seconds. Please do not overuse it
-      </span>
+      <span class="warning--text"> This operation is API intensive and may take up to a few seconds. Please do not overuse it </span>
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="error" text @click="$emit('cancel')">
-        Cancel
-      </v-btn>
-      <v-btn color="success" text @click="submitGames" :disabled="!valid">
-        Calculate
-      </v-btn>
+      <v-btn color="error" text @click="$emit('cancel')"> Cancel </v-btn>
+      <v-btn color="success" text @click="submitGames" :disabled="!valid"> Calculate </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -57,9 +49,10 @@ export default {
   },
   mounted() {
     this.$http
-      .get(`${this.APIURL}/data/gamevalues`)
+      .get(`${this.APIURL}/data/recentvalues`)
       .then(response => {
-        this.gameValues = response.data;
+        this.gameValues = response.data.gameValues;
+        this.TLRatio = response.data.TLRatio || 100;
         this.$http.get(`${this.APIURL}/collections/games`).then(response => {
           this.gamesList = response.data.map(game => {
             return (game = { name: game, value: this.gameValues[game] || 70 });

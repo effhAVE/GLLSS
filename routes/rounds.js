@@ -12,6 +12,7 @@ const express = require("express");
 const router = express.Router({
   mergeParams: true
 });
+const winston = require("winston");
 
 router.post("/", auth, validateAccess("rounds.create"), validateObjectId, async (req, res) => {
   const { error } = validate(req.body);
@@ -34,7 +35,7 @@ router.post("/", auth, validateAccess("rounds.create"), validateObjectId, async 
     }
   ).exec(async (error, data) => {
     if (error) {
-      console.error(error);
+      winston.error(error);
       return res.status(500).send("Something failed.");
     } else {
       data.startDate = data.rounds[0].startDate;
@@ -189,7 +190,7 @@ router.put("/:rid", auth, validateAccess("rounds.update"), validateObjectId, asy
     await tournament.save();
     return res.send(round);
   } catch (ex) {
-    console.error(ex);
+    winston.error(ex);
     return res.status(500).send("Something failed.");
   }
 });
@@ -277,7 +278,7 @@ router.put("/", auth, validateAccess("rounds.update"), validateObjectId, async (
       tournament.endDate = tournament.rounds[tournament.rounds.length - 1].endDate;
       await tournament.save();
     } catch (ex) {
-      console.error(ex);
+      winston.error(ex);
       return res.status(500).send("Something failed.");
     }
   }

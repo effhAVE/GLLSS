@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
 const moment = require("moment");
+const winston = require("winston");
 
 router.put("/", auth, validateAccess("general.isTL"), async (req, res) => {
   const collisions = [];
@@ -123,7 +124,7 @@ router.put("/", auth, validateAccess("general.isTL"), async (req, res) => {
 
       await tournament.save();
     } catch (ex) {
-      console.error(ex);
+      winston.error(ex);
       return res.status(500).send("Something failed.");
     }
   }

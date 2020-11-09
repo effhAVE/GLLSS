@@ -12,6 +12,7 @@ const express = require("express");
 const router = express.Router();
 const moment = require("moment");
 const tournamentRegions = require("../collections/regions");
+const winston = require("winston");
 
 router.get("/", auth, validateAccess("tournaments.view"), async (req, res) => {
   const limitSize = +req.query.limit || 10;
@@ -311,7 +312,7 @@ router.post("/", auth, validateAccess("tournaments.create"), async (req, res) =>
 
     return res.send(tournament);
   } catch (error) {
-    console.error(error);
+    winston.error(error);
     return res.status(500).send("Error while saving.");
   }
 });

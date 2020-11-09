@@ -8,6 +8,7 @@ const router = express.Router();
 const auth = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
 const { smtpTransport, mailerEmail } = require("../startup/nodemailer");
+const winston = require("winston");
 
 router.post("/", async (req, res) => {
   const { error } = validate(req.body);
@@ -104,7 +105,7 @@ router.post("/forgot-password", async (req, res) => {
     if (!err) {
       return res.send("Email sent!");
     } else {
-      return console.error(err);
+      return winston.error(err);
     }
   });
 });

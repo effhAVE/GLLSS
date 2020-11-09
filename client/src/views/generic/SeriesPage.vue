@@ -39,20 +39,7 @@
       >Warning: Series cannot be deleted if they include tournaments.</span
     >
     <SeriesTable :series="series" />
-    <v-btn
-      class="mt-12"
-      :loading="tournamentsLoading"
-      :disabled="tournamentsLoading"
-      color="accent black--text"
-      @click="getTournaments"
-      v-if="!tournamentsLoaded"
-    >
-      Load series' tournaments
-      <template v-slot:loader>
-        <span>Loading...</span>
-      </template>
-    </v-btn>
-    <TournamentsSimplifiedTable v-else :tournaments="tournaments" :allLoaded="allLoaded" @getNextPage="getNextTournamentPage" />
+    <TournamentsSimplifiedTable :tournaments="tournaments" :allLoaded="allLoaded" @getNextPage="getNextTournamentPage" />
   </v-card>
 </template>
 
@@ -98,11 +85,11 @@ export default {
           }
         });
     },
-    getTournaments() {
+    getTournaments(seriesID = this.series._id) {
       this.tournamentsLoading = true;
 
       this.$http
-        .get(`${this.APIURL}/series/${this.series._id}/tournaments?limit=${this.limit}&page=${this.page}`)
+        .get(`${this.APIURL}/series/${seriesID}/tournaments?limit=${this.limit}&page=${this.page}`)
         .then(response => {
           if (response.data.length < this.limit) this.allLoaded = true;
           this.tournaments.push(...response.data);
@@ -164,6 +151,7 @@ export default {
         const { seriesID } = newValue;
         if (seriesID) {
           this.getSeries(seriesID);
+          this.getTournaments(seriesID);
         } else {
           this.tournament = null;
         }
