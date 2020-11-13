@@ -5,7 +5,7 @@ const validateAccess = require("../middleware/validateAccess");
 const https = require("https");
 const axios = require("axios");
 const moment = require("moment");
-const { games, regions, recurrences, presets, permissions } = require("../collections");
+const { games, regions, recurrences, presets, permissions, languages, countries } = require("../collections");
 const winston = require("winston");
 
 router.get("/games", auth, async (req, res) => {
@@ -26,6 +26,14 @@ router.get("/presets", auth, async (req, res) => {
 
 router.get("/permissions", auth, async (req, res) => {
   res.send(permissions);
+});
+
+router.get("/languages", auth, async (req, res) => {
+  res.send(languages);
+});
+
+router.get("/countries", auth, async (req, res) => {
+  res.send(countries);
 });
 
 router.get("/apex", auth, validateAccess("general.isHost"), async (req, res) => {

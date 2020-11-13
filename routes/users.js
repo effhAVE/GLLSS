@@ -8,6 +8,7 @@ const { User, validate } = require("../models/user");
 const { Role } = require("../models/role");
 const { Tournament } = require("../models/tournament");
 const { Token } = require("../models/token");
+const { Image } = require("../models/image");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
@@ -15,6 +16,9 @@ const crypto = require("crypto");
 const { smtpTransport, mailerEmail } = require("../startup/nodemailer");
 const hasPermission = require("../helpers/hasPermission");
 const winston = require("winston");
+const upload = require("../startup/imageUpload");
+const axios = require("axios");
+const cloudinary = require("cloudinary").v2;
 
 async function prepareVerificationEmail(user) {
   const token = new Token({
@@ -47,6 +51,50 @@ router.get("/", auth, validateAccess("users.view"), async (req, res) => {
     .select("-tournamentsHosted")
     .sort("_id");
   return res.send(users);
+});
+
+router.get("/:id", auth, validateObjectId, validateAccess("users.view"), async (req, res) => {
+  const user = await User.findById(req.params.id).select("-tournamentsHosted");
+  return user ? res.send(user) : res.status(404).send("User not found.");
+});
+
+router.get("/me/details", auth, async (req, res) => {
+  const user = await User.findById(req.user._id).select("details -roles");
+  return user ? res.send(user.details) : res.status(404).send("User not found.");
+});
+
+router.patch("/me/details", auth, async (req, res) => {
+  User.findOneAndUpdate({ _id: req.user._id }, req.body, { new: true }, (err, user) => {
+    return err ? res.send(err) : res.send(user);
+  });
+});
+
+router.post("/:id/avatar", auth, validateObjectId, upload.single("avatar"), async (req, res) => {
+  const user = await User.findById(req.params.id).select("details");
+  if (!user && !user._id.equals(req.user._id)) return res.status(400).send("Bad request.");
+  if (req.file && req.file.path) {
+    if (user.details.avatar) cloudinary.uploader.destroy(user.details.avatar.publicID);
+    const image = new Image({
+      publicID: req.file.filename,
+      url: req.file.path
+    });
+
+    user.details.avatar = image;
+    await user.save();
+    return res.send(user);
+  } else {
+    winston.log(`Avatar upload error: ${req.file}`);
+    return res.status(422).send("Invalid");
+  }
+});
+
+router.delete("/:id/avatar", auth, validateObjectId, async (req, res) => {
+  const user = await User.findById(req.params.id).select("details");
+  if (!user && !user._id.equals(req.user._id)) return res.status(400).send("Bad request.");
+  if (user.details.avatar.publicID) await cloudinary.uploader.destroy(user.details.avatar.publicID);
+  user.details.avatar = null;
+  await user.save();
+  return res.send(user);
 });
 
 router.delete("/", auth, validateAccess("users.delete"), async (req, res) => {

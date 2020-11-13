@@ -13,9 +13,9 @@
       <v-toolbar-title><span class="hidden-xs-only">GLL Staff Scheduler</span><span class="hidden-sm-and-up">GLLSS</span></v-toolbar-title>
       <v-spacer />
       <span>{{ $store.state.now | moment("HH:mm") }}</span>
-      <span v-if="user" class="accent--text font-weight-bold mx-4">
+      <router-link v-if="user" class="accent--text font-weight-bold mx-4" :to="`/me`">
         {{ user.nickname }}
-      </span>
+      </router-link>
       <v-btn text v-if="isLoggedIn" @click="logout" class="hidden-xs-only"> Logout </v-btn>
       <v-btn text v-else @click="$router.push('/login')"> Log in </v-btn>
     </v-app-bar>

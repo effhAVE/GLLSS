@@ -23,6 +23,8 @@ import Series from "../views/Series.vue";
 import SeriesPage from "../views/generic/SeriesPage.vue";
 import Tournaments from "../views/Tournaments.vue";
 import TournamentPage from "../views/generic/TournamentPage.vue";
+import UserProfile from "../views/generic/UserProfile.vue";
+import UserEdit from "../views/UserEdit.vue";
 import ArticlePage from "../views/generic/ArticlePage.vue";
 import Page404 from "../views/generic/Page404.vue";
 import Page403 from "../views/generic/Page403.vue";
@@ -139,6 +141,33 @@ const routes = [
     meta: {
       requiresAuth: true,
       requiredPermission: "data.view"
+    }
+  },
+  {
+    path: "/users/:userID",
+    component: UserProfile,
+    meta: {
+      requiresAuth: true,
+      requiredPermission: "users.view"
+    },
+    props: true
+  },
+
+  {
+    path: "/me",
+    component: UserProfile,
+    meta: {
+      requiresAuth: true
+    },
+    props: {
+      userID: store.state.user._id
+    }
+  },
+  {
+    path: "/me/edit",
+    component: UserEdit,
+    meta: {
+      requiresAuth: true
     }
   },
   {
