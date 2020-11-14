@@ -127,8 +127,8 @@ export default {
       return this.usersAvailable.filter(
         user =>
           !(
-            this.round.hosts.some(hostObject => hostObject.host._id === this.$store.state.user._id) ||
-            this.round.teamLeads.some(TLObject => TLObject.host._id === this.$store.state.user._id)
+            this.round.hosts.some(hostObject => hostObject.host._id === user._id) ||
+            this.round.teamLeads.some(TLObject => TLObject.host._id === user._id)
           )
       );
     }
