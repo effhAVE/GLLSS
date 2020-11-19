@@ -74,6 +74,7 @@ export default {
           value: "nickname"
         },
         { text: "ID", value: "_id" },
+        { text: "E-mail", value: "email" },
         { text: "Registration date", value: "createdAt" },
         { text: "Verified", value: "isVerified" },
         { text: "Role", value: "roles", width: 250, align: "center", sort: (a, b) => a[0].importance - b[0].importance }
