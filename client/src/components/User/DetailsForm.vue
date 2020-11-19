@@ -1,26 +1,37 @@
 <template>
-  <v-form ref="form" style="min-width: 500px" v-if="details">
-    <v-text-field v-model="details.name" color="accent" label="Name"></v-text-field>
+  <v-form ref="form" v-if="details" v-model="valid" @input="$emit('validation', $event)">
+    <v-card-title>Account details</v-card-title>
+    <v-text-field v-model="draft.name" @input="$emit('update:details', draft)" :rules="validations.name" color="accent" label="Name"></v-text-field>
     <v-menu
       ref="menu"
       v-model="birthdayPicker"
+      @input="$emit('update:details', draft)"
       :close-on-content-click="false"
-      :return-value.sync="details.birthday"
+      :return-value.sync="draft.birthday"
       transition="scale-transition"
       offset-y
       max-width="290px"
       min-width="290px"
     >
       <template v-slot:activator="{ on }">
-        <v-text-field v-model="details.birthday" label="Birthday" color="accent" readonly v-on="on"></v-text-field>
+        <v-text-field v-model="draft.birthday" label="Birthday" color="accent" readonly v-on="on"></v-text-field>
       </template>
-      <v-date-picker v-model="details.birthday" no-title scrollable color="accent">
+      <v-date-picker v-model="draft.birthday" no-title scrollable color="accent">
         <v-spacer></v-spacer>
         <v-btn text color="accent" @click="birthdayPicker = false">Cancel</v-btn>
-        <v-btn text color="accent" @click="$refs.menu.save(details.birthday)">Save</v-btn>
+        <v-btn text color="accent" @click="$refs.menu.save(draft.birthday)">Save</v-btn>
       </v-date-picker>
     </v-menu>
-    <v-autocomplete v-model="details.country" :items="countries" dense label="Country" item-text="name" color="accent" return-object>
+    <v-autocomplete
+      v-model="draft.country"
+      @input="$emit('update:details', draft)"
+      :items="countries"
+      dense
+      label="Country"
+      item-text="name"
+      color="accent"
+      return-object
+    >
       <template v-slot:item="{ item }">
         <country-flag :country="item.code" size="normal" /> <span class="ml-4">{{ item.name }} </span>
       </template>
@@ -29,7 +40,8 @@
       </template>
     </v-autocomplete>
     <v-autocomplete
-      v-model="details.languages"
+      v-model="draft.languages"
+      @input="$emit('update:details', draft)"
       :items="languages"
       dense
       label="Languages spoken"
@@ -41,40 +53,41 @@
     >
     </v-autocomplete>
     <v-select
+      @input="$emit('update:details', draft)"
       :items="[{ text: 'Not specified', value: '' }, 'Male', 'Female', 'Other']"
       label="Gender"
       color="accent"
-      v-model="details.gender"
+      v-model="draft.gender"
     ></v-select>
-    <v-row>
-      <v-spacer></v-spacer>
-      <v-btn color="accent black--text" class="mt-8" text @click="saveChanges"> Save </v-btn>
-    </v-row>
+    <v-textarea color="accent" label="Bio" v-model="draft.bio" @input="$emit('update:details', draft)"></v-textarea>
   </v-form>
 </template>
 
 <script>
 import CountryFlag from "vue-country-flag";
+import validations from "../../helpers/validations";
+
 export default {
   components: {
     CountryFlag
   },
+  props: {
+    details: {
+      type: Object
+    }
+  },
   data() {
     return {
-      details: null,
+      draft: null,
       countries: [],
       languages: [],
-      birthdayPicker: false
+      birthdayPicker: false,
+      validations: validations,
+      valid: false
     };
   },
-  mounted() {
-    this.$http.get(`${this.APIURL}/users/me/details`).then(response => {
-      this.details = response.data;
-      if (this.details.birthday) {
-        this.details.birthday = this.$moment(this.details.birthday).format("YYYY-MM-DD");
-      }
-    });
-
+  created() {
+    this.draft = Object.assign({}, this.details);
     this.$http.get(`${this.APIURL}/collections/countries`).then(response => {
       if (response.status >= 400) throw new Error(response.data);
       this.countries = response.data;
@@ -84,26 +97,6 @@ export default {
       if (response.status >= 400) throw new Error(response.data);
       this.languages = response.data;
     });
-  },
-  methods: {
-    saveChanges() {
-      this.$http
-        .patch(`${this.APIURL}/users/me/details`, { details: this.details })
-        .then(response => {
-          if (response.status >= 400) throw new Error(response.data);
-          this.$router.push("/me");
-          this.$store.commit("snackbarMessage", {
-            type: "success",
-            message: "Changes saved!"
-          });
-        })
-        .catch(error => {
-          this.$store.commit("snackbarMessage", {
-            type: "error",
-            message: error
-          });
-        });
-    }
   }
 };
 </script>

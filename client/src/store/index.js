@@ -32,6 +32,7 @@ export default new Vuex.Store({
     status: "",
     token: localStorage.getItem("token"),
     user: Vue.$jwt.decode(localStorage.getItem("token")),
+    preferences: null,
     tokenExpiry: null,
     tokenTimer: null,
     updateTimer: null,
@@ -66,10 +67,14 @@ export default new Vuex.Store({
     timerUpdate(state, timer) {
       state.tokenTimer = timer;
     },
+    setUserPreferences(state, preferences) {
+      state.preferences = preferences;
+    },
     logout(state) {
       state.status = "";
       state.token = "";
       state.user = null;
+      state.preferences = null;
       clearInterval(state.tokenTimer);
       state.tokenTimer = null;
     },
@@ -93,6 +98,7 @@ export default new Vuex.Store({
               }
             }
 
+            dispatch("getUserPreferences");
             const token = response.data.token;
             const user = response.data.user;
             commit("tokenUpdate", token);
@@ -143,15 +149,14 @@ export default new Vuex.Store({
       });
     },
 
-    getUserData({ commit }) {
+    getUserPreferences({ commit }) {
       return new Promise((resolve, reject) => {
-        commit("AUTH_REQUEST");
         const token = axios.defaults.headers.common["x-auth-token"];
         axios
-          .get(`${APIURL}/users/me`)
+          .get(`${APIURL}/users/me?fields=preferences`)
           .then(response => {
-            const user = response.data.user;
-            commit("AUTH_SUCCESS", token);
+            const user = response.data;
+            commit("setUserPreferences", user.preferences);
             resolve(response);
           })
           .catch(error => {
@@ -180,6 +185,7 @@ export default new Vuex.Store({
         axios
           .get(`${APIURL}/auth/renew`)
           .then(response => {
+            if (!state.preferences) dispatch("getUserPreferences");
             const token = response.data;
             window.clearInterval(state.updateTimer);
             state.updateTimer = null;

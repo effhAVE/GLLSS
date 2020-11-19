@@ -32,7 +32,9 @@
         </tr>
         <tr>
           <th>Birthday</th>
-          <td>{{ user.details.birthday | moment("MMMM DD, YYYY") }} ({{ user.age }} years old)</td>
+          <td>
+            <span v-if="user.details.birthday">{{ user.details.birthday | moment("MMMM DD, YYYY") }} ({{ user.age }} years old)</span>
+          </td>
         </tr>
         <tr>
           <th>Gender</th>
@@ -46,6 +48,10 @@
             </v-chip>
           </td>
         </tr>
+        <tr v-if="user.email">
+          <th>Email</th>
+          <td>{{ user.email }}</td>
+        </tr>
         <tr>
           <th>Registered</th>
           <td>{{ user.createdAt | moment("MMMM DD, YYYY HH:mm") }}</td>
@@ -53,7 +59,9 @@
 
         <tr>
           <th>Bio</th>
-          <td>{{ user.details.bio }}</td>
+          <td>
+            <pre class="body-2">{{ user.details.bio }}</pre>
+          </td>
         </tr>
       </tbody>
     </template>

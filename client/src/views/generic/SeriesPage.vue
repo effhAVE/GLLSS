@@ -68,7 +68,7 @@ export default {
       tournamentsLoading: false,
       tournamentsLoaded: false,
       page: 0,
-      limit: 10,
+      limit: this.$store.state.preferences.seriesTournamentsLimit || 10,
       allLoaded: false
     };
   },

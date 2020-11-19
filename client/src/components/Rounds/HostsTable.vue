@@ -26,7 +26,7 @@
               </span>
             </v-tooltip>
             <div class="oneline-text" style="max-width: 100px">
-              {{ item.host.nickname }}
+              <username :user="item.host" />
             </div>
             <div class="ml-auto">
               <v-btn

@@ -199,7 +199,7 @@ export default {
       search: "",
       tournamentsList: [],
       page: 0,
-      limit: 15,
+      limit: this.$store.state.preferences.tournamentsLimitActive || 15,
       allLoaded: false,
       expanded: [],
       headers: [

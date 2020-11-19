@@ -105,7 +105,7 @@ export default {
     return {
       activeHosted: [],
       allLoaded: false,
-      limit: 5,
+      limit: this.$store.state.preferences.overviewTournamentsLimitActive || 5,
       page: 0,
       headers: [
         {

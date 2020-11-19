@@ -48,53 +48,27 @@ router.get("/", auth, validateAccess("users.view"), async (req, res) => {
       $ne: []
     }
   })
-    .select("-tournamentsHosted")
+    .select("-tournamentsHosted -preferences -details")
     .sort("_id");
   return res.send(users);
 });
 
-router.get("/:id", auth, validateObjectId, validateAccess("users.view"), async (req, res) => {
-  const user = await User.findById(req.params.id).select("-tournamentsHosted");
+router.get("/me", auth, async (req, res) => {
+  const fields = req.query.fields;
+  const user = await User.findById(req.user._id).select(`${fields.split(",").join(" ")} -roles`);
   return user ? res.send(user) : res.status(404).send("User not found.");
 });
 
-router.get("/me/details", auth, async (req, res) => {
-  const user = await User.findById(req.user._id).select("details -roles");
-  return user ? res.send(user.details) : res.status(404).send("User not found.");
-});
-
-router.patch("/me/details", auth, async (req, res) => {
-  User.findOneAndUpdate({ _id: req.user._id }, req.body, { new: true }, (err, user) => {
-    return err ? res.send(err) : res.send(user);
-  });
-});
-
-router.post("/:id/avatar", auth, validateObjectId, upload.single("avatar"), async (req, res) => {
-  const user = await User.findById(req.params.id).select("details");
-  if (!user && !user._id.equals(req.user._id)) return res.status(400).send("Bad request.");
-  if (req.file && req.file.path) {
-    if (user.details.avatar) cloudinary.uploader.destroy(user.details.avatar.publicID);
-    const image = new Image({
-      publicID: req.file.filename,
-      url: req.file.path
-    });
-
-    user.details.avatar = image;
+router.patch("/me", auth, async (req, res) => {
+  const user = await User.findById(req.user._id).select("-tournamentsHosted");
+  user.details = req.body.details;
+  user.preferences = req.body.preferences;
+  try {
     await user.save();
     return res.send(user);
-  } else {
-    winston.log(`Avatar upload error: ${req.file}`);
-    return res.status(422).send("Invalid");
+  } catch (err) {
+    return res.status(400).send(err.message);
   }
-});
-
-router.delete("/:id/avatar", auth, validateObjectId, async (req, res) => {
-  const user = await User.findById(req.params.id).select("details");
-  if (!user && !user._id.equals(req.user._id)) return res.status(400).send("Bad request.");
-  if (user.details.avatar.publicID) await cloudinary.uploader.destroy(user.details.avatar.publicID);
-  user.details.avatar = null;
-  await user.save();
-  return res.send(user);
 });
 
 router.delete("/", auth, validateAccess("users.delete"), async (req, res) => {
@@ -218,6 +192,42 @@ router.post("/resend-verification", async (req, res) => {
       return res.status(500).send(err);
     }
   });
+});
+
+router.get("/:id", auth, validateObjectId, validateAccess("users.view"), async (req, res) => {
+  const user = await User.findById(req.params.id).select("-tournamentsHosted -id");
+  let resUser = user.toJSON(true);
+  if (resUser.preferences.privateEmail) delete resUser.email;
+  delete resUser.preferences;
+  return user ? res.send(resUser) : res.status(404).send("User not found.");
+});
+
+router.post("/:id/avatar", auth, validateObjectId, upload.single("avatar"), async (req, res) => {
+  const user = await User.findById(req.params.id).select("details");
+  if (!user && !user._id.equals(req.user._id)) return res.status(400).send("Bad request.");
+  if (req.file && req.file.path) {
+    if (user.details.avatar) cloudinary.uploader.destroy(user.details.avatar.publicID);
+    const image = new Image({
+      publicID: req.file.filename,
+      url: req.file.path
+    });
+
+    user.details.avatar = image;
+    await user.save();
+    return res.send(user);
+  } else {
+    winston.log(`Avatar upload error: ${req.file}`);
+    return res.status(422).send("Invalid");
+  }
+});
+
+router.delete("/:id/avatar", auth, validateObjectId, async (req, res) => {
+  const user = await User.findById(req.params.id).select("details");
+  if (!user && !user._id.equals(req.user._id)) return res.status(400).send("Bad request.");
+  if (user.details.avatar.publicID) await cloudinary.uploader.destroy(user.details.avatar.publicID);
+  user.details.avatar = null;
+  await user.save();
+  return res.send(user);
 });
 
 router.put("/:id/roles", auth, validateAccess("users.modifyRoles"), validateObjectId, async (req, res) => {

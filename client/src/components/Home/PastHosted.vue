@@ -2,9 +2,7 @@
   <div>
     <v-row class="flex-column flex-sm-row ma-0 mt-12" no-gutters>
       <v-col>
-        <h3 class="subtitle mb-8">
-          Past tournaments
-        </h3>
+        <h3 class="subtitle mb-8">Past tournaments</h3>
       </v-col>
       <v-col col="3" class="pa-1">
         <v-select :items="filters" v-model="selectedType" @change="changeFilters" label="Type" outlined dense color="accent" class="filter-input">
@@ -71,9 +69,7 @@
       <template v-slot:footer>
         <div class="v-data-footer">
           <v-spacer></v-spacer>
-          <v-btn class="accent--text" text tile @click="getNextTournamentsPage" :disabled="allLoaded">
-            Load more
-          </v-btn>
+          <v-btn class="accent--text" text tile @click="getNextTournamentsPage" :disabled="allLoaded"> Load more </v-btn>
         </div>
       </template>
     </v-data-table>
@@ -91,7 +87,7 @@ export default {
     return {
       pastHosted: [],
       allLoaded: false,
-      limit: 10,
+      limit: this.$store.state.preferences.overviewTournamentsLimitPast || 10,
       page: 0,
       headers: [
         {

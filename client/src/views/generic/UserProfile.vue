@@ -51,6 +51,7 @@ export default {
     userID: {
       handler(newValue) {
         if (newValue) {
+          if (newValue === this.id) return;
           this.id = newValue;
           this.getUser(newValue);
         } else {

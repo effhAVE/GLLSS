@@ -19,6 +19,9 @@
       hide-default-footer
       disable-pagination
     >
+      <template v-slot:item.nickname="{ item }">
+        <username :user="item" />
+      </template>
       <template v-slot:item.data-table-select="{ item, select, isSelected }">
         <v-simple-checkbox
           :ripple="false"

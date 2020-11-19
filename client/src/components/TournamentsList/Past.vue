@@ -142,7 +142,7 @@ export default {
       search: "",
       tournamentsList: [],
       page: 0,
-      limit: 10,
+      limit: this.$store.state.preferences.tournamentsLimitPast || 10,
       expanded: [],
       allLoaded: false,
       headers: [
