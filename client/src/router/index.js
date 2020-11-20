@@ -160,7 +160,7 @@ const routes = [
       requiresAuth: true
     },
     props: {
-      userID: store.state.user._id
+      userID: store.state.user ? store.state.user._id : null
     }
   },
   {
@@ -332,7 +332,6 @@ router.beforeEach((to, from, next) => {
       if (!store.state.preferences) {
         return store.dispatch("getUserPreferences").then(next);
       }
-
       return next();
     }
 
