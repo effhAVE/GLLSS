@@ -1,3 +1,5 @@
+import moment from "moment";
+
 function required(value) {
   if (typeof value === "number") {
     value += "";
@@ -48,5 +50,6 @@ export default {
   url: [v => /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)?/gi.test(v) || v === "" || "Must be a valid URL"],
   tournamentsLimit: [required, v => v >= 5 || "Limit cannot be lower than 5", v => v <= 30 || "Limit cannot be higher than 30"],
   overviewLimitActive: [required, v => v >= 1 || "Limit cannot be lower than 1", v => v <= 15 || "Limit cannot be higher than 15"],
+  birthday: [v => moment().diff(moment(v), "years") >= 15 || "Your birthday must be at least 15 years ago"],
   name: [v => v.length <= 127 || "Name cannot be longer than 127 characters"]
 };

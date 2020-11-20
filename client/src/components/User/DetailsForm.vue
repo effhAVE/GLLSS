@@ -14,7 +14,7 @@
       min-width="290px"
     >
       <template v-slot:activator="{ on }">
-        <v-text-field v-model="draft.birthday" label="Birthday" color="accent" readonly v-on="on"></v-text-field>
+        <v-text-field v-model="draft.birthday" :rules="validations.birthday" label="Birthday" color="accent" readonly v-on="on"></v-text-field>
       </template>
       <v-date-picker v-model="draft.birthday" no-title scrollable color="accent">
         <v-spacer></v-spacer>
