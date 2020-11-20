@@ -38,7 +38,7 @@ schedule.scheduleJob("0 * * * *", async () => {
 });
 
 async function getRecentValues() {
-  const data = await Data.findOne().sort("-updatedAt").select("calculation.gameValues");
+  const data = await Data.findOne().sort("-updatedAt").select("calculation.gameValues TLRatio");
   if (!data.TLRatio) data.TLRatio = 100;
   return { gameValues: data.calculation.gameValues, TLRatio: data.TLRatio };
 }
