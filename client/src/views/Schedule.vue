@@ -127,6 +127,11 @@ export default {
     onAvailableList(list) {
       this.availableList = list;
     }
+  },
+  mounted() {
+    this.$http.get(`${this.APIURL}/collections/games`).then(response => {
+      this.games = this.availabilityGames = response.data;
+    });
   }
 };
 </script>
