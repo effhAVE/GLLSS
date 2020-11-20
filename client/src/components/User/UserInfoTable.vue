@@ -63,7 +63,7 @@
         <tr>
           <th>Bio</th>
           <td>
-            <pre class="body-2">{{ user.details.bio }}</pre>
+            <pre class="body-2" style="white-space: pre-wrap">{{ user.details.bio }}</pre>
           </td>
         </tr>
       </tbody>
