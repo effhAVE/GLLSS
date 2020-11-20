@@ -27,7 +27,22 @@ router.post("/", auth, validateAccess("codes.create"), async (req, res) => {
 });
 
 router.get("/", auth, validateAccess("codes.view"), async (req, res) => {
-  const codes = await Accountcode.find({}).populate("assignedUser1 assignedUser2", "-tournamentsHosted").select("-adminToken").sort("createdAt");
+  let query = {};
+  const forUser = req.query.my === undefined || req.query.my.toLowerCase() === "false" ? false : true;
+  if (forUser) {
+    query = {
+      $or: [
+        {
+          assignedUser1: req.user._id
+        },
+        {
+          assignedUser2: req.user._id
+        }
+      ]
+    };
+  }
+
+  const codes = await Accountcode.find(query).populate("assignedUser1 assignedUser2", "-tournamentsHosted").select("-adminToken").sort("createdAt");
   return res.send(codes);
 });
 

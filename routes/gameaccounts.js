@@ -30,7 +30,13 @@ router.post("/", auth, validateAccess("accounts.create"), async (req, res) => {
 });
 
 router.get("/", auth, validateAccess("accounts.view"), async (req, res) => {
-  const accounts = await Gameaccount.find({}).populate("claimedBy presets.createdBy").sort("_id");
+  let query = {};
+  const forUser = req.query.my === undefined || req.query.my.toLowerCase() === "false" ? false : true;
+  if (forUser) {
+    query.haveAccess = req.user._id;
+  }
+
+  const accounts = await Gameaccount.find(query).populate("claimedBy presets.createdBy").sort("_id");
   return res.send(accounts);
 });
 

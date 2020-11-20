@@ -70,9 +70,17 @@
         <v-row>
           <v-col>
             <v-checkbox
+              class="mt-0"
               v-model="draft.privateEmail"
               @change="$emit('update:preferences', draft)"
               label="Don't show my e-mail"
+              color="accent"
+            ></v-checkbox>
+            <v-checkbox
+              class="mt-0"
+              v-model="draft.showBirthday"
+              @change="$emit('update:preferences', draft)"
+              label="Show birthday"
               color="accent"
             ></v-checkbox>
           </v-col>
@@ -100,6 +108,13 @@
               v-model="draft.displayOnlyMyCodes"
               @change="$emit('update:preferences', draft)"
               label="Display only my codes"
+              color="accent"
+            ></v-checkbox>
+            <v-checkbox
+              class="mt-0"
+              v-model="draft.displayPastTournaments"
+              @change="$emit('update:preferences', draft)"
+              label="Display past tournaments"
               color="accent"
             ></v-checkbox>
           </v-col>

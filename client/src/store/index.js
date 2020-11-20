@@ -98,7 +98,6 @@ export default new Vuex.Store({
               }
             }
 
-            dispatch("getUserPreferences");
             const token = response.data.token;
             const user = response.data.user;
             commit("tokenUpdate", token);
@@ -185,7 +184,6 @@ export default new Vuex.Store({
         axios
           .get(`${APIURL}/auth/renew`)
           .then(response => {
-            if (!state.preferences) dispatch("getUserPreferences");
             const token = response.data;
             window.clearInterval(state.updateTimer);
             state.updateTimer = null;

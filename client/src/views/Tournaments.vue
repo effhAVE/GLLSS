@@ -25,7 +25,7 @@ export default {
   data() {
     return {
       availableQueue: [],
-      showPastTournaments: false,
+      showPastTournaments: this.$store.state.preferences.displayPastTournaments || false,
       gamesList: [],
       regionsList: []
     };

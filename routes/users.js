@@ -197,7 +197,22 @@ router.post("/resend-verification", async (req, res) => {
 router.get("/:id", auth, validateObjectId, validateAccess("users.view"), async (req, res) => {
   const user = await User.findById(req.params.id).select("-tournamentsHosted -id");
   let resUser = user.toJSON(true);
-  if (resUser.preferences.privateEmail) delete resUser.email;
+  if (hasPermission(req.user, "users.viewHiddenFields")) resUser.hidden = {};
+  if (resUser.preferences.privateEmail) {
+    if (resUser.hidden) resUser.hidden.email = resUser.email;
+    delete resUser.email;
+  }
+
+  if (!resUser.preferences.showBirthday) {
+    if (resUser.hidden) {
+      resUser.hidden.birthday = resUser.details.birthday;
+      resUser.hidden.age = resUser.age;
+    }
+
+    delete resUser.details.birthday;
+    delete resUser.age;
+  }
+
   delete resUser.preferences;
   return user ? res.send(resUser) : res.status(404).send("User not found.");
 });
@@ -223,7 +238,7 @@ router.post("/:id/avatar", auth, validateObjectId, upload.single("avatar"), asyn
 
 router.delete("/:id/avatar", auth, validateObjectId, async (req, res) => {
   const user = await User.findById(req.params.id).select("details");
-  if (!user && !user._id.equals(req.user._id)) return res.status(400).send("Bad request.");
+  if (!user && (!user._id.equals(req.user._id) || !hasPermission(req.user, "usersProps.avatar"))) return res.status(400).send("Bad request.");
   if (user.details.avatar.publicID) await cloudinary.uploader.destroy(user.details.avatar.publicID);
   user.details.avatar = null;
   await user.save();

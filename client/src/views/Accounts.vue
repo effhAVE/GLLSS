@@ -3,6 +3,7 @@
     <v-card-title>
       PUBG Accounts
       <v-spacer></v-spacer>
+      <v-switch v-model="getOnlyMine" label="Show accessible only" @change="getAccounts" color="accent"></v-switch>
       <v-btn text color="accent" @click="getAccounts">Refresh the accounts</v-btn>
     </v-card-title>
     <v-data-table
@@ -147,6 +148,7 @@ export default {
       accounts: [],
       presets: [],
       usersList: [],
+      getOnlyMine: this.$store.state.preferences.displayOnlyMyAccounts || false,
       headers: [
         {
           text: "Access",
@@ -206,7 +208,7 @@ export default {
   },
   methods: {
     getAccounts() {
-      this.$http.get(`${this.APIURL}/accounts/`).then(response => {
+      this.$http.get(`${this.APIURL}/accounts/?my=${this.getOnlyMine}`).then(response => {
         this.accounts = response.data;
       });
     },

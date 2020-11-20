@@ -329,6 +329,10 @@ router.beforeEach((to, from, next) => {
     return next("/");
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (store.getters.isLoggedIn) {
+      if (!store.state.preferences) {
+        return store.dispatch("getUserPreferences").then(next);
+      }
+
       return next();
     }
 

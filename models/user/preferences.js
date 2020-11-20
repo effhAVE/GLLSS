@@ -39,12 +39,22 @@ module.exports = {
     default: true,
     required: true
   },
+  showBirthday: {
+    type: Boolean,
+    default: true,
+    required: true
+  },
   displayOnlyMyAccounts: {
     type: Boolean,
     default: false,
     required: true
   },
   displayOnlyMyCodes: {
+    type: Boolean,
+    default: false,
+    required: true
+  },
+  displayPastTournaments: {
     type: Boolean,
     default: false,
     required: true

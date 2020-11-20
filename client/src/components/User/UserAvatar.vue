@@ -7,10 +7,16 @@
       width="250"
     >
       <v-fade-transition>
-        <v-overlay v-if="hover && user._id === $store.state.user._id" absolute color="primary">
+        <v-overlay
+          v-if="hover && (user._id === $store.state.user._id || ($store.getters.hasPermission('usersProps.avatar') && user.details.avatar))"
+          absolute
+          color="primary"
+        >
           <v-sheet height="250" width="250" color="transparent" tile>
             <v-row class="pa-4" justify="end">
-              <v-btn top right icon small class="accent" @click="uploadModal = true"><v-icon color="black" small>mdi-pencil</v-icon></v-btn>
+              <v-btn top right icon small class="accent" @click="uploadModal = true" v-if="user._id === $store.state.user._id">
+                <v-icon color="black" small>mdi-pencil</v-icon>
+              </v-btn>
               <v-btn top right icon small class="error ml-2" @click="deleteModal = true" v-if="user.details.avatar">
                 <v-icon color="black" small>mdi-delete</v-icon>
               </v-btn>

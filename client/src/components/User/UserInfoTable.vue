@@ -25,15 +25,18 @@
         <tr>
           <th>Languages</th>
           <td>
-            <v-chip v-for="language in user.details.languages" :key="language.code" class="mr-2">
+            <v-chip v-for="language in user.details.languages" :key="language.code" class="mr-2" outlined>
               {{ language.name }}
             </v-chip>
           </td>
         </tr>
-        <tr>
+        <tr :class="{ 'admin-visible': user.hidden && user.hidden.birthday }">
           <th>Birthday</th>
           <td>
             <span v-if="user.details.birthday">{{ user.details.birthday | moment("MMMM DD, YYYY") }} ({{ user.age }} years old)</span>
+            <span v-else-if="user.hidden && user.hidden.birthday">
+              {{ user.hidden.birthday | moment("MMMM DD, YYYY") }} ({{ user.hidden.age }} years old)
+            </span>
           </td>
         </tr>
         <tr>
@@ -48,9 +51,9 @@
             </v-chip>
           </td>
         </tr>
-        <tr v-if="user.email">
+        <tr v-if="user.email || (user.hidden && user.hidden.email)" :class="{ 'admin-visible': user.hidden && user.hidden.email }">
           <th>Email</th>
-          <td>{{ user.email }}</td>
+          <td>{{ user.email || user.hidden.email }}</td>
         </tr>
         <tr>
           <th>Registered</th>
@@ -82,5 +85,19 @@ export default {
 <style lang="scss">
 .user-table tr > th {
   width: 250px;
+}
+
+.admin-visible > td {
+  position: relative;
+  border: thin solid var(--v-warning-base) !important;
+  &::after {
+    content: "ADMIN";
+    position: absolute;
+    right: 8px;
+    top: 2px;
+    color: var(--v-warning-base);
+    font-weight: bold;
+    font-size: 0.7em;
+  }
 }
 </style>

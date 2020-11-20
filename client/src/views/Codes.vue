@@ -3,6 +3,7 @@
     <v-card-title>
       Apex Codes
       <v-spacer></v-spacer>
+      <v-switch v-model="getOnlyMine" label="Display only my codes" @change="getCodes" color="accent"></v-switch>
     </v-card-title>
     <v-data-table
       class="table-background not-editable"
@@ -125,6 +126,7 @@ export default {
     return {
       codes: [],
       usersList: [],
+      getOnlyMine: this.$store.state.preferences.displayOnlyMyCodes || false,
       headers: [
         {
           text: "Expiration",
@@ -173,7 +175,7 @@ export default {
   },
   methods: {
     getCodes() {
-      this.$http.get(`${this.APIURL}/codes/`).then(response => {
+      this.$http.get(`${this.APIURL}/codes/?my=${this.getOnlyMine}`).then(response => {
         this.codes = response.data;
       });
     },

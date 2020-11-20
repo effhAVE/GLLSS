@@ -53,7 +53,7 @@ export default {
   data() {
     return {
       admins: [],
-      showPastTournaments: false,
+      showPastTournaments: this.$store.state.preferences.displayPastTournaments || false,
       showPastRounds: false,
       gamesList: [],
       regionsList: []

@@ -68,6 +68,11 @@ module.exports = {
         description: "View user profiles"
       },
       {
+        value: "users.viewHiddenFields",
+        name: "View users' hidden fields",
+        description: "View fields that were hidden in preferences settings"
+      },
+      {
         value: "users.confirm",
         name: "Confirm users",
         description: "Confirm newly registered users"
@@ -75,7 +80,13 @@ module.exports = {
       {
         value: "users.update",
         name: "Update users",
-        description: "Modify properties of existing users"
+        description: "Modify properties of existing users",
+        props: [
+          {
+            value: "usersProps.avatar",
+            name: "Avatar"
+          }
+        ]
       },
       {
         value: "users.delete",
