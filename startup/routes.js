@@ -15,7 +15,7 @@ const error = require("../middleware/error");
 const cors = require("cors");
 
 module.exports = function (app) {
-  app.use(express.json());
+  app.use(express.json({ limit: "8mb" }));
   app.use(
     cors({
       exposedHeaders: ["x-auth-token", "Date"]
