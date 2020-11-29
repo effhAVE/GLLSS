@@ -44,7 +44,7 @@
           type="number"
           min="1"
           max="5"
-          :rules="[v => (v >= 1 && v <= 5) || 'Cannot be higher than 5 and lower than 1!']"
+          :rules="[v => (v >= 1 && v <= 10) || 'Cannot be higher than 10 and lower than 1!']"
           hint="Specifies color used when having multiple roles"
           persistent-hint
           :disabled="!$store.getters.hasPermission('rolesProps.importance') || (!!role && !role.editable)"

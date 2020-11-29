@@ -520,10 +520,6 @@ module.exports = {
             name: "Content"
           },
           {
-            value: "articlesProps.notes",
-            name: "Notes"
-          },
-          {
             value: "articlesProps.previewImageURL",
             name: "Preview image URL"
           },
