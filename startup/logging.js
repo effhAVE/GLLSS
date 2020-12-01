@@ -15,7 +15,8 @@ module.exports = function () {
   );
 
   process.on("unhandledRejection", ex => {
-    winston.emerg(ex);
+    winston.log({ level: "error", message: ex });
+    console.log(ex);
     throw ex;
   });
 

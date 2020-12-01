@@ -33,7 +33,7 @@ schedule.scheduleJob("0 * * * *", async () => {
     winston.info(`Recalculated values for ${date} with following values: ${JSON.stringify(values)}`);
     await dataCalculation(date, values.gameValues, values.TLRatio);
   } catch (err) {
-    wiston.error(err);
+    winston.log({ level: "error", message: err });
   }
 });
 

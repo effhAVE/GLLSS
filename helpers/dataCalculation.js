@@ -43,7 +43,7 @@ module.exports = async function (date, gameValues, TLRatio) {
   });
 
   if (!data) {
-    winston.notice(`No data month for ${date}. Creating...`);
+    winston.info(`No data month for ${date}. Creating...`);
     data = new Data({
       date: date
     });
