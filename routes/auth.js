@@ -13,7 +13,7 @@ const axios = require("axios");
 const DISCORD_ID = process.env.DISCORD_ID;
 const DISCORD_SECRET = process.env.DISCORD_SECRET;
 const API_BASE = process.env.NODE_ENV === "production" ? "https://www.gllss.eu/api" : "http://localhost:3000/api";
-const CLIENT_BASE = process.env.NODE_ENV === "production" ? "https://www.gllss.eu/" : "http://localhost:8080";
+const CLIENT_BASE = process.env.NODE_ENV === "production" ? "https://www.gllss.eu" : "http://localhost:8080";
 const redirect = encodeURIComponent(`${API_BASE}/auth/discord/callback`);
 
 router.post("/", async (req, res) => {
