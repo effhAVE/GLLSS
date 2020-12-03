@@ -17,7 +17,6 @@ const { smtpTransport, mailerEmail } = require("../startup/nodemailer");
 const hasPermission = require("../helpers/hasPermission");
 const winston = require("winston");
 const upload = require("../startup/imageUpload");
-const axios = require("axios");
 const cloudinary = require("cloudinary").v2;
 
 async function prepareVerificationEmail(user) {
@@ -48,15 +47,72 @@ router.get("/", auth, validateAccess("users.view"), async (req, res) => {
       $ne: []
     }
   })
-    .select("-tournamentsHosted -preferences -details")
+    .select("-tournamentsHosted -preferences -details -accounts")
     .sort("_id");
   return res.send(users);
 });
 
+router.get("/birthdays", auth, async (req, res) => {
+  const span = +req.query.span || 7;
+  const rangeStart = new Date();
+
+  // https://stackoverflow.com/questions/22041785/find-whether-someone-got-a-birthday-in-the-next-30-days-with-mongo
+  const users = await User.aggregate([
+    {
+      $match: {
+        "preferences.showBirthday": {
+          $eq: true
+        }
+      }
+    },
+    {
+      $addFields: {
+        today: { $dateFromParts: { year: { $year: rangeStart }, month: { $month: rangeStart }, day: { $dayOfMonth: rangeStart } } },
+        birthdayThisYear: {
+          $dateFromParts: { year: { $year: rangeStart }, month: { $month: "$details.birthday" }, day: { $dayOfMonth: "$details.birthday" } }
+        },
+        birthdayNextYear: {
+          $dateFromParts: {
+            year: { $add: [1, { $year: rangeStart }] },
+            month: { $month: "$details.birthday" },
+            day: { $dayOfMonth: "$details.birthday" }
+          }
+        }
+      }
+    },
+    {
+      $addFields: {
+        nextBirthday: { $cond: [{ $gte: ["$birthdayThisYear", "$today"] }, "$birthdayThisYear", "$birthdayNextYear"] }
+      }
+    },
+    {
+      $project: {
+        daysTillNextBirthday: { $divide: [{ $subtract: ["$nextBirthday", "$today"] }, 24 * 60 * 60 * 1000 /* milliseconds in a day */] },
+        nickname: 1,
+        birthday: "$details.birthday",
+        avatar: "$details.avatar.url",
+        _id: 1
+      }
+    },
+    {
+      $match: {
+        daysTillNextBirthday: {
+          $lte: span
+        }
+      }
+    },
+    { $sort: { daysTillNextBirthday: 1 } }
+  ]);
+
+  return res.send(users);
+});
+
 router.get("/me", auth, async (req, res) => {
-  const fields = req.query.fields;
-  const user = await User.findById(req.user._id).select(`${fields.split(",").join(" ")} -roles`);
-  return user ? res.send(user) : res.status(404).send("User not found.");
+  let fields = req.query.fields;
+  fields = fields.split(",").join(" ");
+  const user = await User.findById(req.user._id).select(`${fields} -roles`);
+  if (!user) return res.status(404).send("User not found.");
+  return res.send(user);
 });
 
 router.patch("/me", auth, async (req, res) => {
@@ -194,8 +250,8 @@ router.post("/resend-verification", async (req, res) => {
   });
 });
 
-router.get("/:id", auth, validateObjectId, validateAccess("users.view"), async (req, res) => {
-  const user = await User.findById(req.params.id).select("-tournamentsHosted -id");
+router.get("/:id", auth, validateObjectId, async (req, res) => {
+  const user = await User.findById(req.params.id).select("-tournamentsHosted -accounts -id");
   let resUser = user.toJSON(true);
   if (hasPermission(req.user, "users.viewHiddenFields")) resUser.hidden = {};
   if (resUser.preferences.privateEmail) {

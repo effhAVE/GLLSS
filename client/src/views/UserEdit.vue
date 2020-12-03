@@ -10,7 +10,10 @@
     </v-card-title>
     <v-card-text>
       <v-row v-if="user">
-        <v-col cols="4"><Details :details.sync="user.details" @validation="detailsFormValid = $event" /></v-col>
+        <v-col cols="4">
+          <Details :details.sync="user.details" @validation="detailsFormValid = $event" />
+          <Accounts :accounts="user.accounts" @fetch="getUser('accounts')" />
+        </v-col>
         <v-col offset="1"><Preferences :preferences.sync="user.preferences" @validation="preferencesFormValid = $event" /></v-col>
       </v-row>
     </v-card-text>
@@ -23,10 +26,12 @@
 <script>
 import Details from "../components/User/DetailsForm";
 import Preferences from "../components/User/PreferencesForm";
+import Accounts from "../components/User/AccountsForm";
 export default {
   components: {
     Details,
-    Preferences
+    Preferences,
+    Accounts
   },
   data() {
     return {
@@ -36,15 +41,18 @@ export default {
     };
   },
   created() {
-    this.$http.get(`${this.APIURL}/users/me?fields=preferences,details`).then(response => {
-      this.user = response.data;
-      if (this.user.details.birthday) {
-        this.user.details.birthday = this.$moment(this.user.details.birthday).format("YYYY-MM-DD");
-      }
-    });
+    this.getUser("accounts,details,preferences");
   },
 
   methods: {
+    getUser(fields) {
+      this.$http.get(`${this.APIURL}/users/me?fields=${fields}`).then(response => {
+        this.user = Object.assign({}, this.user, response.data);
+        if (this.user.details.birthday) {
+          this.user.details.birthday = this.$moment(this.user.details.birthday).format("YYYY-MM-DD");
+        }
+      });
+    },
     saveChanges() {
       this.$http
         .patch(`${this.APIURL}/users/me/`, { details: this.user.details, preferences: this.user.preferences })

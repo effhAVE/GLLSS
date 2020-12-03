@@ -30,6 +30,7 @@ export default {
   },
   methods: {
     getUser(id) {
+      if (id === null) id = this.$store.user._id;
       this.$http
         .get(`${this.APIURL}/users/${id}`)
         .then(response => {

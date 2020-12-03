@@ -42,7 +42,7 @@ router.get("/", auth, validateAccess("codes.view"), async (req, res) => {
     };
   }
 
-  const codes = await Accountcode.find(query).populate("assignedUser1 assignedUser2", "-tournamentsHosted").select("-adminToken").sort("createdAt");
+  const codes = await Accountcode.find(query).populate("assignedUser1 assignedUser2", "nickname").select("-adminToken").sort("createdAt");
   return res.send(codes);
 });
 

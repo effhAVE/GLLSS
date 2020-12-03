@@ -32,6 +32,32 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    accounts: {
+      discord: {
+        accessToken: {
+          type: String,
+          default: null
+        },
+        refreshToken: {
+          type: String,
+          default: null
+        },
+        user: {
+          id: {
+            type: String
+          },
+          username: {
+            type: String
+          },
+          avatar: {
+            type: String
+          },
+          discriminator: {
+            type: String
+          }
+        }
+      }
+    },
     preferences,
     details,
     roles: {

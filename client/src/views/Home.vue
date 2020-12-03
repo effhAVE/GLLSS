@@ -32,7 +32,16 @@
           </v-row>
         </v-col>
         <v-col lg="3" cols="12">
-          <UsefulLinks />
+          <v-row v-if="birthdays.length">
+            <v-col class="py-0">
+              <Birthdays :birthdays="birthdays" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col class="py-0">
+              <UsefulLinks />
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </v-card-text>
@@ -41,6 +50,7 @@
 
 <script>
 import UsefulLinks from "../components/Home/UsefulLinks";
+import Birthdays from "../components/Home/Birthdays";
 import PastHosted from "../components/Home/PastHosted";
 import ActiveHosted from "../components/Home/ActiveHosted";
 
@@ -48,7 +58,8 @@ export default {
   components: {
     UsefulLinks,
     PastHosted,
-    ActiveHosted
+    ActiveHosted,
+    Birthdays
   },
   data() {
     return {
@@ -56,7 +67,8 @@ export default {
       showPastTournaments: this.$store.state.preferences.displayPastTournaments || false,
       showPastRounds: false,
       gamesList: [],
-      regionsList: []
+      regionsList: [],
+      birthdays: []
     };
   },
   computed: {
@@ -73,6 +85,12 @@ export default {
       if (this.$store.getters.hasPermission("tournaments.view")) {
         this.$refs.activeHosted.getActiveTournaments();
         this.$refs.pastHosted.getPastTournaments();
+      }
+
+      if (this.$store.getters.hasPermission("users.view")) {
+        this.$http.get(`${this.APIURL}/users/birthdays?span=7`).then(response => {
+          if (response.status < 400) this.birthdays = response.data;
+        });
       }
 
       this.$http.get(`${this.APIURL}/collections/games`).then(response => {
