@@ -155,7 +155,7 @@ router.put("/:id/claim", auth, validateAccess(["accounts.claim", "accountsProps.
   }
 
   await account.save((err, account) => {
-    account.populate("claimedBy", "-tournamentsHosted", (err, populated) => {
+    account.populate("claimedBy", "nickname", (err, populated) => {
       return res.send(populated);
     });
   });

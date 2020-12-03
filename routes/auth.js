@@ -9,6 +9,12 @@ const auth = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
 const { smtpTransport, mailerEmail } = require("../startup/nodemailer");
 const winston = require("winston");
+const axios = require("axios");
+const DISCORD_ID = process.env.DISCORD_ID;
+const DISCORD_SECRET = process.env.DISCORD_SECRET;
+const API_BASE = process.env.NODE_ENV === "production" ? "https://www.gllss.eu/api" : "http://localhost:3000/api";
+const CLIENT_BASE = process.env.NODE_ENV === "production" ? "https://www.gllss.eu/" : "http://localhost:8080";
+const redirect = encodeURIComponent(`${API_BASE}/auth/discord/callback`);
 
 router.post("/", async (req, res) => {
   const { error } = validate(req.body);
@@ -32,6 +38,88 @@ router.post("/", async (req, res) => {
     token: token,
     user: user
   });
+});
+
+router.get("/discord/login", async (req, res) => {
+  const [userID, expiry] = req.query.token.split("-");
+  let now = new Date();
+  now = now.getTime() / 1000;
+  if (!userID || !expiry || expiry - now < 0) return res.status(400).send("Bad request.");
+
+  return res.redirect(
+    `https://discordapp.com/api/oauth2/authorize?client_id=${DISCORD_ID}&scope=identify&response_type=code&redirect_uri=${redirect}&state=${userID}`
+  );
+});
+
+router.post("/discord/logout", auth, async (req, res) => {
+  const user = await User.findById(req.user._id).select("accounts");
+  axios
+    .post(
+      `https://discordapp.com/api/oauth2/token/revoke`,
+      `client_id=${DISCORD_ID}&client_secret=${DISCORD_SECRET}&token=${user.accounts.discord.accessToken}`,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${user.accounts.discord.accessToken}`
+        }
+      }
+    )
+    .then(async response => {
+      user.accounts.discord.user = null;
+      user.accounts.discord.accessToken = null;
+      user.accounts.discord.refreshToken = null;
+      await user.save();
+      return res.send(response.data);
+    })
+    .catch(error => {
+      winston.log({ level: "error", message: JSON.stringify(error.response.data) });
+      return res.status(500).send("Error");
+    });
+});
+
+router.get("/discord/callback", async (req, res) => {
+  if (!req.query.code || !req.query.state) return res.status(500).send("No code provided.");
+  const code = req.query.code;
+  const userID = req.query.state;
+  axios
+    .post(
+      `https://discordapp.com/api/oauth2/token`,
+      `client_id=${DISCORD_ID}&client_secret=${DISCORD_SECRET}&grant_type=authorization_code&code=${code}&redirect_uri=${redirect}&scope=identify`,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      }
+    )
+    .then(async response => {
+      axios
+        .post(
+          "http://discordapp.com/api/users/@me",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${response.data.access_token}`
+            }
+          }
+        )
+        .then(async userResponse => {
+          if (userResponse.status === 401) throw new Error("401");
+          const user = await User.findById(userID);
+          user.accounts.discord.accessToken = response.data.access_token;
+          user.accounts.discord.refreshToken = response.data.refresh_token;
+          user.accounts.discord.user = Object.assign({}, user.accounts.discord.user, userResponse.data);
+          await user.save();
+          return res.redirect(`${CLIENT_BASE}/me/edit`);
+        })
+        .catch(error => {
+          winston.log(error);
+          return res.status(500).send("Something failed.");
+        });
+    })
+    .catch(error => {
+      winston.error(error);
+      return res.status(500).send("Error");
+    });
 });
 
 router.get("/renew", auth, async (req, res) => {
