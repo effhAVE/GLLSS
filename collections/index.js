@@ -5,5 +5,6 @@ module.exports = {
   presets: require("./presets"),
   permissions: require("./permissions"),
   countries: require("./countries"),
-  languages: require("./languages")
+  languages: require("./languages"),
+  logged: require("./logged")
 };

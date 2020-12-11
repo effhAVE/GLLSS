@@ -37,6 +37,7 @@ import DataCreate from "../views/admin/DataCreate.vue";
 import AccountCreate from "../views/admin/AccountCreate.vue";
 import CodeCreate from "../views/admin/CodeCreate.vue";
 import Roles from "../views/admin/Roles.vue";
+import OnlineUsers from "../views/OnlineUsers.vue";
 
 Vue.use(VueRouter);
 
@@ -144,7 +145,17 @@ const routes = [
     }
   },
   {
+    path: "/users/online",
+    name: "Online users",
+    component: OnlineUsers,
+    meta: {
+      requiresAuth: true,
+      requiredPermission: "users.view"
+    }
+  },
+  {
     path: "/users/:userID",
+    name: "User profile",
     component: UserProfile,
     meta: {
       requiresAuth: true,
@@ -155,6 +166,7 @@ const routes = [
 
   {
     path: "/me",
+    name: "My profile",
     component: UserProfile,
     meta: {
       requiresAuth: true
@@ -165,6 +177,7 @@ const routes = [
   },
   {
     path: "/me/edit",
+    name: "Edit profile",
     component: UserEdit,
     meta: {
       requiresAuth: true
@@ -181,6 +194,7 @@ const routes = [
   },
   {
     path: "/series/:seriesID",
+    name: "Series page",
     component: SeriesPage,
     meta: {
       requiresAuth: true,
@@ -198,7 +212,7 @@ const routes = [
   },
   {
     path: "/tournaments/:tournamentID",
-    name: "Tournament",
+    name: "Tournament page",
     component: TournamentPage,
     meta: {
       requiresAuth: true,
@@ -248,7 +262,7 @@ const routes = [
     children: [
       {
         path: "unconfirmed",
-        name: "Confirm",
+        name: "Confirm users",
         component: ConfirmUsers,
         meta: {
           requiredPermission: "users.confirm"
@@ -256,7 +270,7 @@ const routes = [
       },
       {
         path: "users",
-        name: "Users",
+        name: "Users list",
         component: Users,
         meta: {
           requiredPermission: "users.update"
@@ -264,6 +278,7 @@ const routes = [
       },
       {
         path: "tournaments",
+        name: "Create a tournament",
         component: TournamentCreate,
         meta: {
           requiredPermission: "tournaments.create"
@@ -271,6 +286,7 @@ const routes = [
       },
       {
         path: "accounts",
+        name: "Create an account",
         component: AccountCreate,
         meta: {
           requiredPermission: "accounts.create"
@@ -278,6 +294,7 @@ const routes = [
       },
       {
         path: "series",
+        name: "Create series",
         component: SeriesCreate,
         meta: {
           requiredPermission: "series.create"
@@ -285,6 +302,7 @@ const routes = [
       },
       {
         path: "data",
+        name: "Create a data month",
         component: DataCreate,
         meta: {
           requiredPermission: "data.create"
@@ -292,6 +310,7 @@ const routes = [
       },
       {
         path: "codes",
+        name: "Create a code",
         component: CodeCreate,
         meta: {
           requiredPermission: "codes.create"
@@ -299,6 +318,7 @@ const routes = [
       },
       {
         path: "roles",
+        name: "Role editing",
         component: Roles,
         meta: {
           requiredPermission: "roles.view"
@@ -355,6 +375,11 @@ router.beforeEach((to, from, next) => {
   } else {
     next();
   }
+});
+
+router.beforeResolve((to, from, next) => {
+  store.dispatch("getOnlineUsers", { name: to.name, params: to.params });
+  next();
 });
 
 export default router;

@@ -18,6 +18,8 @@ const hasPermission = require("../helpers/hasPermission");
 const winston = require("winston");
 const upload = require("../startup/imageUpload");
 const cloudinary = require("cloudinary").v2;
+const { logged } = require("../collections");
+const moment = require("moment");
 
 async function prepareVerificationEmail(user) {
   const token = new Token({
@@ -50,6 +52,37 @@ router.get("/", auth, validateAccess("users.view"), async (req, res) => {
     .select("-tournamentsHosted -preferences -details -accounts")
     .sort("_id");
   return res.send(users);
+});
+
+router.get("/logged", auth, async (req, res) => {
+  let source = {};
+  source.name = req.query.name;
+  if (req.query.params) {
+    const [key, value] = req.query.params.split(":");
+    source.params = { [key]: value };
+  }
+
+  const user = await User.findById(req.user).select("nickname details.avatar").lean();
+  const index = logged.findIndex(el => el._id.equals(user._id));
+  if (index !== -1) {
+    logged.splice(index, 1);
+  }
+
+  setTimeout(() => {
+    const index = logged.findIndex(el => el._id.equals(user._id));
+    if (index !== -1) {
+      logged.splice(index, 1);
+    }
+  }, 15 * 60 * 1000);
+
+  logged.push({
+    _id: user._id,
+    nickname: user.nickname,
+    avatar: user.details.avatar,
+    seen: moment().subtract(10, "seconds").toDate() /* to prevent displaying 'in a few seconds' on client */,
+    source
+  });
+  return res.send(logged.sort((a, b) => b.seen - a.seen));
 });
 
 router.get("/birthdays", auth, async (req, res) => {
@@ -250,6 +283,16 @@ router.post("/resend-verification", async (req, res) => {
   });
 });
 
+router.get("/unconfirmed", auth, validateAccess("users.confirm"), async (req, res) => {
+  const unconfirmedUsers = await User.find({
+    roles: []
+  })
+    .select("nickname isVerified createdAt")
+    .sort("-createdAt");
+
+  return res.send(unconfirmedUsers);
+});
+
 router.get("/:id", auth, validateObjectId, async (req, res) => {
   const user = await User.findById(req.params.id).select("-tournamentsHosted -accounts -id");
   let resUser = user.toJSON(true);
@@ -325,16 +368,6 @@ router.post("/:id/confirm", auth, validateAccess("users.confirm"), validateObjec
   await user.save();
 
   return res.send(true);
-});
-
-router.get("/unconfirmed", auth, validateAccess("users.confirm"), async (req, res) => {
-  const unconfirmedUsers = await User.find({
-    roles: []
-  })
-    .select("nickname isVerified createdAt")
-    .sort("-createdAt");
-
-  return res.send(unconfirmedUsers);
 });
 
 module.exports = router;

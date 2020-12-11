@@ -36,6 +36,7 @@ export default new Vuex.Store({
     tokenExpiry: null,
     tokenTimer: null,
     updateTimer: null,
+    onlineUsers: [],
     snackbar: {
       type: "",
       message: ""
@@ -70,6 +71,9 @@ export default new Vuex.Store({
     setUserPreferences(state, preferences) {
       state.preferences = preferences;
     },
+    setOnlineUsers(state, users) {
+      state.onlineUsers = users;
+    },
     logout(state) {
       state.status = "";
       state.token = "";
@@ -84,6 +88,22 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    getOnlineUsers({ commit }, source) {
+      const paramName = Object.keys(source.params).find(key => key.toLowerCase().includes("id"));
+      const paramQuery = paramName ? `&params=${encodeURIComponent(`${paramName}:${source.params[paramName]}`)}` : "";
+      return new Promise((resolve, reject) => {
+        axios
+          .get(`${APIURL}/users/logged?name=${encodeURIComponent(source.name)}${paramQuery}`)
+          .then(response => {
+            const users = response.data;
+            commit("setOnlineUsers", users);
+            resolve(response);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
     login({ commit, dispatch, state }, user) {
       return new Promise((resolve, reject) => {
         commit("AUTH_REQUEST");

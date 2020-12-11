@@ -148,6 +148,14 @@
         </v-list-item-content>
       </v-list-item>
     </v-list-group>
+    <v-list-item link to="/users/online" v-if="$store.getters.hasPermission('users.view')">
+      <v-list-item-action>
+        <v-icon>mdi-human-greeting-proximity</v-icon>
+      </v-list-item-action>
+      <v-list-item-content>
+        <v-list-item-title>Online users: {{ $store.state.onlineUsers.length }}</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
     <v-list-item link v-if="$store.state.user" @click="$store.dispatch('logout')">
       <v-list-item-action>
         <v-icon>mdi-lock-open</v-icon>
