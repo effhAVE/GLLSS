@@ -349,9 +349,11 @@ router.beforeEach((to, from, next) => {
     return next("/");
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (store.getters.isLoggedIn) {
+      store.dispatch("getOnlineUsers", { name: to.name, params: to.params });
       if (!store.state.preferences) {
         return store.dispatch("getUserPreferences").then(next);
       }
+
       return next();
     }
 
@@ -375,11 +377,6 @@ router.beforeEach((to, from, next) => {
   } else {
     next();
   }
-});
-
-router.beforeResolve((to, from, next) => {
-  store.dispatch("getOnlineUsers", { name: to.name, params: to.params });
-  next();
 });
 
 export default router;
