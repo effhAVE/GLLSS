@@ -11,7 +11,7 @@
           <v-list-item-content>
             <v-list-item-title> <username :user="user"></username> <span v-if="isToday(user.birthday)">🎂✨💖</span> </v-list-item-title>
             <v-list-item-subtitle>
-              {{ $moment(user.birthday).format("Do of MMMM ") }} <span class="accent--text" v-if="isToday(user.birthday)"> - TODAY!</span>
+              {{ $moment.utc(user.birthday).format("Do of MMMM ") }} <span class="accent--text" v-if="isToday(user.birthday)"> - TODAY!</span>
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>

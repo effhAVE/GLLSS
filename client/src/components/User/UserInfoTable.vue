@@ -31,7 +31,7 @@
           </td>
         </tr>
         <tr :class="{ 'admin-visible': user.hidden && user.hidden.birthday }">
-          <th>Birthday</th>
+          <th>Date of birth</th>
           <td>
             <span v-if="user.details.birthday">{{ user.details.birthday | moment("MMMM DD, YYYY") }} ({{ user.age }} years old)</span>
             <span v-else-if="user.hidden && user.hidden.birthday">
