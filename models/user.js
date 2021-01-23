@@ -3,8 +3,8 @@ const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const mongoose = require("mongoose");
 const moment = require("moment");
-const preferences = require("./user/preferences");
-const details = require("./user/details");
+const preferencesObject = require("./user/preferences");
+const detailsObject = require("./user/details");
 
 const userSchema = new mongoose.Schema(
   {
@@ -58,8 +58,14 @@ const userSchema = new mongoose.Schema(
         }
       }
     },
-    preferences,
-    details,
+    preferences: {
+      type: new mongoose.Schema(preferencesObject, { minimize: false, _id: false }),
+      default: () => ({})
+    },
+    details: {
+      type: new mongoose.Schema(detailsObject, { minimize: false, _id: false }),
+      default: () => ({})
+    },
     roles: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Role" }],
       default: [],
@@ -87,7 +93,7 @@ const userSchema = new mongoose.Schema(
 userSchema.plugin(require("mongoose-autopopulate"));
 
 userSchema.virtual("age").get(function () {
-  return moment().diff(moment(this.details.birthday), "years");
+  return this.details && this.details.birthday ? moment().diff(moment(this.details.birthday), "years") : 0;
 });
 
 userSchema.methods.generateAuthToken = function () {
