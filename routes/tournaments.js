@@ -13,6 +13,7 @@ const router = express.Router();
 const moment = require("moment");
 const tournamentRegions = require("../collections/regions");
 const winston = require("winston");
+const routesLogger = require("../helpers/routesLogger");
 
 router.get("/", auth, validateAccess("tournaments.view"), async (req, res) => {
   const limitSize = +req.query.limit || 10;
@@ -231,6 +232,14 @@ router.put("/:id", auth, validateObjectId, validateAccess("tournaments.update"),
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return res.status(400).send("No tournament found.");
 
+  routesLogger({
+    type: "modified",
+    documentType: "tournament",
+    documentID: tournament._id,
+    user: { nickname: req.user.nickname, _id: req.user._id },
+    description: `${tournament.name}'s settings were changed.`
+  });
+
   Tournament.findOneAndUpdate({ _id: req.params.id }, req.body.filteredProps, { new: true }, (err, tournament) => {
     return err ? res.send(err) : res.send(tournament);
   });
@@ -264,6 +273,15 @@ router.delete("/:id", auth, validateObjectId, validateAccess("tournaments.delete
   );
 
   await tournament.remove();
+
+  routesLogger({
+    type: "deleted",
+    documentType: "tournament",
+    documentID: tournament._id,
+    user: { nickname: req.user.nickname, _id: req.user._id },
+    description: `${tournament.name} was deleted.`
+  });
+
   return res.send(tournament);
 });
 
@@ -309,6 +327,14 @@ router.post("/", auth, validateAccess("tournaments.create"), async (req, res) =>
       series.tournaments.push(savedTournament._id);
       await series.save();
     }
+
+    routesLogger({
+      type: "created",
+      documentType: "tournament",
+      documentID: savedTournament._id,
+      user: { nickname: req.user.nickname, _id: req.user._id },
+      description: `${tournament.name} was created.`
+    });
 
     return res.send(tournament);
   } catch (error) {
