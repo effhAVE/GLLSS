@@ -64,10 +64,13 @@ router.get("/apex", auth, validateAccess("general.isHost"), async (req, res) => 
       } else return res.status(500).send("Could not fetch data.");
     })
     .catch(error => {
-      if (error.response.status !== 404) {
+      if (error.response && error.response.status !== 404) {
         winston.error(error.response.data);
         return res.status(500).send("Could not fetch data.");
-      } else return res.status(200).send([]);
+      } else {
+        winston.error(error);
+        return res.status(500).send(error);
+      }
     });
 });
 
