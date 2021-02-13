@@ -3,6 +3,7 @@ const express = require("express");
 const morgan = require("morgan");
 const app = express();
 const history = require("connect-history-api-fallback");
+require("tls").DEFAULT_ECDH_CURVE = "auto";
 const { routesLogger } = require("./startup/routeslogging");
 morgan.token("user", function (req, res) {
   if (req.user) {
