@@ -78,7 +78,7 @@ router.get("/logged", auth, async (req, res) => {
   logged.push({
     _id: user._id,
     nickname: user.nickname,
-    avatar: user.details.avatar,
+    avatar: user.details ? user.details.avatar : null,
     seen: moment().subtract(10, "seconds").toDate() /* to prevent displaying 'in a few seconds' on client */,
     source
   });
