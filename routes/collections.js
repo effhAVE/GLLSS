@@ -6,7 +6,6 @@ const https = require("https");
 const axios = require("axios");
 const moment = require("moment");
 const { games, regions, recurrences, presets, permissions, languages, countries } = require("../collections");
-const winston = require("winston");
 
 router.get("/games", auth, async (req, res) => {
   res.send(games);
@@ -65,10 +64,12 @@ router.get("/apex", auth, validateAccess("general.isHost"), async (req, res) => 
     })
     .catch(error => {
       if (error.response && error.response.status !== 404) {
-        winston.error(error.response.data);
+        console.error(error.response.data);
         return res.status(500).send("Could not fetch data.");
+      } else if (error.response && error.response.status === 404) {
+        return res.status(200).send([]);
       } else {
-        winston.error(error);
+        console.error(error);
         return res.status(500).send(error);
       }
     });
