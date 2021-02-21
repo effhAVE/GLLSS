@@ -2,6 +2,7 @@ const winston = require("winston");
 const express = require("express");
 const app = express();
 const history = require("connect-history-api-fallback");
+require("tls").DEFAULT_ECDH_CURVE = "auto";
 
 require("./startup/logging")();
 require("./startup/routes")(app);
