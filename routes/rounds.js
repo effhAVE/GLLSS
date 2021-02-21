@@ -13,6 +13,7 @@ const router = express.Router({
   mergeParams: true
 });
 const winston = require("winston");
+const routesLogger = require("../helpers/routesLogger");
 
 router.post("/", auth, validateAccess("rounds.create"), validateObjectId, async (req, res) => {
   const { error } = validate(req.body);
@@ -41,6 +42,14 @@ router.post("/", auth, validateAccess("rounds.create"), validateObjectId, async 
       data.startDate = data.rounds[0].startDate;
       data.endDate = data.rounds[data.rounds.length - 1].endDate;
       await data.save();
+      routesLogger({
+        type: "modified",
+        documentType: "tournament",
+        documentID: data._id,
+        user: { nickname: req.user.nickname, _id: req.user._id },
+        description: `Round ${req.body.name} was added to the tournament.`
+      });
+
       return res.send(data);
     }
   });
@@ -102,8 +111,15 @@ router.delete("/:rid", auth, validateAccess("rounds.delete"), validateObjectId, 
     tournament.endDate = tournament.rounds[tournament.rounds.length - 1].endDate;
   }
 
-  await tournament.save();
+  routesLogger({
+    type: "modified",
+    documentType: "tournament",
+    documentID: tournament._id,
+    user: { nickname: req.user.nickname, _id: req.user._id },
+    description: `${round.name} was deleted from the tournament.`
+  });
 
+  await tournament.save();
   return res.send(round);
 });
 
@@ -136,7 +152,6 @@ router.put("/:rid", auth, validateAccess("rounds.update"), validateObjectId, asy
   }
 
   round.set(updateObject);
-
   try {
     const { hosts, available, teamLeads } = req.body.round;
     if (Array.isArray(hosts) && Array.isArray(available) && Array.isArray(teamLeads) && Array.isArray(excluded)) {
@@ -188,6 +203,14 @@ router.put("/:rid", auth, validateAccess("rounds.update"), validateObjectId, asy
     tournament.startDate = tournament.rounds[0].startDate;
     tournament.endDate = tournament.rounds[tournament.rounds.length - 1].endDate;
     await tournament.save();
+    routesLogger({
+      type: "modified",
+      documentType: "tournament",
+      documentID: tournament._id,
+      user: { nickname: req.user.nickname, _id: req.user._id },
+      description: `${round.name} was edited.`
+    });
+
     return res.send(round);
   } catch (ex) {
     winston.error(ex);
@@ -277,6 +300,13 @@ router.put("/", auth, validateAccess("rounds.update"), validateObjectId, async (
       tournament.startDate = tournament.rounds[0].startDate;
       tournament.endDate = tournament.rounds[tournament.rounds.length - 1].endDate;
       await tournament.save();
+      routesLogger({
+        type: "modified",
+        documentType: "tournament",
+        documentID: tournament._id,
+        user: { nickname: req.user.nickname, _id: req.user._id },
+        description: `${round.name} was edited.`
+      });
     } catch (ex) {
       winston.error(ex);
       return res.status(500).send("Something failed.");
@@ -331,6 +361,13 @@ router.post("/:rid/ready", auth, validateAccess(["hosting.canHost", "hosting.can
     const nextRound = tournament.rounds[roundIndex + index + 1];
     if (host) {
       host.ready = true;
+      routesLogger({
+        type: "modified",
+        documentType: "tournament",
+        documentID: tournament._id,
+        user: { nickname: req.user.nickname, _id: req.user._id },
+        description: `The user is ready for ${round.name}.`
+      });
     }
 
     if (nextRound) {

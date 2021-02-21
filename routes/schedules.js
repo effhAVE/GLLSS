@@ -9,6 +9,7 @@ const express = require("express");
 const router = express.Router();
 const moment = require("moment");
 const winston = require("winston");
+const routesLogger = require("../helpers/routesLogger");
 
 router.put("/", auth, validateAccess("general.isTL"), async (req, res) => {
   const collisions = [];
@@ -123,6 +124,13 @@ router.put("/", auth, validateAccess("general.isTL"), async (req, res) => {
       });
 
       await tournament.save();
+      routesLogger({
+        type: "modified",
+        documentType: "tournament",
+        documentID: tournament._id,
+        user: { nickname: req.user.nickname, _id: req.user._id },
+        description: `${round.name} was edited.`
+      });
     } catch (ex) {
       winston.error(ex);
       return res.status(500).send("Something failed.");

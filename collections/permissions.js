@@ -534,6 +534,13 @@ module.exports = {
         name: "Delete articles",
         description: "Delete existing articles"
       }
+    ],
+    logs: [
+      {
+        value: "logs.view",
+        name: "View logs",
+        description: "View logs of events on the website"
+      }
     ]
   }
 };

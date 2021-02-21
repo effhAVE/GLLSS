@@ -6,6 +6,7 @@ const { Series, validate } = require("../models/series");
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
+const routesLogger = require("../helpers/routesLogger");
 
 function seriesCustomSort(series) {
   const seriesCopy = Array.from(series);
@@ -67,6 +68,14 @@ router.delete("/:id", auth, validateObjectId, validateAccess("series.delete"), a
   if (!series) return res.status(400).send("No series found.");
 
   await series.remove();
+  routesLogger({
+    type: "deleted",
+    documentType: "series",
+    documentID: series._id,
+    user: { nickname: req.user.nickname, _id: req.user._id },
+    description: `${series.name} was deleted.`
+  });
+
   return res.send(series);
 });
 
@@ -76,6 +85,14 @@ router.post("/", auth, validateAccess("series.create"), async (req, res) => {
 
   const series = new Series(_.pick(req.body, ["name", "game", "startDate", "endDate", "recurrence", "region"]));
   await series.save();
+  routesLogger({
+    type: "created",
+    documentType: "series",
+    documentID: series._id,
+    user: { nickname: req.user.nickname, _id: req.user._id },
+    description: `${series.name} was created.`
+  });
+
   return res.send(series);
 });
 
@@ -88,6 +105,14 @@ router.put("/:id", auth, validateObjectId, validateAccess("series.update"), asyn
 
   Object.assign(series, _.pick(req.body, ["name", "game", "startDate", "endDate", "recurrence", "region"]));
   await series.save();
+  routesLogger({
+    type: "deleted",
+    documentType: "series",
+    documentID: series._id,
+    user: { nickname: req.user.nickname, _id: req.user._id },
+    description: `${series.name}'s settings were changed.`
+  });
+
   return res.send(series);
 });
 

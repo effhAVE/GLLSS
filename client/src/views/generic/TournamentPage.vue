@@ -65,6 +65,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <logs-dialog :logParams="{ documentType: 'tournament', documentID: tournament._id }" />
     </v-card-title>
     <TournamentTable :tournament="tournament" :cost="tournamentCost" />
     <div class="rounds d-flex align-start flex-wrap" v-if="$store.getters.hasPermission('rounds.view')">

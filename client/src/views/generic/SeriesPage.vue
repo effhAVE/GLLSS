@@ -34,6 +34,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <logs-dialog :logParams="{ documentType: 'series', documentID: series._id }" />
     </v-card-title>
     <span class="warning--text mb-4" v-if="series.tournaments.length && $store.getters.hasPermission('series.delete')"
       >Warning: Series cannot be deleted if they include tournaments.</span

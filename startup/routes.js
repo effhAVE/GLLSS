@@ -11,6 +11,7 @@ const gameaccounts = require("../routes/gameaccounts");
 const accountcodes = require("../routes/accountcodes");
 const articles = require("../routes/articles");
 const roles = require("../routes/roles");
+const logs = require("../routes/logs");
 const error = require("../middleware/error");
 const cors = require("cors");
 
@@ -33,5 +34,6 @@ module.exports = function (app) {
   app.use("/api/codes", accountcodes);
   app.use("/api/articles", articles);
   app.use("/api/roles", roles);
+  app.use("/api/logs", logs);
   app.use(error);
 };
