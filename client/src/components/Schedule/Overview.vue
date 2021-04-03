@@ -134,7 +134,7 @@ export default {
           }
         });
 
-        this.availabilityList = availabilityGroup(this.availabilityList, week);
+        this.availabilityList = availabilityGroup(this.availabilityList);
         this.$emit("scheduleList", this.availabilityList);
       });
     },
