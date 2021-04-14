@@ -1,10 +1,11 @@
-const mailerEmail = process.env.MAILER_EMAIL || "gllss@grzegorz-kowalczyk.eu";
+const mailerEmail = process.env.MAILER_EMAIL || "gllss@grzegorz-kowalczyk.dev";
 const mailerPassword = process.env.MAILER_PASS;
+const mailerHost = process.env.MAILER_HOST;
 const nodemailer = require("nodemailer");
 const hbs = require("nodemailer-express-handlebars");
 
 const smtpTransport = nodemailer.createTransport({
-  host: "serwer2030304.home.pl",
+  host: mailerHost,
   port: 465,
   secure: true,
   auth: {
