@@ -4,5 +4,6 @@ module.exports = [
   "Free Fire",
   "PUBG",
   "PUBG Mobile",
+  "Support",
   "Valorant"
 ];
